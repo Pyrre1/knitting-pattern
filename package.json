@@ -1,0 +1,21 @@
+{
+  "name": "photo-to-pattern",
+  "version": "1.0.0",
+  "description": "A tool to convert photos into knitting patterns by photo and gauge input.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "coverage": "npm test -- --coverage"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "Emanuel Uddling",
+  "license": "ISC",
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {}
+  },
+  "devDependencies": {
+    "jest": "^30.2.0"
+  }
+}
