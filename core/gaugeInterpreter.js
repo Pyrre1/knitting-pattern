@@ -2,17 +2,20 @@ export function gaugeInterpreter({ unit, width, height, stitches, rows} ) {
   const CM_PER_INCH = 2.54
 
   if (unit !== "cm" && unit !== "inch") {
-      throw new Error("unit must be either 'cm' or 'inch'")
+    throw new Error("unit must be either 'cm' or 'inch'")
   }
-  if (width <=0 || height <=0) {
-      throw new Error("width and height must be positive numbers")
+  if (width <= 0 || height <= 0) {
+    throw new Error("width and height must be positive numbers")
+  }
+  if (stitches <= 0 || rows <= 0) {
+    throw new Error("stitches and rows must be greater than 0")
   }
 
   let stitchesPerCm, rowsPerCm, stitchesPerInch, rowsPerInch
 
   if (unit === "cm") {
-      stitchesPerCm = stitches / width,
-      rowsPerCm =rows / height,
+    stitchesPerCm = stitches / width,
+      rowsPerCm = rows / height,
       stitchesPerInch =stitchesPerCm * CM_PER_INCH,
       rowsPerInch =rowsPerCm * CM_PER_INCH
   } else {

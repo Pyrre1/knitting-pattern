@@ -99,7 +99,7 @@ describe('Gauge Interpreter', () => {
       height: 10,
       stitches: 0,
       rows: 36
-    })).not.toThrow()
+    })).toThrow()
   })
 
   test('throws when stitches or rows is negative', () => {
@@ -109,6 +109,6 @@ describe('Gauge Interpreter', () => {
       height: 10,
       stitches: -25,
       rows: -36
-    })).not.toThrow()
+    })).toThrow()
   })
 })
