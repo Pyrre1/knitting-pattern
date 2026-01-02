@@ -9,4 +9,14 @@ describe('Grid Converter', () => {
     expect(result.cellWidths).toEqual(new Array(5).fill(30))
     expect(result.cellHeights).toEqual(new Array(8).fill(20))
   })
+
+  test('uses accumulator for fractional cell sizes', () => {
+    const mockedImage = { width: 98, height: 78 }
+    const result = gridConverter(mockedImage, 10, 7)
+  
+    expect(result.cellWidths.reduce((a,b)=>a+b,0)).toBe(98)
+    expect(result.cellWidths).toEqual([10,10,10,10,9,10,10,10,10,9])
+    expect(result.cellHeights.reduce((a,b)=>a+b,0)).toBe(78)
+    expect(result.cellHeights).toEqual([12,11,11,11,11,11,11])
+  })
 })
