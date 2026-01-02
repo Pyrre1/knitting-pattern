@@ -31,4 +31,14 @@ describe('Gauge Interpreter', () => {
     expect(gauge.stitchesPerCm).toBeCloseTo(5 / 2.54)
     expect(gauge.rowsPerCm).toBeCloseTo(7 / 2.54)
   })
+
+  test('throws on invalid unit', () => {
+    expect(() => gaugeInterpreter({
+      unit: 'mm',
+      width: 10,
+      height: 10,
+      stitches: 26,
+      rows: 36
+    })).toThrow("unit must be either 'cm' or 'inch'")
+  })
 })

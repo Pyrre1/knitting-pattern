@@ -1,6 +1,10 @@
 export function gaugeInterpreter({ unit, width, height, stitches, rows} ) {
   const CM_PER_INCH = 2.54
 
+  if (unit !== "cm" && unit !== "inch") {
+      throw new Error("unit must be either 'cm' or 'inch'")
+  }
+  
   let stitchesPerCm, rowsPerCm, stitchesPerInch, rowsPerInch
 
   if (unit === "cm") {
