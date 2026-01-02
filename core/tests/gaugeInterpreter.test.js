@@ -41,4 +41,34 @@ describe('Gauge Interpreter', () => {
       rows: 36
     })).toThrow("unit must be either 'cm' or 'inch'")
   })
+
+  test('handles fractional gauge measurements (3.5x5.5 inches)', () => {
+    const gauge = gaugeInterpreter({
+      unit: 'inch',
+      width: 3.5,
+      height: 5.5,
+      stitches: 18,
+      rows: 24
+    })
+
+    expect(gauge.stitchesPerInch).toBeCloseTo(18 / 3.5)
+    expect(gauge.rowsPerInch).toBeCloseTo(24 / 5.5)
+    expect(gauge.stitchesPerCm).toBeCloseTo((18 / 3.5) / 2.54)
+    expect(gauge.rowsPerCm).toBeCloseTo((24 / 5.5) / 2.54)
+  })
+
+  test('handles unusual gauge swatch measurements (12x18 cm)', () => {
+    const gauge = gaugeInterpreter({
+      unit: 'cm',
+      width: 12,
+      height: 18,
+      stitches: 26,
+      rows: 36
+    })
+
+    expect(gauge.stitchesPerCm).toBeCloseTo(26 / 12)
+    expect(gauge.rowsPerCm).toBeCloseTo(36 / 18)
+    expect(gauge.stitchesPerInch).toBeCloseTo((26 / 12) * 2.54)
+    expect(gauge.rowsPerInch).toBeCloseTo((36 / 18) * 2.54)
+  })
 })
