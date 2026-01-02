@@ -4,7 +4,10 @@ export function gaugeInterpreter({ unit, width, height, stitches, rows} ) {
   if (unit !== "cm" && unit !== "inch") {
       throw new Error("unit must be either 'cm' or 'inch'")
   }
-  
+  if (width <=0 || height <=0) {
+      throw new Error("width and height must be positive numbers")
+  }
+
   let stitchesPerCm, rowsPerCm, stitchesPerInch, rowsPerInch
 
   if (unit === "cm") {

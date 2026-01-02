@@ -71,4 +71,24 @@ describe('Gauge Interpreter', () => {
     expect(gauge.stitchesPerInch).toBeCloseTo((26 / 12) * 2.54)
     expect(gauge.rowsPerInch).toBeCloseTo((36 / 18) * 2.54)
   })
+
+  test('throws when width or height is zero', () => {
+    expect(() => gaugeInterpreter({
+      unit: 'cm',
+      width: 0,
+      height: 10,
+      stitches: 26,
+      rows: 36
+    })).toThrow("width and height must be positive numbers")
+  })
+
+  test('throws when width or height is negative', () => {
+    expect(() => gaugeInterpreter({
+      unit: 'cm',
+      width: 10,
+      height: -5,
+      stitches: 26,
+      rows: 36
+    })).toThrow("width and height must be positive numbers")
+  })
 })
