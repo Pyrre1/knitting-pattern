@@ -67,4 +67,14 @@ describe('Size Interpreter', () => {
     expect(result.widthCm).toBeCloseTo(desiredWidthInch * 2.54)
     expect(result.heightCm).toBeCloseTo(desiredWidthInch * 2.54 * imageAspectRatio)
   })
+
+  test('throws on invalid width unit', () => {
+    const imageAspectRatio = 1.0  
+
+    expect(() => sizeInterpreter({
+      gauge,
+      desiredWidth: { unit: 'pixels', value: 100 },
+      imageAspectRatio
+    })).toThrow("Unsupported unit")
+  })
 })
