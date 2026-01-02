@@ -46,8 +46,25 @@ describe('Size Interpreter', () => {
     const expectedRows = expectedStitches * imageAspectRatio * (gauge.rowsPerCm / gauge.stitchesPerCm)
     expect(result.rows).toBeCloseTo(expectedRows)
     expect(result.widthCm).toBeCloseTo(desiredWidthCm)
-    expect(result.heightCm).toBeCloseTo(result.widthCm * imageAspectRatio)
+    expect(result.heightCm).toBeCloseTo(desiredWidthCm * imageAspectRatio)
+  })
 
+  test('converts width in inches to stitches and rows using gauge + aspect ratio', () => {
+    const imageAspectRatio = 1.2
+    const desiredWidthInch = 6
 
+    const result = sizeInterpreter({
+      gauge,
+      desiredWidth: { unit: 'inch', value: desiredWidthInch },
+      imageAspectRatio
+    })
+
+    const expectedStitches = desiredWidthInch * gauge.stitchesPerInch
+    expect(result.stitches).toBeCloseTo(expectedStitches)
+
+    const expectedRows = expectedStitches * imageAspectRatio * (gauge.rowsPerCm / gauge.stitchesPerCm)
+    expect(result.rows).toBeCloseTo(expectedRows)
+    expect(result.widthCm).toBeCloseTo(desiredWidthInch * 2.54)
+    expect(result.heightCm).toBeCloseTo(desiredWidthInch * 2.54 * imageAspectRatio)
   })
 })
