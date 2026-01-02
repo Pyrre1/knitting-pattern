@@ -91,4 +91,24 @@ describe('Gauge Interpreter', () => {
       rows: 36
     })).toThrow("width and height must be positive numbers")
   })
+
+  test('throws when stitches or rows is zero', () => {
+    expect(() => gaugeInterpreter({
+      unit: 'cm',
+      width: 10,
+      height: 10,
+      stitches: 0,
+      rows: 36
+    })).not.toThrow()
+  })
+
+  test('throws when stitches or rows is negative', () => {
+    expect(() => gaugeInterpreter({
+      unit: 'cm',
+      width: 10,
+      height: 10,
+      stitches: -25,
+      rows: -36
+    })).not.toThrow()
+  })
 })
