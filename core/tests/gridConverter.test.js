@@ -19,4 +19,10 @@ describe('Grid Converter', () => {
     expect(result.cellHeights.reduce((a,b)=>a+b,0)).toBe(78)
     expect(result.cellHeights).toEqual([12,11,11,11,11,11,11])
   })
+
+  test('throws when stitches or rows are zero', () => {
+    const mockedImage = { width: 100, height: 100 }
+    expect(() => gridConverter(mockedImage, 0, 5)).toThrow('cellCount must be greater than 0')
+    expect(() => gridConverter(mockedImage, 5, 0)).toThrow('cellCount must be greater than 0')
+  })
 })
