@@ -25,4 +25,12 @@ describe('Grid Converter', () => {
     expect(() => gridConverter(mockedImage, 0, 5)).toThrow('cellCount must be greater than 0')
     expect(() => gridConverter(mockedImage, 5, 0)).toThrow('cellCount must be greater than 0')
   })
+
+  test('handles tiny images', () => {
+    const mockedImage = { width: 1, height: 1 }
+    const result = gridConverter(mockedImage, 5, 4)
+
+    expect(result.cellWidths.reduce((a,b)=>a+b,0)).toBe(1)
+    expect(result.cellHeights.reduce((a,b)=>a+b,0)).toBe(1)
+  })
 })
