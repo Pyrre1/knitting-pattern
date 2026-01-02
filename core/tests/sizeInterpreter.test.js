@@ -1,21 +1,24 @@
 import { sizeInterpreter } from '../sizeInterpreter.js'
 
 describe('Size Interpreter', () => {
-
-  test('converts width in stitches into rows using gauge + aspect ratio', () => {
-    const gauge = {
+  let gauge
+  
+  beforeEach(() => {
+    gauge = {
       stitchesPerCm: 2.6,
       rowsPerCm: 3.6,
       stitchesPerInch: 2.6 * 2.54,
       rowsPerInch: 3.6 * 2.54
     }
+  })
 
+  test('converts width in stitches into rows using gauge + aspect ratio', () => {
     const imageAspectRatio = 1.5 // height = width * 1.5
 
     const result = sizeInterpreter({
       gauge,
       desiredWidth: { unit: 'stitches', value: 40 },
-      imageAspectRatio: imageAspectRatio
+      imageAspectRatio
     })
 
     expect(result.stitches).toBe(40)
@@ -25,5 +28,26 @@ describe('Size Interpreter', () => {
     expect(result.rows).toBeCloseTo(expectedRows)
     expect(result.widthCm).toBeCloseTo(40 / gauge.stitchesPerCm)
     expect(result.heightCm).toBeCloseTo(result.widthCm * imageAspectRatio)
+  })
+
+  test('converts width in cm to stitches and rows using gauge + aspect ratio', () => {
+    const imageAspectRatio = 0.75
+    const desiredWidthCm = 15
+
+    const result = sizeInterpreter({
+      gauge,
+      desiredWidth: { unit: 'cm', value: desiredWidthCm },
+      imageAspectRatio
+    })
+
+    const expectedStitches = desiredWidthCm * gauge.stitchesPerCm
+    expect(result.stitches).toBeCloseTo(expectedStitches)
+
+    const expectedRows = expectedStitches * imageAspectRatio * (gauge.rowsPerCm / gauge.stitchesPerCm)
+    expect(result.rows).toBeCloseTo(expectedRows)
+    expect(result.widthCm).toBeCloseTo(desiredWidthCm)
+    expect(result.heightCm).toBeCloseTo(result.widthCm * imageAspectRatio)
+
+
   })
 })
