@@ -134,4 +134,20 @@ describe('Size Interpreter', () => {
     expect(result.widthCm).toBeCloseTo(1000)
     expect(result.stitches).toBeCloseTo(1000 * gauge.stitchesPerCm)
   })
+
+  test('throws when aspect ratio is zero', () => {
+    expect(() => sizeInterpreter({
+      gauge,
+      desiredWidth: { unit: 'cm', value: 10 },
+      imageAspectRatio: 0
+    })).toThrow("Aspect ratio must be greater than 0")
+  })
+
+  test('throws when aspect ratio is negative', () => {
+    expect(() => sizeInterpreter({
+      gauge,
+      desiredWidth: { unit: 'cm', value: 10 },
+      imageAspectRatio: -1
+    })).toThrow("Aspect ratio must be greater than 0")
+  })
 })

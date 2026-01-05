@@ -2,6 +2,9 @@ export function sizeInterpreter({ gauge, desiredWidth, imageAspectRatio }) {
   if(desiredWidth.value <= 0) {
     throw new Error("Width must be greater than 0")
   }
+  if(imageAspectRatio <= 0) {
+    throw new Error("Aspect ratio must be greater than 0")
+  }
 
   let stitches
   if (desiredWidth.unit === 'stitches') {
