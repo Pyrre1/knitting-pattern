@@ -121,4 +121,17 @@ describe('Size Interpreter', () => {
     expect(result.widthCm).toBeCloseTo(0.1)
     expect(result.stitches).toBeCloseTo(0.1 * gauge.stitchesPerCm)
   })
+
+  test('handles very large desired widths', () => {
+    const imageAspectRatio = 1.0
+
+    const result = sizeInterpreter({
+      gauge,
+      desiredWidth: { unit: 'cm', value: 1000 },
+      imageAspectRatio
+    })
+
+    expect(result.widthCm).toBeCloseTo(1000)
+    expect(result.stitches).toBeCloseTo(1000 * gauge.stitchesPerCm)
+  })
 })
