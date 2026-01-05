@@ -78,7 +78,7 @@ describe('Size Interpreter', () => {
     })).toThrow("Unsupported unit")
   })
 
-  test('throws when desired width is zero or negative', () => {
+  test('throws when desired width is negative', () => {
     const imageAspectRatio = 1.0
 
     expect(() => sizeInterpreter({
@@ -98,11 +98,27 @@ describe('Size Interpreter', () => {
       desiredWidth: { unit: 'inch', value: -3 },
       imageAspectRatio
     })).toThrow()
+  })
 
+  test('throws when desired width is zero', () => {
+    const imageAspectRatio = 1.0
     expect(() => sizeInterpreter({
       gauge,
       desiredWidth: { unit: 'stitches', value: 0 },
       imageAspectRatio
     })).toThrow()
+  })
+
+  test('handles very small desired widths', () => {
+    const imageAspectRatio = 1.0
+    
+    const result = sizeInterpreter({
+      gauge,
+      desiredWidth: { unit: 'cm', value: 0.1 },
+      imageAspectRatio
+    })
+
+    expect(result.widthCm).toBeCloseTo(0.1)
+    expect(result.stitches).toBeCloseTo(0.1 * gauge.stitchesPerCm)
   })
 })
