@@ -1,25 +1,21 @@
 import { imageScaler } from '../imageScaler.js'
 
 describe('Image Scaler', () => {
-  
-  test('scales a 4x4 image down to 2x2 by by averaging "pixels"', () => {
+  test('scales a 2x2 RGB image down to 1x1 by averaging RGB channels', () => {
     const inputImage = [
-      [1, 2, 3, 4],
-      [5, 6, 7, 8],
-      [9, 10, 11, 12],
-      [13, 14, 15, 16]
+      [ [255, 0, 0], [0, 255, 0] ],
+      [ [0, 0, 255], [255, 255, 0] ]
     ]
-    
-    const result = imageScaler(inputImage, { stitches: 2, rows: 2 })
+
+    const result = imageScaler(inputImage, { stitches: 1, rows: 1 })
 
     expect(result).toEqual([
       [
-        (1 + 2 + 5 + 6) / 4,
-        (3 + 4 + 7 + 8) / 4
-      ],
-      [
-        (9 + 10 + 13 + 14) / 4,
-        (11 + 12 + 15 + 16) / 4
+        [
+          (255 + 0 + 0 + 255) / 4,
+          (0 + 255 + 0 + 255) / 4,
+          (0 + 0 + 255 + 0) / 4
+        ]
       ]
     ])
   })
