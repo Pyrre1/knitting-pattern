@@ -1,4 +1,4 @@
-import { buildPattern, setYarn, removeColour, addColour } from '../patternEdits.js'
+import { buildPattern, setYarn, removeColour, addColour, paintCell } from '../patternEdits.js'
 
 const BLACK = [0, 0, 0]
 const WHITE = [255, 255, 255]
@@ -111,6 +111,39 @@ describe('Pattern Edits', () => {
       const result = addColour(threeColours(), DARK_GREY)
 
       expect(result.palette[3]).toEqual({ source: DARK_GREY, yarn: DARK_GREY })
+    })
+  })
+
+  describe('paintCell', () => {
+    test('sets one stitch to a palette index', () => {
+      const result = paintCell(threeColours(), 1, 0, 2)
+
+      expect(result.grid).toEqual([
+        [ 0, 2 ],
+        [ 1, 2 ]
+      ])
+    })
+
+    test('does not modify the original pattern', () => {
+      const pattern = threeColours()
+      paintCell(pattern, 1, 0, 2)
+
+      expect(pattern.grid[0]).toEqual([ 0, 0 ])
+    })
+
+    test('returns the same pattern when the stitch already has that colour', () => {
+      const pattern = threeColours()
+
+      expect(paintCell(pattern, 0, 0, 0)).toBe(pattern)
+    })
+
+    test('throws on an invalid palette index', () => {
+      expect(() => paintCell(threeColours(), 0, 0, 3)).toThrow('no palette entry at index 3')
+    })
+
+    test('throws when the stitch is outside the grid', () => {
+      expect(() => paintCell(threeColours(), 2, 0, 0)).toThrow('no stitch at 2, 0')
+      expect(() => paintCell(threeColours(), 0, -1, 0)).toThrow('no stitch at 0, -1')
     })
   })
 })
