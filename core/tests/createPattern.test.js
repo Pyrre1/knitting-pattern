@@ -69,6 +69,25 @@ describe('Create Pattern', () => {
     expect(pattern.grid).toHaveLength(3)
   })
 
+  test('finds colours from the full image, not the averaged stitches', () => {
+    const RED = [200, 0, 40]
+    const GREEN = [0, 140, 90]
+
+    // A 1 px red line between green and white blends away when averaged to 2 stitches
+    const row = [ GREEN, GREEN, RED, WHITE, WHITE, WHITE ]
+    const lined = Array.from({ length: 6 }, () => row)
+
+    const pattern = createPattern({
+      swatch: squareSwatch,
+      pixels: lined,
+      yarnCount: 3,
+      desiredWidth: { unit: 'stitches', value: 2 }
+    })
+
+    expect(pattern.palette.map(entry => entry.source))
+      .toEqual(expect.arrayContaining([ GREEN, RED, WHITE ]))
+  })
+
   test('keeps the scaled pixels for later edits', () => {
     const pattern = createPattern({
       swatch: squareSwatch,

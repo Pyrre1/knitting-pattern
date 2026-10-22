@@ -31,11 +31,11 @@ Intended pipeline (core modules, all pure, tests in `core/tests/`):
 1. `gaugeInterpreter({unit, width, height, stitches, rows})` → swatch gauge normalised to stitches/rows per cm and per inch.
 2. `sizeInterpreter({gauge, desiredWidth: {value, unit}, imageAspectRatio})` → target `stitches`, `rows`, `widthCm`, `heightCm`. `unit` ∈ `stitches|cm|inch`; `imageAspectRatio` = height ÷ width. Rows are scaled by `rowsPerCm / stitchesPerCm` to compensate for non-square stitches. `stitches`/`rows` are rounded (min 1); `widthCm`/`heightCm` are the requested size, unrounded.
 3. `imageScaler(imageData, {stitches, rows})` → downsamples to a `rows × stitches` grid by averaging RGB per block. `imageData` is a 2D array `[y][x] = [r, g, b]` (not a canvas `ImageData`).
-4. `medianCut(grid, count)` → up to `count` representative colours (`count` = number of yarns). Run it on the scaled grid, not the raw image (uses `Math.max(...)` spread).
+4. `medianCut(grid, count)` → up to `count` rough colours (`count` = number of yarns), then `refinePalette(grid, rough)` (k-means seeded by medianCut, deterministic) → final source colours. Both run on the full image, not the scaled grid: averaging into stitches blends thin lines (e.g. logo outlines) into wrong colours.
 5. `mapToPalette(grid, colours)` → grid of nearest-colour indexes. Takes plain colours; pass `palette.map(e => e.source)`, never yarns. Distance: `colourDistance` (weighted squared RGB, 2/4/3), shared by all matching.
 6. `pairYarns(sources, yarns?)` → `[{ source, yarn }]` in source order. No yarns → yarn = source. Otherwise brute-force min total `colourDistance`; needs `yarns.length >= sources.length`.
 7. `patternEdits`: `buildPattern(pixels, palette)` → `{ pixels, palette, grid }`; `setYarn` (grid unchanged), `removeColour` / `addColour` (remap). All pure, return new patterns. Recount = rerun `createPattern` with current yarns.
-8. `createPattern({ swatch, pixels, yarnCount, yarns?, desiredWidth })` chains 1–6 → `{ pixels (scaled), palette, grid, size }`. `swatch` is raw `gaugeInterpreter` input.
+8. `createPattern({ swatch, pixels, yarnCount, yarns?, desiredWidth })` chains 1–6 (colours from full `pixels`, grid from scaled) → `{ pixels (scaled), palette, grid, size }`. `swatch` is raw `gaugeInterpreter` input.
 
 `fromImageData({ data, width, height })` adapts canvas `ImageData` (flat RGBA) to the `[y][x] = [r,g,b]` grid; transparency is blended onto white.
 

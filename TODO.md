@@ -11,3 +11,5 @@ Deferred until after the local visual MVP.
       - blend onto a user-chosen background colour (cheap: parameterise the blend colour)
       - use the nearest opaque bordering colour
       - treat transparent as its own palette colour when yarn count exceeds the logo's colours
+- [ ] Majority-vote stitches: map each pixel to the palette, then take the most common
+      colour per cell instead of averaging. May keep very thin lines more continuous.
