@@ -31,7 +31,8 @@ Intended pipeline (core modules, all pure, tests in `core/tests/`):
 1. `gaugeInterpreter({unit, width, height, stitches, rows})` → swatch gauge normalised to stitches/rows per cm and per inch.
 2. `sizeInterpreter({gauge, desiredWidth: {value, unit}, imageAspectRatio})` → target `stitches`, `rows`, `widthCm`, `heightCm`. `unit` ∈ `stitches|cm|inch`; `imageAspectRatio` = height ÷ width. Rows are scaled by `rowsPerCm / stitchesPerCm` to compensate for non-square stitches. `stitches`/`rows` are rounded (min 1); `widthCm`/`heightCm` are the requested size, unrounded.
 3. `imageScaler(imageData, {stitches, rows})` → downsamples to a `rows × stitches` grid by averaging RGB per block. `imageData` is a 2D array `[y][x] = [r, g, b]` (not a canvas `ImageData`).
-4. Colour reduction to a palette — not yet implemented.
+4. `medianCut(grid, count)` → up to `count` representative colours (`count` = number of yarns). Run it on the scaled grid, not the raw image (uses `Math.max(...)` spread).
+5. Not yet implemented: `mapToPalette` (stitch → palette index), `pairYarns` (image colour ↔ yarn colour, min total distance), edit actions (change yarn / remove / add / recount), `createPattern` pipeline. Palette entry = `{ source, yarn }`: stitches map by `source`, display/output uses `yarn`.
 
 `imageScaler` splits pixels into cells via `accumulator.computeCellSizes` (integer per-cell widths/heights, remainder spread evenly).
 
