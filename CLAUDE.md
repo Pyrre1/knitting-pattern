@@ -34,7 +34,8 @@ Intended pipeline (core modules, all pure, tests in `core/tests/`):
 4. `medianCut(grid, count)` → up to `count` representative colours (`count` = number of yarns). Run it on the scaled grid, not the raw image (uses `Math.max(...)` spread).
 5. `mapToPalette(grid, colours)` → grid of nearest-colour indexes. Takes plain colours; pass `palette.map(e => e.source)`, never yarns. Distance: `colourDistance` (weighted squared RGB, 2/4/3), shared by all matching.
 6. `pairYarns(sources, yarns?)` → `[{ source, yarn }]` in source order. No yarns → yarn = source. Otherwise brute-force min total `colourDistance`; needs `yarns.length >= sources.length`.
-7. Not yet implemented: edit actions (change yarn / remove / add / recount), `createPattern` pipeline. Palette entry = `{ source, yarn }`: stitches map by `source`, display/output uses `yarn`.
+7. `patternEdits`: `buildPattern(pixels, palette)` → `{ pixels, palette, grid }`; `setYarn` (grid unchanged), `removeColour` / `addColour` (remap). All pure, return new patterns. Recount = rerun `createPattern` with current yarns.
+8. Not yet implemented: `createPattern` pipeline, `fromImageData` (canvas RGBA → grid). Palette entry = `{ source, yarn }`: stitches map by `source`, display/output uses `yarn`.
 
 `imageScaler` splits pixels into cells via `accumulator.computeCellSizes` (integer per-cell widths/heights, remainder spread evenly).
 
