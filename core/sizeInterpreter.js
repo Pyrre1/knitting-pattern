@@ -23,8 +23,8 @@ export function sizeInterpreter({ gauge, desiredWidth, imageAspectRatio }) {
   const heightCm = widthCm * imageAspectRatio
 
   return {
-    stitches,
-    rows,
+    stitches: Math.max(1, Math.round(stitches)),
+    rows: Math.max(1, Math.round(rows)),
     widthCm,
     heightCm
   }
