@@ -8,7 +8,7 @@ export function mapToPalette(grid, palette) {
   return grid.map(row => row.map(px => nearestIndex(px, palette)))
 }
 
-function nearestIndex(px, palette) {
+export function nearestIndex(px, palette) {
   let best = 0
   let bestDistance = colourDistance(px, palette[0])
 
