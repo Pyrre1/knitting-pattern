@@ -140,3 +140,5 @@ vite.config.ts.timestamp-*
 
 # Temporary folders
 data/
+# Local test images (third-party logos, not for a public repo)
+samples/
