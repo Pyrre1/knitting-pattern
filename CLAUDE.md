@@ -21,7 +21,7 @@ Status: prototype ported from old repo. Goal: finish features + polish UI.
 - Single file: `npm test -- core/tests/imageScaler.test.js`
 - Single test by name: `npm test -- -t "averaging RGB"`
 - Coverage: `npm run coverage`
-- Dev (frontend): open `frontend/index.html` in browser directly, or serve with `npx serve frontend`
+- Dev (frontend): serve the repo root with `npx serve .` and open `/frontend/`. Frontend imports `../core/*.js` as ES modules, so `file://` and `npx serve frontend` do not work.
 - No build step, no linter configured yet
 
 ## Architecture
@@ -35,7 +35,9 @@ Intended pipeline (core modules, all pure, tests in `core/tests/`):
 5. `mapToPalette(grid, colours)` → grid of nearest-colour indexes. Takes plain colours; pass `palette.map(e => e.source)`, never yarns. Distance: `colourDistance` (weighted squared RGB, 2/4/3), shared by all matching.
 6. `pairYarns(sources, yarns?)` → `[{ source, yarn }]` in source order. No yarns → yarn = source. Otherwise brute-force min total `colourDistance`; needs `yarns.length >= sources.length`.
 7. `patternEdits`: `buildPattern(pixels, palette)` → `{ pixels, palette, grid }`; `setYarn` (grid unchanged), `removeColour` / `addColour` (remap). All pure, return new patterns. Recount = rerun `createPattern` with current yarns.
-8. Not yet implemented: `createPattern` pipeline, `fromImageData` (canvas RGBA → grid). Palette entry = `{ source, yarn }`: stitches map by `source`, display/output uses `yarn`.
+8. `createPattern({ swatch, pixels, yarnCount, yarns?, desiredWidth })` chains 1–6 → `{ pixels (scaled), palette, grid, size }`. `swatch` is raw `gaugeInterpreter` input.
+
+`fromImageData({ data, width, height })` adapts canvas `ImageData` (flat RGBA) to the `[y][x] = [r,g,b]` grid; transparency is blended onto white. Palette entry = `{ source, yarn }`: stitches map by `source`, display/output uses `yarn`.
 
 `imageScaler` splits pixels into cells via `accumulator.computeCellSizes` (integer per-cell widths/heights, remainder spread evenly).
 
