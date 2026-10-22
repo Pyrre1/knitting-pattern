@@ -36,8 +36,14 @@ function widestChannel(box) {
   let widest = { channel: 0, range: 0 }
 
   for (let channel = 0; channel < 3; channel++) {
-    const values = box.map(px => px[channel])
-    const range = Math.max(...values) - Math.min(...values)
+    // Plain loop: spreading large boxes into Math.max overflows the call stack
+    let min = Infinity
+    let max = -Infinity
+    for (const px of box) {
+      if (px[channel] < min) min = px[channel]
+      if (px[channel] > max) max = px[channel]
+    }
+    const range = max - min
 
     if (range > widest.range) {
       widest = { channel, range }

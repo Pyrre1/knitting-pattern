@@ -98,6 +98,15 @@ describe('Median Cut', () => {
     expect(() => medianCut(grid, 1.5)).toThrow('count must be a positive integer')
   })
 
+  test('handles full-size images (200k pixels)', () => {
+    const row = Array.from({ length: 500 }, (_, x) => x < 250 ? RED : WHITE)
+    const grid = Array.from({ length: 400 }, () => row)
+
+    const result = medianCut(grid, 2)
+
+    expect(result).toEqual(expect.arrayContaining([ RED, WHITE ]))
+  })
+
   test('throws on an empty grid', () => {
     expect(() => medianCut([], 2)).toThrow('grid must contain at least one pixel')
   })
