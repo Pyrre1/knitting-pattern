@@ -29,11 +29,11 @@ Current state: only `core/` has code. `frontend/*` and `backend/src/server.js` a
 
 Intended pipeline (core modules, all pure, tests in `core/tests/`):
 1. `gaugeInterpreter({unit, width, height, stitches, rows})` → swatch gauge normalised to stitches/rows per cm and per inch.
-2. `sizeInterpreter({gauge, desiredWidth: {value, unit}, imageAspectRatio})` → target `stitches`, `rows`, `widthCm`, `heightCm`. `unit` ∈ `stitches|cm|inch`. Rows are scaled by `rowsPerCm / stitchesPerCm` to compensate for non-square stitches. Output is not rounded.
+2. `sizeInterpreter({gauge, desiredWidth: {value, unit}, imageAspectRatio})` → target `stitches`, `rows`, `widthCm`, `heightCm`. `unit` ∈ `stitches|cm|inch`; `imageAspectRatio` = height ÷ width. Rows are scaled by `rowsPerCm / stitchesPerCm` to compensate for non-square stitches. `stitches`/`rows` are rounded (min 1); `widthCm`/`heightCm` are the requested size, unrounded.
 3. `imageScaler(imageData, {stitches, rows})` → downsamples to a `rows × stitches` grid by averaging RGB per block. `imageData` is a 2D array `[y][x] = [r, g, b]` (not a canvas `ImageData`).
 4. Colour reduction to a palette — not yet implemented.
 
-`gridConverter` + `accumulator.computeCellSizes` compute integer per-cell pixel widths/heights (remainder spread evenly). Currently not used by `imageScaler`, which uses floored fractional block bounds instead — two parallel approaches to the same split.
+`imageScaler` splits pixels into cells via `accumulator.computeCellSizes` (integer per-cell widths/heights, remainder spread evenly).
 
 Test-driven history: commits prefixed `GREEN -` mark red/green TDD steps.
 

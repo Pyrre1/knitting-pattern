@@ -1,21 +1,22 @@
+import { computeCellSizes } from "./accumulator.js"
+
 export function imageScaler(imageData, { stitches, rows }) {
   const height = imageData.length
   const width = imageData[0].length
 
-  const blockWidth = width / stitches
-  const blockHeight = height / rows
+  const cellWidths = computeCellSizes(width, stitches)
+  const cellHeights = computeCellSizes(height, rows)
 
   const result = []
 
+  let yStart = 0
   for (let row = 0; row < rows; row++) {
     const scaledRow = []
+    const yEnd = yStart + cellHeights[row]
 
-    const yStart = Math.floor(row * blockHeight)
-    const yEnd = Math.floor((row + 1) * blockHeight)
-
+    let xStart = 0
     for (let stitch = 0; stitch < stitches; stitch++) {
-      const xStart = Math.floor(stitch * blockWidth)
-      const xEnd = Math.floor((stitch + 1) * blockWidth)
+      const xEnd = xStart + cellWidths[stitch]
 
       let sumR = 0, sumG = 0, sumB = 0
       let count = 0
@@ -31,15 +32,18 @@ export function imageScaler(imageData, { stitches, rows }) {
           count++
         }
       }
-      
+
       scaledRow.push([
         sumR / count,
         sumG / count,
         sumB / count
       ])
+
+      xStart = xEnd
     }
 
     result.push(scaledRow)
+    yStart = yEnd
   }
 
   return result
