@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 ## Project
 Knitting pattern generator. Input: image/logo or text. Output: stitch grid
 showing colour placement (e.g. "3 white, 1 green …") suitable for transcoding
@@ -16,9 +18,24 @@ Status: prototype ported from old repo. Goal: finish features + polish UI.
 ## Commands
 - Install: `npm install`
 - Test: `npm test`
+- Single file: `npm test -- core/tests/imageScaler.test.js`
+- Single test by name: `npm test -- -t "averaging RGB"`
 - Coverage: `npm run coverage`
 - Dev (frontend): open `frontend/index.html` in browser directly, or serve with `npx serve frontend`
-- No build step yet
+- No build step, no linter configured yet
+
+## Architecture
+Current state: only `core/` has code. `frontend/*` and `backend/src/server.js` are empty placeholders.
+
+Intended pipeline (core modules, all pure, tests in `core/tests/`):
+1. `gaugeInterpreter({unit, width, height, stitches, rows})` → swatch gauge normalised to stitches/rows per cm and per inch.
+2. `sizeInterpreter({gauge, desiredWidth: {value, unit}, imageAspectRatio})` → target `stitches`, `rows`, `widthCm`, `heightCm`. `unit` ∈ `stitches|cm|inch`. Rows are scaled by `rowsPerCm / stitchesPerCm` to compensate for non-square stitches. Output is not rounded.
+3. `imageScaler(imageData, {stitches, rows})` → downsamples to a `rows × stitches` grid by averaging RGB per block. `imageData` is a 2D array `[y][x] = [r, g, b]` (not a canvas `ImageData`).
+4. Colour reduction to a palette — not yet implemented.
+
+`gridConverter` + `accumulator.computeCellSizes` compute integer per-cell pixel widths/heights (remainder spread evenly). Currently not used by `imageScaler`, which uses floored fractional block bounds instead — two parallel approaches to the same split.
+
+Test-driven history: commits prefixed `GREEN -` mark red/green TDD steps.
 
 ## Communication
 - Terse, aerospace style: state facts, actions, results. No preamble, no praise, no recap.
