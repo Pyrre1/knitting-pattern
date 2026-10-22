@@ -4,6 +4,10 @@ export function imageScaler(imageData, { stitches, rows }) {
   const height = imageData.length
   const width = imageData[0].length
 
+  if (stitches > width || rows > height) {
+    throw new Error(`Grid (${stitches}x${rows}) is larger than image (${width}x${height})`)
+  }
+
   const cellWidths = computeCellSizes(width, stitches)
   const cellHeights = computeCellSizes(height, rows)
 

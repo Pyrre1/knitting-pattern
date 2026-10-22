@@ -55,4 +55,22 @@ describe('Image Scaler', () => {
       [ [50, 50, 50], [200, 200, 200] ]
     ])
   })
+
+  test('throws when the grid has more stitches than the image has pixels', () => {
+    const inputImage = [
+      [ [0, 0, 0], [255, 255, 255] ]
+    ]
+
+    expect(() => imageScaler(inputImage, { stitches: 3, rows: 1 }))
+      .toThrow('Grid (3x1) is larger than image (2x1)')
+  })
+
+  test('throws when the grid has more rows than the image has pixels', () => {
+    const inputImage = [
+      [ [0, 0, 0], [255, 255, 255] ]
+    ]
+
+    expect(() => imageScaler(inputImage, { stitches: 2, rows: 2 }))
+      .toThrow('Grid (2x2) is larger than image (2x1)')
+  })
 })
