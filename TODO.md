@@ -13,3 +13,5 @@ Deferred until after the local visual MVP.
       - treat transparent as its own palette colour when yarn count exceeds the logo's colours
 - [ ] Majority-vote stitches: map each pixel to the palette, then take the most common
       colour per cell instead of averaging. May keep very thin lines more continuous.
+- [ ] Layout polish: input fieldsets (Image, Swatch, Final size, Yarns) overlap at some widths;
+      "Settings are locked" notice sits below the form, easy to miss.
