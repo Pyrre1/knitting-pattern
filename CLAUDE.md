@@ -13,7 +13,7 @@ Status: prototype ported from old repo. Goal: finish features + polish UI.
 - Tests: Jest 30 (`--experimental-vm-modules`)
 - Frontend: vanilla HTML/CSS/JS (`frontend/`)
 - Core logic: pure JS modules (`core/`)
-- Backend: Node (`backend/src/`) — in progress
+- Backend: none for now; everything runs client-side
 
 ## Commands
 - Install: `npm install`
@@ -25,7 +25,7 @@ Status: prototype ported from old repo. Goal: finish features + polish UI.
 - No build step, no linter configured yet
 
 ## Architecture
-Current state: only `core/` has code. `frontend/*` and `backend/src/server.js` are empty placeholders.
+Current state: only `core/` has code. `frontend/*` files are empty placeholders.
 
 Intended pipeline (core modules, all pure, tests in `core/tests/`):
 1. `gaugeInterpreter({unit, width, height, stitches, rows})` → swatch gauge normalised to stitches/rows per cm and per inch.
