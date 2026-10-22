@@ -1,7 +1,7 @@
 import { createPattern } from "../core/createPattern.js"
 import { fromImageData } from "../core/fromImageData.js"
 import { gaugeInterpreter } from "../core/gaugeInterpreter.js"
-import { setYarn } from "../core/patternEdits.js"
+import { setYarn, paintCell } from "../core/patternEdits.js"
 import { rowInstructions, formatInstruction } from "../core/rowInstructions.js"
 
 // Longest image side kept after load; caps both work and max stitch count
@@ -21,6 +21,11 @@ const $ = id => document.getElementById(id)
 
 let pixels = null
 let pattern = null
+// Painting: selected palette index, grids before each stroke, cell size of the last draw
+let brush = null
+let undoStack = []
+let painting = false
+let layout = null
 
 $('image').addEventListener('change', async event => {
   const file = event.target.files[0]
@@ -46,6 +51,23 @@ $('inputs').addEventListener('change', event => {
 // Knitting options only change numbering and instructions, not the pattern
 $('knit-method').addEventListener('change', () => { drawGrid(); renderInstructions() })
 $('knit-start').addEventListener('change', () => { drawGrid(); renderInstructions() })
+
+$('grid').addEventListener('pointerdown', startStroke)
+$('grid').addEventListener('pointermove', event => { if (painting) paintAt(event) })
+$('grid').addEventListener('pointerup', endStroke)
+$('grid').addEventListener('pointercancel', endStroke)
+
+$('undo').addEventListener('click', () => {
+  pattern = { ...pattern, grid: undoStack.pop() }
+  updateLock()
+  render()
+})
+
+$('unlock').addEventListener('click', () => {
+  if (!confirm('If you change settings, your painted stitches are lost and you need to edit the next render from scratch.')) return
+  undoStack = []
+  updateLock()
+})
 
 $('print').addEventListener('click', () => window.print())
 $('save-png').addEventListener('click', savePng)
@@ -118,6 +140,8 @@ function generate() {
       yarns: readYarns(),
       desiredWidth: { unit: $('width-unit').value, value: Number($('width-value').value) }
     })
+    // Fewer yarns than before can leave the brush pointing at a missing colour
+    if (brush !== null && brush >= pattern.palette.length) brush = null
     showError(null)
     render()
   } catch (error) {
@@ -139,9 +163,12 @@ function render() {
   $('palette').replaceChildren(...palette.map((entry, i) => {
     const li = document.createElement('li')
 
-    const label = document.createElement('span')
-    label.className = 'yarn-label'
+    const label = document.createElement('button')
+    label.type = 'button'
+    label.className = i === brush ? 'yarn-label selected' : 'yarn-label'
     label.textContent = yarnLabel(i)
+    label.title = 'Paint with this yarn'
+    label.addEventListener('click', () => selectBrush(i))
 
     const yarnSwatch = document.createElement('span')
     yarnSwatch.className = 'swatch print-only'
@@ -166,6 +193,7 @@ function render() {
     return li
   }))
 
+  $('grid').classList.toggle('painting', brush !== null)
   drawGrid()
   renderInstructions()
 }
@@ -190,6 +218,7 @@ function drawGrid() {
   const cellHeight = cellWidth * (gauge.stitchesPerCm / gauge.rowsPerCm)
   const gridWidth = cellWidth * size.stitches
   const gridHeight = cellHeight * size.rows
+  layout = { cellWidth, cellHeight }
 
   const canvas = $('grid')
   canvas.width = Math.ceil(gridWidth + 2 * LABEL_MARGIN)
@@ -316,6 +345,67 @@ function savePng() {
     // Revoking straight away can cancel the download in some browsers
     setTimeout(() => URL.revokeObjectURL(link.href), 1000)
   })
+}
+
+function selectBrush(index) {
+  brush = brush === index ? null : index
+  $('palette').querySelectorAll('.yarn-label').forEach((label, i) => {
+    label.classList.toggle('selected', i === brush)
+  })
+  $('grid').classList.toggle('painting', brush !== null)
+}
+
+function startStroke(event) {
+  if (brush === null) return
+
+  $('grid').setPointerCapture(event.pointerId)
+  undoStack.push(pattern.grid)
+  painting = true
+  paintAt(event)
+}
+
+function endStroke() {
+  if (!painting) return
+  painting = false
+
+  // A stroke that changed nothing is not worth an undo step
+  if (undoStack[undoStack.length - 1] === pattern.grid) undoStack.pop()
+
+  updateLock()
+  render()
+}
+
+// Paint the stitch under the pointer; only that cell is redrawn until the stroke ends
+function paintAt(event) {
+  const canvas = $('grid')
+  const rect = canvas.getBoundingClientRect()
+  const px = (event.clientX - rect.left) * (canvas.width / rect.width) - LABEL_MARGIN
+  const py = (event.clientY - rect.top) * (canvas.height / rect.height) - LABEL_MARGIN
+  const x = Math.floor(px / layout.cellWidth)
+  const y = Math.floor(py / layout.cellHeight)
+
+  if (x < 0 || y < 0 || x >= pattern.size.stitches || y >= pattern.size.rows) return
+
+  const next = paintCell(pattern, x, y, brush)
+  if (next === pattern) return
+  pattern = next
+
+  const ctx = canvas.getContext('2d')
+  ctx.fillStyle = rgbToHex(pattern.palette[brush].yarn)
+  ctx.fillRect(
+    LABEL_MARGIN + x * layout.cellWidth,
+    LABEL_MARGIN + y * layout.cellHeight,
+    layout.cellWidth,
+    layout.cellHeight
+  )
+}
+
+// Settings that regenerate the pattern would wipe painted stitches, so lock them
+function updateLock() {
+  const locked = undoStack.length > 0
+  $('inputs').querySelectorAll('fieldset').forEach(fieldset => { fieldset.disabled = locked })
+  $('lock-notice').hidden = !locked
+  $('undo').disabled = !locked
 }
 
 function showError(message) {

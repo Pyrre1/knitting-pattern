@@ -80,7 +80,39 @@ input[type="number"] { width: 6em; }
   print-color-adjust: exact;
 }
 
-.yarn-label { font-weight: bold; }
+.yarn-label {
+  font-weight: bold;
+  min-width: 2em;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.yarn-label.selected {
+  border-color: var(--fg);
+  background: var(--fg);
+  color: var(--bg);
+}
+
+#paint-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+
+#lock-notice {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+canvas.painting {
+  cursor: crosshair;
+  touch-action: none;
+}
 
 .print-only { display: none; }
 

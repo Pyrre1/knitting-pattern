@@ -56,6 +56,11 @@
       </fieldset>
     </form>
 
+    <p id="lock-notice" class="no-print" hidden>
+      Settings are locked while you have painted stitches.
+      <button type="button" id="unlock">Change settings…</button>
+    </p>
+
     <p id="error" role="alert" hidden></p>
 
     <section id="result" hidden>
@@ -77,6 +82,11 @@
         </label>
         <button type="button" id="print">Print</button>
         <button type="button" id="save-png">Save PNG</button>
+      </div>
+
+      <div id="paint-bar" class="no-print">
+        <span>Click a yarn letter, then click or drag on the grid to paint.</span>
+        <button type="button" id="undo" disabled>Undo</button>
       </div>
 
       <div class="canvas-wrap">
