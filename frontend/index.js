@@ -11,6 +11,11 @@ const MAX_CELL_WIDTH = 24
 // Margin on every side for row and stitch numbers
 const LABEL_MARGIN = 32
 const LABEL_FONT = '11px system-ui, sans-serif'
+// Guide lines: every 5th between the plain grid line (0.15) and the every 10th
+const GUIDES = [
+  { step: 5, colour: 'rgba(0, 0, 0, 0.25)', width: 1 },
+  { step: 10, colour: 'rgba(0, 0, 0, 0.38)', width: 1.5 }
+]
 
 const $ = id => document.getElementById(id)
 
@@ -224,8 +229,41 @@ function drawGrid() {
     ctx.stroke()
   }
 
+  drawGuideLines(ctx, { cellWidth, cellHeight, gridWidth, gridHeight, size, options })
   drawLabels(ctx, { cellWidth, cellHeight, gridWidth, gridHeight, size, options })
   ctx.restore()
+}
+
+// Guide lines every 5th and 10th stitch/row, counted from stitch 1 and row 1
+// so they line up with the numbering. Drawn even when cells are too small for grid lines.
+function drawGuideLines(ctx, { cellWidth, cellHeight, gridWidth, gridHeight, size, options }) {
+  const fromBottom = options.start === 'bottom'
+
+  for (const { step, colour, width } of GUIDES) {
+    // Leave positions to a coarser guide so overlapping strokes don't darken
+    const isGuide = counted => counted % step === 0 &&
+      !GUIDES.some(guide => guide.step > step && counted % guide.step === 0)
+
+    ctx.strokeStyle = colour
+    ctx.lineWidth = width
+    ctx.beginPath()
+
+    for (let k = 1; k < size.stitches; k++) {
+      const counted = fromBottom ? size.stitches - k : k
+      if (!isGuide(counted)) continue
+      ctx.moveTo(Math.round(k * cellWidth) + 0.5, 0)
+      ctx.lineTo(Math.round(k * cellWidth) + 0.5, gridHeight)
+    }
+
+    for (let k = 1; k < size.rows; k++) {
+      const counted = fromBottom ? size.rows - k : k
+      if (!isGuide(counted)) continue
+      ctx.moveTo(0, Math.round(k * cellHeight) + 0.5)
+      ctx.lineTo(gridWidth, Math.round(k * cellHeight) + 0.5)
+    }
+
+    ctx.stroke()
+  }
 }
 
 // Each row number sits on the side where that row starts (flat: odd and even on
