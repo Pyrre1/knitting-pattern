@@ -7,3 +7,7 @@ Deferred until after the local visual MVP.
       algorithm if the limit is raised much beyond ~8.
 - [ ] Cache patterns per yarn count, so switching 3 → 2 → 4 → 3 yarns reuses results.
       Measure first: recount only runs on the scaled stitch grid and may already be fast enough.
+- [ ] Transparency handling option (`fromImageData` currently blends onto white):
+      - blend onto a user-chosen background colour (cheap: parameterise the blend colour)
+      - use the nearest opaque bordering colour
+      - treat transparent as its own palette colour when yarn count exceeds the logo's colours
