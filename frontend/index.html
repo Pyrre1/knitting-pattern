@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Knitting Pattern</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>Knitting Pattern</h1>
+
+    <form id="inputs">
+      <fieldset>
+        <legend>Image</legend>
+        <input type="file" id="image" accept="image/*">
+      </fieldset>
+
+      <fieldset>
+        <legend>Swatch (gauge)</legend>
+        <label>Unit
+          <select id="swatch-unit">
+            <option value="cm">cm</option>
+            <option value="inch">inch</option>
+          </select>
+        </label>
+        <label>Width <input type="number" id="swatch-width" value="10" min="0.1" step="0.1"></label>
+        <label>Height <input type="number" id="swatch-height" value="10" min="0.1" step="0.1"></label>
+        <label>Stitches <input type="number" id="swatch-stitches" value="22" min="1"></label>
+        <label>Rows <input type="number" id="swatch-rows" value="30" min="1"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Final size</legend>
+        <label>Width <input type="number" id="width-value" value="40" min="1" step="0.1"></label>
+        <label>Unit
+          <select id="width-unit">
+            <option value="stitches">stitches</option>
+            <option value="cm">cm</option>
+            <option value="inch">inch</option>
+          </select>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Yarns</legend>
+        <label>Number of yarns
+          <select id="yarn-count">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </label>
+        <label class="inline"><input type="checkbox" id="use-yarns"> I know my yarn colours</label>
+        <div id="yarn-pickers" hidden></div>
+      </fieldset>
+    </form>
+
+    <p id="error" role="alert" hidden></p>
+
+    <section id="result" hidden>
+      <p id="size-info"></p>
+      <ul id="palette"></ul>
+      <div class="canvas-wrap">
+        <canvas id="grid"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="index.js"></script>
+</body>
+</html>

@@ -25,7 +25,7 @@ Status: prototype ported from old repo. Goal: finish features + polish UI.
 - No build step, no linter configured yet
 
 ## Architecture
-Current state: only `core/` has code. `frontend/*` files are empty placeholders.
+Current state: `core/` holds all logic; `frontend/` is a vanilla MVP (upload → inputs → canvas grid + yarn list) that imports core directly. Frontend has no tests; keep logic out of it.
 
 Intended pipeline (core modules, all pure, tests in `core/tests/`):
 1. `gaugeInterpreter({unit, width, height, stitches, rows})` → swatch gauge normalised to stitches/rows per cm and per inch.
@@ -37,7 +37,9 @@ Intended pipeline (core modules, all pure, tests in `core/tests/`):
 7. `patternEdits`: `buildPattern(pixels, palette)` → `{ pixels, palette, grid }`; `setYarn` (grid unchanged), `removeColour` / `addColour` (remap). All pure, return new patterns. Recount = rerun `createPattern` with current yarns.
 8. `createPattern({ swatch, pixels, yarnCount, yarns?, desiredWidth })` chains 1–6 → `{ pixels (scaled), palette, grid, size }`. `swatch` is raw `gaugeInterpreter` input.
 
-`fromImageData({ data, width, height })` adapts canvas `ImageData` (flat RGBA) to the `[y][x] = [r,g,b]` grid; transparency is blended onto white. Palette entry = `{ source, yarn }`: stitches map by `source`, display/output uses `yarn`.
+`fromImageData({ data, width, height })` adapts canvas `ImageData` (flat RGBA) to the `[y][x] = [r,g,b]` grid; transparency is blended onto white.
+
+Palette entry = `{ source, yarn }`: stitches map by `source`, display/output uses `yarn`.
 
 `imageScaler` splits pixels into cells via `accumulator.computeCellSizes` (integer per-cell widths/heights, remainder spread evenly).
 
