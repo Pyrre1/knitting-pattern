@@ -6,7 +6,7 @@ Deferred until after the local visual MVP.
       `pairYarns` brute-forces all assignments (n! growth) — replace with Hungarian
       algorithm if the limit is raised much beyond ~8.
 - [ ] Cache patterns per yarn count, so switching 3 → 2 → 4 → 3 yarns reuses results.
-      Measure first: recount only runs on the scaled stitch grid and may already be fast enough.
+      Measured: full recount takes ~75 ms on a 600 px logo, so probably not needed.
 - [ ] Transparency handling option (`fromImageData` currently blends onto white):
       - blend onto a user-chosen background colour (cheap: parameterise the blend colour)
       - use the nearest opaque bordering colour
