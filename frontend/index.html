@@ -61,9 +61,30 @@
     <section id="result" hidden>
       <p id="size-info"></p>
       <ul id="palette"></ul>
+
+      <div id="knit-options" class="no-print">
+        <label>Knit
+          <select id="knit-method">
+            <option value="flat">back and forth</option>
+            <option value="round">in the round</option>
+          </select>
+        </label>
+        <label>Start from
+          <select id="knit-start">
+            <option value="bottom">bottom up</option>
+            <option value="top">top down</option>
+          </select>
+        </label>
+        <button type="button" id="print">Print</button>
+        <button type="button" id="save-png">Save PNG</button>
+      </div>
+
       <div class="canvas-wrap">
         <canvas id="grid"></canvas>
       </div>
+
+      <h2>Instructions</h2>
+      <ol id="instructions"></ol>
     </section>
   </main>
 
