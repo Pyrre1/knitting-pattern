@@ -15,3 +15,7 @@ Deferred until after the local visual MVP.
       colour per cell instead of averaging. May keep very thin lines more continuous.
 - [ ] Layout polish: input fieldsets (Image, Swatch, Final size, Yarns) overlap at some widths;
       "Settings are locked" notice sits below the form, easy to miss.
+- [ ] Text tools (pro candidates):
+      - colour one letter (or word) with its own yarn (per-letter palette index in `composeText`)
+      - nudge single letters up/down/sideways (per-letter offset)
+      - set height and width independently (stretch letters) instead of fixing two of three
