@@ -22,6 +22,7 @@ const GUIDES = [
 // Letters are drawn once at this size, then downsampled per letter height
 const GLYPH_FONT_SIZE = 300
 const MAX_LETTER_ROWS = 200
+const CM_PER_INCH = 2.54
 
 const byId = id => document.getElementById(id)
 
@@ -65,6 +66,18 @@ byId('use-yarns').addEventListener('change', () => {
   byId('yarn-pickers').hidden = !byId('use-yarns').checked
   renderYarnPickers()
   generate()
+})
+
+// The final width follows the swatch unit, converted, unless it is counted in stitches
+byId('swatch-unit').addEventListener('change', () => {
+  const swatchUnit = byId('swatch-unit').value
+  const widthUnit = byId('width-unit').value
+  if (widthUnit === 'stitches' || widthUnit === swatchUnit) return
+
+  const widthValue = Number(byId('width-value').value)
+  const converted = swatchUnit === 'inch' ? widthValue / CM_PER_INCH : widthValue * CM_PER_INCH
+  byId('width-value').value = Math.round(converted * 10) / 10
+  byId('width-unit').value = swatchUnit
 })
 
 byId('yarn-count').addEventListener('change', () => { renderYarnPickers(); generate() })
