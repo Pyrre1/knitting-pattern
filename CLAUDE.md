@@ -39,6 +39,8 @@ Intended pipeline (core modules, all pure, tests in `core/tests/`):
 
 `rowInstructions(grid, { start: 'bottom'|'top', method: 'flat'|'round' })` → knitting-order rows `{ kind, number, displayRow, side, direction, runs: [{ index, count }] }`. `direction` is chart reading direction on the displayed grid: bottom up → RS right → left; top down → RS left → right (fabric hangs upside down); WS (flat only) opposite. Frontend puts each row number on the side the row starts. `formatInstruction(instr, labels)` → `"Row 2 (WS, read chart left → right): 1 B, 2 A"` for rows/rounds 1–2, then short form `"3 (RS): 3 A"` (rounds: `"3: 3 A"`). Yarns are labelled A, B, C, D by palette index.
 
+Text path (`textGrid.js`) skips colour reduction: each distinct letter is drawn once and downsampled with `toGlyph(pixels, rows, gauge)` (0/1, narrowed for gauge), so repeated letters are identical. `composeText(glyphs, text, { spacing | width, lineSpacing })` places them (fixed spacing, or fill `width` spreading spare stitches); `fitRows` binary-searches letter height for a target width; `textPattern({ swatch, grid, yarns? })` → pattern with palette [background, text]. Frontend renders the glyph pixels (system fonts only).
+
 `fromImageData({ data, width, height })` adapts canvas `ImageData` (flat RGBA) to the `[y][x] = [r,g,b]` grid; transparency is blended onto white.
 
 Palette entry = `{ source, yarn }`: stitches map by `source`, display/output uses `yarn`.
