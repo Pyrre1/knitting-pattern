@@ -3,126 +3,147 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Knitting Pattern</title>
+  <title data-i18n="title">Knitting Pattern</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main>
-    <h1>Knitting Pattern</h1>
+    <header>
+      <h1 data-i18n="title">Knitting Pattern</h1>
+      <label class="no-print"><span data-i18n="language">Language</span>
+        <select id="language">
+          <option value="sv">Svenska</option>
+          <option value="en">English</option>
+        </select>
+      </label>
+    </header>
 
-    <form id="inputs">
-      <fieldset>
-        <legend>Image or text</legend>
-        <input type="file" id="image" accept="image/*">
-        <label>Text <textarea id="text" rows="2" placeholder="or type text"></textarea></label>
-        <label>Font
-          <select id="font">
-            <option value="sans-serif">Sans-serif</option>
-            <option value="serif">Serif</option>
-            <option value="monospace">Monospace</option>
-            <option value="Arial">Arial</option>
-            <option value="Verdana">Verdana</option>
-            <option value="Georgia">Georgia</option>
-            <option value="'Times New Roman'">Times New Roman</option>
-            <option value="'Courier New'">Courier New</option>
-            <option value="Impact">Impact</option>
-          </select>
-        </label>
-        <label class="inline"><input type="checkbox" id="bold" checked> Bold</label>
-      </fieldset>
+    <div id="settings">
+      <form id="inputs">
+        <fieldset id="swatch">
+          <legend data-i18n="swatch">Swatch (gauge)</legend>
+          <label><span data-i18n="unit">Unit</span>
+            <select id="swatch-unit">
+              <option value="cm">cm</option>
+              <option value="inch" data-i18n="unitInch">inch</option>
+            </select>
+          </label>
+          <label><span data-i18n="width">Width</span> <input type="number" id="swatch-width" value="10" min="0.1" step="0.1"></label>
+          <label><span data-i18n="height">Height</span> <input type="number" id="swatch-height" value="10" min="0.1" step="0.1"></label>
+          <label><span data-i18n="stitches">Stitches</span> <input type="number" id="swatch-stitches" value="22" min="1"></label>
+          <label><span data-i18n="rows">Rows</span> <input type="number" id="swatch-rows" value="30" min="1"></label>
+        </fieldset>
 
-      <fieldset>
-        <legend>Swatch (gauge)</legend>
-        <label>Unit
-          <select id="swatch-unit">
-            <option value="cm">cm</option>
-            <option value="inch">inch</option>
-          </select>
-        </label>
-        <label>Width <input type="number" id="swatch-width" value="10" min="0.1" step="0.1"></label>
-        <label>Height <input type="number" id="swatch-height" value="10" min="0.1" step="0.1"></label>
-        <label>Stitches <input type="number" id="swatch-stitches" value="22" min="1"></label>
-        <label>Rows <input type="number" id="swatch-rows" value="30" min="1"></label>
-      </fieldset>
+        <fieldset id="yarns">
+          <legend data-i18n="yarns">Yarns</legend>
+          <label><span data-i18n="yarnCount">Number of yarns</span>
+            <select id="yarn-count">
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </label>
+          <label class="inline"><input type="checkbox" id="use-yarns"> <span data-i18n="useYarns">I know my yarn colours</span></label>
+          <div id="yarn-pickers" hidden></div>
+        </fieldset>
 
-      <fieldset id="text-size" hidden>
-        <legend>Text size</legend>
-        <label>Set
-          <select id="text-fix">
-            <option value="height">height + spacing</option>
-            <option value="width">width + spacing</option>
-            <option value="fill">height + width (fill)</option>
-          </select>
-        </label>
-        <label>Letter height (rows) <input type="number" id="letter-rows" value="12" min="1" max="200"></label>
-        <span id="letter-cm" class="hint"></span>
-        <label>Spacing (stitches) <input type="number" id="letter-spacing" value="1" min="0"></label>
-      </fieldset>
+        <fieldset id="image-source">
+          <legend data-i18n="image">Image</legend>
+          <label class="file-button">
+            <input type="file" id="image" accept="image/*">
+            <span data-i18n="chooseImage">Choose image</span>
+          </label>
+          <span id="image-name" class="hint"></span>
+          <button type="button" id="image-guard" class="source-guard no-print" hidden data-i18n="imageGuard">If you choose an image, the text will be removed.</button>
+        </fieldset>
 
-      <fieldset>
-        <legend>Final size</legend>
-        <label>Width <input type="number" id="width-value" value="40" min="1" step="0.1"></label>
-        <label>Unit
-          <select id="width-unit">
-            <option value="stitches">stitches</option>
-            <option value="cm">cm</option>
-            <option value="inch">inch</option>
-          </select>
-        </label>
-      </fieldset>
+        <fieldset id="text-source">
+          <legend data-i18n="text">Text</legend>
+          <textarea id="text" rows="2" data-i18n-placeholder="textPlaceholder" placeholder="Type text"></textarea>
+          <label><span data-i18n="font">Font</span>
+            <select id="font">
+              <option value="sans-serif">Sans-serif</option>
+              <option value="serif">Serif</option>
+              <option value="monospace">Monospace</option>
+              <option value="Arial">Arial</option>
+              <option value="Verdana">Verdana</option>
+              <option value="Georgia">Georgia</option>
+              <option value="'Times New Roman'">Times New Roman</option>
+              <option value="'Courier New'">Courier New</option>
+              <option value="Impact">Impact</option>
+            </select>
+          </label>
+          <label class="inline"><input type="checkbox" id="bold" checked> <span data-i18n="bold">Bold</span></label>
+          <button type="button" id="text-guard" class="source-guard no-print" hidden data-i18n="textGuard">Image selected. If you write text or change the font, the image will be removed.</button>
+        </fieldset>
 
-      <fieldset>
-        <legend>Yarns</legend>
-        <label>Number of yarns
-          <select id="yarn-count">
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-          </select>
-        </label>
-        <label class="inline"><input type="checkbox" id="use-yarns"> I know my yarn colours</label>
-        <div id="yarn-pickers" hidden></div>
-      </fieldset>
-    </form>
+        <fieldset id="text-size" hidden>
+          <legend data-i18n="textSize">Text size</legend>
+          <label><span data-i18n="textFix">Set</span>
+            <select id="text-fix">
+              <option value="height" data-i18n="fixHeight">height + spacing</option>
+              <option value="width" data-i18n="fixWidth">width + spacing</option>
+              <option value="fill" data-i18n="fixFill">height + width (fill)</option>
+            </select>
+          </label>
+          <label><span data-i18n="letterRows">Letter height (rows)</span> <input type="number" id="letter-rows" value="12" min="1" max="200"></label>
+          <span id="letter-cm" class="hint"></span>
+          <label><span data-i18n="letterSpacing">Spacing (stitches)</span> <input type="number" id="letter-spacing" value="1" min="0"></label>
+        </fieldset>
 
-    <p id="lock-notice" class="no-print" hidden>
-      Settings are locked while you have painted stitches.
-      <button type="button" id="unlock">Change settings…</button>
-    </p>
+        <fieldset id="final-size">
+          <legend data-i18n="finalSize">Final size</legend>
+          <label><span data-i18n="width">Width</span> <input type="number" id="width-value" value="40" min="1" step="0.1"></label>
+          <label><span data-i18n="unit">Unit</span>
+            <select id="width-unit">
+              <option value="stitches" data-i18n="unitStitches">stitches</option>
+              <option value="cm">cm</option>
+              <option value="inch" data-i18n="unitInch">inch</option>
+            </select>
+          </label>
+        </fieldset>
+      </form>
+
+      <button type="button" id="lock-overlay" class="no-print" hidden>
+        <span class="lock-notice">
+          <strong data-i18n="lockTitle">Settings are locked while you have painted stitches.</strong>
+          <span data-i18n="lockAction">Click here to change settings. Your painted stitches will be lost.</span>
+        </span>
+      </button>
+    </div>
 
     <p id="error" role="alert" hidden></p>
 
     <section id="result" hidden>
       <p id="size-info"></p>
-      <ul id="palette"></ul>
-
-      <div id="knit-options" class="no-print">
-        <label>Knit
-          <select id="knit-method">
-            <option value="flat">back and forth</option>
-            <option value="round">in the round</option>
-          </select>
-        </label>
-        <label>Start from
-          <select id="knit-start">
-            <option value="bottom">bottom up</option>
-            <option value="top">top down</option>
-          </select>
-        </label>
-        <button type="button" id="print">Print</button>
-        <button type="button" id="save-png">Save PNG</button>
+      <p id="paint-hint" class="no-print" data-i18n="paintHint">To paint in missed stitches, click a letter and paint in the preview.</p>
+      <div id="paint-bar">
+        <ul id="palette"></ul>
+        <button type="button" id="undo" class="no-print" disabled data-i18n="undo">Undo</button>
       </div>
 
-      <div id="paint-bar" class="no-print">
-        <span>Click a yarn letter, then click or drag on the grid to paint.</span>
-        <button type="button" id="undo" disabled>Undo</button>
+      <div id="knit-options" class="no-print">
+        <label><span data-i18n="knit">Knit</span>
+          <select id="knit-method">
+            <option value="flat" data-i18n="flat">back and forth</option>
+            <option value="round" data-i18n="round">in the round</option>
+          </select>
+        </label>
+        <label><span data-i18n="startFrom">Start from</span>
+          <select id="knit-start">
+            <option value="bottom" data-i18n="bottomUp">bottom up</option>
+            <option value="top" data-i18n="topDown">top down</option>
+          </select>
+        </label>
+        <button type="button" id="print" data-i18n="print">Print</button>
+        <button type="button" id="save-png" data-i18n="savePng">Save PNG</button>
       </div>
 
       <div class="canvas-wrap">
         <canvas id="grid"></canvas>
       </div>
 
-      <h2>Instructions</h2>
+      <h2 data-i18n="instructions">Instructions</h2>
       <ol id="instructions"></ol>
     </section>
   </main>

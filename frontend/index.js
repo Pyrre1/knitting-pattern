@@ -4,6 +4,7 @@ import { gaugeInterpreter } from "../core/gaugeInterpreter.js"
 import { setYarn, paintCell } from "../core/patternEdits.js"
 import { rowInstructions, formatInstruction } from "../core/rowInstructions.js"
 import { toGlyph, composeText, fitRows, textPattern } from "../core/textGrid.js"
+import { translate, translatePage, getLanguage, setLanguage, instructionTerms, translateError, formatNumber } from "./i18n.js"
 
 // Longest image side kept after load; caps both work and max stitch count
 const MAX_IMAGE_SIDE = 600
@@ -22,7 +23,7 @@ const GUIDES = [
 const GLYPH_FONT_SIZE = 300
 const MAX_LETTER_ROWS = 200
 
-const $ = id => document.getElementById(id)
+const byId = id => document.getElementById(id)
 
 let pixels = null
 let pattern = null
@@ -35,60 +36,78 @@ let brush = null
 let undoStack = []
 let painting = false
 let layout = null
+// Kept so a language switch can re-render them
+let letterInfo = null
+let errorMessage = null
 
-$('image').addEventListener('change', async event => {
+byId('image').addEventListener('change', async event => {
   const file = event.target.files[0]
   if (!file) return
 
   // One source at a time: an image replaces typed text
-  $('text').value = ''
+  byId('text').value = ''
+  byId('image-name').textContent = file.name
   source = 'image'
   pixels = await loadPixels(file)
   generate()
 })
 
-$('text').addEventListener('input', loadText)
-$('font').addEventListener('change', loadText)
-$('bold').addEventListener('change', loadText)
+byId('text').addEventListener('input', loadText)
+byId('text-guard').addEventListener('click', () => {
+  byId('text-guard').hidden = true
+  byId('text').focus()
+})
+byId('image-guard').addEventListener('click', () => byId('image').click())
+byId('font').addEventListener('change', loadText)
+byId('bold').addEventListener('change', loadText)
 
-$('use-yarns').addEventListener('change', () => {
-  $('yarn-pickers').hidden = !$('use-yarns').checked
+byId('use-yarns').addEventListener('change', () => {
+  byId('yarn-pickers').hidden = !byId('use-yarns').checked
   renderYarnPickers()
   generate()
 })
 
-$('yarn-count').addEventListener('change', () => { renderYarnPickers(); generate() })
+byId('yarn-count').addEventListener('change', () => { renderYarnPickers(); generate() })
 
 // Any other input change regenerates the pattern
 const OWN_HANDLERS = ['image', 'text', 'font', 'bold', 'use-yarns', 'yarn-count']
-$('inputs').addEventListener('change', event => {
+byId('inputs').addEventListener('change', event => {
   if (!OWN_HANDLERS.includes(event.target.id)) generate()
 })
 
 // Knitting options only change numbering and instructions, not the pattern
-$('knit-method').addEventListener('change', () => { drawGrid(); renderInstructions() })
-$('knit-start').addEventListener('change', () => { drawGrid(); renderInstructions() })
+byId('knit-method').addEventListener('change', () => { drawGrid(); renderInstructions() })
+byId('knit-start').addEventListener('change', () => { drawGrid(); renderInstructions() })
 
-$('grid').addEventListener('pointerdown', startStroke)
-$('grid').addEventListener('pointermove', event => { if (painting) paintAt(event) })
-$('grid').addEventListener('pointerup', endStroke)
-$('grid').addEventListener('pointercancel', endStroke)
+byId('grid').addEventListener('pointerdown', startStroke)
+byId('grid').addEventListener('pointermove', event => { if (painting) paintAt(event) })
+byId('grid').addEventListener('pointerup', endStroke)
+byId('grid').addEventListener('pointercancel', endStroke)
 
-$('undo').addEventListener('click', () => {
+byId('undo').addEventListener('click', () => {
   pattern = { ...pattern, grid: undoStack.pop() }
   updateLock()
   render()
 })
 
-$('unlock').addEventListener('click', () => {
-  if (!confirm('If you change settings, your painted stitches are lost and you need to edit the next render from scratch.')) return
+byId('lock-overlay').addEventListener('click', () => {
   undoStack = []
   updateLock()
 })
 
-$('print').addEventListener('click', () => window.print())
-$('save-png').addEventListener('click', savePng)
+byId('language').addEventListener('change', () => {
+  setLanguage(byId('language').value)
+  renderYarnPickers()
+  renderLetterInfo()
+  showError(errorMessage)
+  if (pattern) render()
+})
 
+byId('print').addEventListener('click', () => window.print())
+byId('save-png').addEventListener('click', savePng)
+
+byId('language').value = getLanguage()
+translatePage()
 renderYarnPickers()
 previewFonts()
 
@@ -109,7 +128,7 @@ async function loadPixels(file) {
 
 // Each option, and the closed select, shows its own font
 function previewFonts() {
-  const select = $('font')
+  const select = byId('font')
   for (const option of select.options) option.style.fontFamily = option.value
   const update = () => { select.style.fontFamily = select.value }
   select.addEventListener('change', update)
@@ -118,7 +137,9 @@ function previewFonts() {
 
 function loadText() {
   // One source at a time: typed text replaces an image
-  $('image').value = ''
+  byId('image').value = ''
+  byId('image-name').textContent = ''
+  pixels = null
   source = 'text'
   generate()
 }
@@ -138,9 +159,9 @@ function glyphPixels(chars, family, bold) {
   return Object.fromEntries(chars.map(char => {
     const key = `${font}|${ascent}|${descent}|${char}`
     if (!glyphCache.has(key)) {
-      const m = metrics[char]
+      const charMetrics = metrics[char]
       // A space has no ink; use its advance width instead
-      const width = char.trim() ? m.actualBoundingBoxLeft + m.actualBoundingBoxRight : m.width
+      const width = char.trim() ? charMetrics.actualBoundingBoxLeft + charMetrics.actualBoundingBoxRight : charMetrics.width
       const canvas = ctx.canvas
       canvas.width = Math.max(1, Math.ceil(width))
       canvas.height = ascent + descent
@@ -148,7 +169,7 @@ function glyphPixels(chars, family, bold) {
       ctx.fillRect(0, 0, canvas.width, canvas.height)
       ctx.fillStyle = '#000'
       ctx.font = font
-      ctx.fillText(char, m.actualBoundingBoxLeft, ascent)
+      ctx.fillText(char, charMetrics.actualBoundingBoxLeft, ascent)
       glyphCache.set(key, fromImageData(ctx.getImageData(0, 0, canvas.width, canvas.height)))
     }
     return [char, glyphCache.get(key)]
@@ -156,11 +177,11 @@ function glyphPixels(chars, family, bold) {
 }
 
 function createTextPattern() {
-  const text = $('text').value.trim()
+  const text = byId('text').value.trim()
   const swatch = readSwatch()
   const gauge = gaugeInterpreter(swatch)
   const chars = [...new Set(text.replace(/\n/g, ''))]
-  const pixelsByChar = glyphPixels(chars, $('font').value, $('bold').checked)
+  const pixelsByChar = glyphPixels(chars, byId('font').value, byId('bold').checked)
   const maxRows = Math.min(MAX_LETTER_ROWS, Object.values(pixelsByChar)[0].length)
 
   const compose = (rows, options) => {
@@ -168,70 +189,79 @@ function createTextPattern() {
     return composeText(glyphs, text, { ...options, lineSpacing: Math.max(1, Math.round(rows * 0.3)) })
   }
 
-  const fix = $('text-fix').value
-  const spacing = Math.max(0, Math.round(Number($('letter-spacing').value)))
-  const requested = Math.min(maxRows, Math.max(1, Math.round(Number($('letter-rows').value))))
-  let rows = fix === 'width'
-    ? fitRows(r => compose(r, { spacing })[0].length, readWidthStitches(gauge), maxRows)
+  const sizeMode = byId('text-fix').value
+  const spacing = Math.max(0, Math.round(Number(byId('letter-spacing').value)))
+  const requested = Math.min(maxRows, Math.max(1, Math.round(Number(byId('letter-rows').value))))
+  let rows = sizeMode === 'width'
+    ? fitRows(letterRows => compose(letterRows, { spacing })[0].length, readWidthStitches(gauge), maxRows)
     : requested
   // Fill: height is a maximum; shrink letters until they fit the width with no spacing
-  if (fix === 'fill') {
-    rows = Math.min(rows, fitRows(r => compose(r, { spacing: 0 })[0].length, readWidthStitches(gauge), maxRows))
+  if (sizeMode === 'fill') {
+    rows = Math.min(rows, fitRows(letterRows => compose(letterRows, { spacing: 0 })[0].length, readWidthStitches(gauge), maxRows))
   }
-  const grid = fix === 'fill' ? compose(rows, { width: readWidthStitches(gauge) }) : compose(rows, { spacing })
+  const grid = sizeMode === 'fill' ? compose(rows, { width: readWidthStitches(gauge) }) : compose(rows, { spacing })
 
-  $('letter-rows').value = rows
-  $('letter-cm').textContent = `≈ ${(rows / gauge.rowsPerCm).toFixed(1)} cm per letter` +
-    (fix === 'fill' && rows < requested ? ' (reduced to fit width)' : '')
+  byId('letter-rows').value = rows
+  letterInfo = { cm: rows / gauge.rowsPerCm, reduced: sizeMode === 'fill' && rows < requested }
+  renderLetterInfo()
   return textPattern({ swatch, grid, yarns: readYarns() })
 }
 
+function renderLetterInfo() {
+  byId('letter-cm').textContent = letterInfo
+    ? translate('letterCm', { cm: formatNumber(letterInfo.cm, 1) }) + (letterInfo.reduced ? translate('letterReduced') : '')
+    : ''
+}
+
 function readWidthStitches(gauge) {
-  const value = Number($('width-value').value)
-  const perUnit = { stitches: 1, cm: gauge.stitchesPerCm, inch: gauge.stitchesPerInch }[$('width-unit').value]
+  const value = Number(byId('width-value').value)
+  const perUnit = { stitches: 1, cm: gauge.stitchesPerCm, inch: gauge.stitchesPerInch }[byId('width-unit').value]
   return Math.max(1, Math.round(value * perUnit))
 }
 
-// Show text settings only for text; enable only the inputs the chosen mode uses
+// Show text settings only for typed text; enable only the inputs the chosen mode uses
 function updateSourceInputs() {
-  const text = source === 'text'
-  const fix = $('text-fix').value
-  $('text-size').hidden = !text
+  const isText = source === 'text'
+  const hasText = byId('text').value.trim() !== ''
+  const sizeMode = byId('text-fix').value
+  byId('text-size').hidden = !(isText && hasText)
+  byId('text-guard').hidden = !(source === 'image' && pixels)
+  byId('image-guard').hidden = !(isText && hasText)
 
-  if (text && imageYarnCount === null) {
-    imageYarnCount = $('yarn-count').value
-    $('yarn-count').value = '2'
+  if (isText && imageYarnCount === null) {
+    imageYarnCount = byId('yarn-count').value
+    byId('yarn-count').value = '2'
     renderYarnPickers()
-  } else if (!text && imageYarnCount !== null) {
-    $('yarn-count').value = imageYarnCount
+  } else if (!isText && imageYarnCount !== null) {
+    byId('yarn-count').value = imageYarnCount
     imageYarnCount = null
     renderYarnPickers()
   }
-  $('yarn-count').disabled = text
+  byId('yarn-count').disabled = isText
 
-  $('letter-rows').disabled = text && fix === 'width'
-  $('letter-spacing').disabled = text && fix === 'fill'
-  $('width-value').disabled = text && fix === 'height'
-  $('width-unit').disabled = text && fix === 'height'
+  byId('letter-rows').disabled = isText && sizeMode === 'width'
+  byId('letter-spacing').disabled = isText && sizeMode === 'fill'
+  byId('width-value').disabled = isText && sizeMode === 'height'
+  byId('width-unit').disabled = isText && sizeMode === 'height'
 }
 
 function readSwatch() {
   return {
-    unit: $('swatch-unit').value,
-    width: Number($('swatch-width').value),
-    height: Number($('swatch-height').value),
-    stitches: Number($('swatch-stitches').value),
-    rows: Number($('swatch-rows').value)
+    unit: byId('swatch-unit').value,
+    width: Number(byId('swatch-width').value),
+    height: Number(byId('swatch-height').value),
+    stitches: Number(byId('swatch-stitches').value),
+    rows: Number(byId('swatch-rows').value)
   }
 }
 
 function readYarns() {
-  if (!$('use-yarns').checked) return []
-  return [...$('yarn-pickers').querySelectorAll('input')].map(input => hexToRgb(input.value))
+  if (!byId('use-yarns').checked) return []
+  return [...byId('yarn-pickers').querySelectorAll('input')].map(input => hexToRgb(input.value))
 }
 
 function readKnitOptions() {
-  return { method: $('knit-method').value, start: $('knit-start').value }
+  return { method: byId('knit-method').value, start: byId('knit-start').value }
 }
 
 function yarnLabel(index) {
@@ -239,8 +269,8 @@ function yarnLabel(index) {
 }
 
 function renderYarnPickers() {
-  const container = $('yarn-pickers')
-  const count = Number($('yarn-count').value)
+  const container = byId('yarn-pickers')
+  const count = Number(byId('yarn-count').value)
   const defaults = ['#ffffff', '#000000', '#cc0000', '#0044cc']
 
   // Keep colours already chosen
@@ -250,22 +280,30 @@ function renderYarnPickers() {
     const input = document.createElement('input')
     input.type = 'color'
     input.value = current[i] ?? defaults[i]
-    input.title = `Yarn ${i + 1}`
+    input.title = translate('yarnN', { n: i + 1 })
     return input
   }))
 }
 
 function generate() {
   updateSourceInputs()
-  if (source === 'image' ? !pixels : !$('text').value.trim()) return
+  if (source === 'image' ? !pixels : !byId('text').value.trim()) {
+    // Switching source can leave nothing to show; drop the old pattern
+    pattern = null
+    letterInfo = null
+    renderLetterInfo()
+    byId('result').hidden = true
+    showError(null)
+    return
+  }
 
   try {
     pattern = source === 'text' ? createTextPattern() : createPattern({
       swatch: readSwatch(),
       pixels,
-      yarnCount: Number($('yarn-count').value),
+      yarnCount: Number(byId('yarn-count').value),
       yarns: readYarns(),
-      desiredWidth: { unit: $('width-unit').value, value: Number($('width-value').value) }
+      desiredWidth: { unit: byId('width-unit').value, value: Number(byId('width-value').value) }
     })
     // Fewer yarns than before can leave the brush pointing at a missing colour
     if (brush !== null && brush >= pattern.palette.length) brush = null
@@ -279,48 +317,51 @@ function generate() {
 function render() {
   const { size, palette } = pattern
 
-  $('result').hidden = false
-  $('size-info').textContent =
-    `${size.stitches} stitches × ${size.rows} rows · ` +
-    `${size.widthCm.toFixed(1)} × ${size.heightCm.toFixed(1)} cm`
+  byId('result').hidden = false
+  byId('size-info').textContent = translate('sizeInfo', {
+    stitches: size.stitches,
+    rows: size.rows,
+    width: formatNumber(size.widthCm, 1),
+    height: formatNumber(size.heightCm, 1)
+  })
 
   const counts = palette.map(() => 0)
   pattern.grid.flat().forEach(index => counts[index]++)
 
-  $('palette').replaceChildren(...palette.map((entry, i) => {
+  byId('palette').replaceChildren(...palette.map((entry, i) => {
     const li = document.createElement('li')
 
     const label = document.createElement('button')
     label.type = 'button'
     label.className = i === brush ? 'yarn-label selected' : 'yarn-label'
     label.textContent = yarnLabel(i)
-    label.title = 'Paint with this yarn'
+    label.title = translate('paintWith')
     label.addEventListener('click', () => selectBrush(i))
 
     const yarnSwatch = document.createElement('span')
     yarnSwatch.className = 'swatch print-only'
     yarnSwatch.style.background = rgbToHex(entry.yarn)
 
-    const yarn = document.createElement('input')
-    yarn.type = 'color'
-    yarn.value = rgbToHex(entry.yarn)
-    yarn.title = 'Yarn colour'
-    yarn.addEventListener('input', () => {
-      pattern = setYarn(pattern, i, hexToRgb(yarn.value))
-      yarnSwatch.style.background = yarn.value
+    const yarnPicker = document.createElement('input')
+    yarnPicker.type = 'color'
+    yarnPicker.value = rgbToHex(entry.yarn)
+    yarnPicker.title = translate('yarnColour')
+    yarnPicker.addEventListener('input', () => {
+      pattern = setYarn(pattern, i, hexToRgb(yarnPicker.value))
+      yarnSwatch.style.background = yarnPicker.value
       drawGrid()
     })
 
-    const source = document.createElement('span')
-    source.className = 'swatch no-print'
-    source.style.background = rgbToHex(entry.source)
-    source.title = 'Image colour'
+    const imageSwatch = document.createElement('span')
+    imageSwatch.className = 'swatch no-print'
+    imageSwatch.style.background = rgbToHex(entry.source)
+    imageSwatch.title = translate('imageColour')
 
-    li.append(label, yarnSwatch, yarn, source, ` ${counts[i]} stitches`)
+    li.append(label, yarnSwatch, yarnPicker, imageSwatch, ` ${translate('stitchCount', { n: counts[i] })}`)
     return li
   }))
 
-  $('grid').classList.toggle('painting', brush !== null)
+  byId('grid').classList.toggle('painting', brush !== null)
   drawGrid()
   renderInstructions()
 }
@@ -328,9 +369,9 @@ function render() {
 function renderInstructions() {
   const labels = pattern.palette.map((_, i) => yarnLabel(i))
 
-  $('instructions').replaceChildren(...rowInstructions(pattern.grid, readKnitOptions()).map(instruction => {
+  byId('instructions').replaceChildren(...rowInstructions(pattern.grid, readKnitOptions()).map(instruction => {
     const li = document.createElement('li')
-    li.textContent = formatInstruction(instruction, labels)
+    li.textContent = formatInstruction(instruction, labels, instructionTerms())
     return li
   }))
 }
@@ -347,7 +388,7 @@ function drawGrid() {
   const gridHeight = cellHeight * size.rows
   layout = { cellWidth, cellHeight }
 
-  const canvas = $('grid')
+  const canvas = byId('grid')
   canvas.width = Math.ceil(gridWidth + 2 * LABEL_MARGIN)
   canvas.height = Math.ceil(gridHeight + 2 * LABEL_MARGIN)
   const ctx = canvas.getContext('2d')
@@ -404,18 +445,18 @@ function drawGuideLines(ctx, { cellWidth, cellHeight, gridWidth, gridHeight, siz
     ctx.lineWidth = width
     ctx.beginPath()
 
-    for (let k = 1; k < size.stitches; k++) {
-      const counted = fromBottom ? size.stitches - k : k
+    for (let line = 1; line < size.stitches; line++) {
+      const counted = fromBottom ? size.stitches - line : line
       if (!isGuide(counted)) continue
-      ctx.moveTo(Math.round(k * cellWidth) + 0.5, 0)
-      ctx.lineTo(Math.round(k * cellWidth) + 0.5, gridHeight)
+      ctx.moveTo(Math.round(line * cellWidth) + 0.5, 0)
+      ctx.lineTo(Math.round(line * cellWidth) + 0.5, gridHeight)
     }
 
-    for (let k = 1; k < size.rows; k++) {
-      const counted = fromBottom ? size.rows - k : k
+    for (let line = 1; line < size.rows; line++) {
+      const counted = fromBottom ? size.rows - line : line
       if (!isGuide(counted)) continue
-      ctx.moveTo(0, Math.round(k * cellHeight) + 0.5)
-      ctx.lineTo(gridWidth, Math.round(k * cellHeight) + 0.5)
+      ctx.moveTo(0, Math.round(line * cellHeight) + 0.5)
+      ctx.lineTo(gridWidth, Math.round(line * cellHeight) + 0.5)
     }
 
     ctx.stroke()
@@ -464,7 +505,7 @@ function labelStep(cellSize) {
 }
 
 function savePng() {
-  $('grid').toBlob(blob => {
+  byId('grid').toBlob(blob => {
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
     link.download = 'knitting-pattern.png'
@@ -476,16 +517,16 @@ function savePng() {
 
 function selectBrush(index) {
   brush = brush === index ? null : index
-  $('palette').querySelectorAll('.yarn-label').forEach((label, i) => {
+  byId('palette').querySelectorAll('.yarn-label').forEach((label, i) => {
     label.classList.toggle('selected', i === brush)
   })
-  $('grid').classList.toggle('painting', brush !== null)
+  byId('grid').classList.toggle('painting', brush !== null)
 }
 
 function startStroke(event) {
   if (brush === null) return
 
-  $('grid').setPointerCapture(event.pointerId)
+  byId('grid').setPointerCapture(event.pointerId)
   undoStack.push(pattern.grid)
   painting = true
   paintAt(event)
@@ -504,12 +545,12 @@ function endStroke() {
 
 // Paint the stitch under the pointer; only that cell is redrawn until the stroke ends
 function paintAt(event) {
-  const canvas = $('grid')
+  const canvas = byId('grid')
   const rect = canvas.getBoundingClientRect()
-  const px = (event.clientX - rect.left) * (canvas.width / rect.width) - LABEL_MARGIN
-  const py = (event.clientY - rect.top) * (canvas.height / rect.height) - LABEL_MARGIN
-  const x = Math.floor(px / layout.cellWidth)
-  const y = Math.floor(py / layout.cellHeight)
+  const gridX = (event.clientX - rect.left) * (canvas.width / rect.width) - LABEL_MARGIN
+  const gridY = (event.clientY - rect.top) * (canvas.height / rect.height) - LABEL_MARGIN
+  const x = Math.floor(gridX / layout.cellWidth)
+  const y = Math.floor(gridY / layout.cellHeight)
 
   if (x < 0 || y < 0 || x >= pattern.size.stitches || y >= pattern.size.rows) return
 
@@ -530,14 +571,15 @@ function paintAt(event) {
 // Settings that regenerate the pattern would wipe painted stitches, so lock them
 function updateLock() {
   const locked = undoStack.length > 0
-  $('inputs').querySelectorAll('fieldset').forEach(fieldset => { fieldset.disabled = locked })
-  $('lock-notice').hidden = !locked
-  $('undo').disabled = !locked
+  byId('inputs').querySelectorAll('fieldset').forEach(fieldset => { fieldset.disabled = locked })
+  byId('lock-overlay').hidden = !locked
+  byId('undo').disabled = !locked
 }
 
 function showError(message) {
-  $('error').hidden = !message
-  $('error').textContent = message ?? ''
+  errorMessage = message
+  byId('error').hidden = !message
+  byId('error').textContent = message ? translateError(message) : ''
 }
 
 function rgbToHex(rgb) {

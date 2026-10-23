@@ -1,5 +1,9 @@
 :root {
-  --bg: #fafaf7;
+  /* Theme: white app on a soft green page, green header */
+  --page: #e3eedc;
+  --bg: #ffffff;
+  --header: #cfe5c1;
+  --overlay: rgba(235, 240, 232, 0.8);
   --fg: #222;
   --muted: #666;
   --border: #ccc;
@@ -9,23 +13,64 @@
 
 * { box-sizing: border-box; }
 
+/* Flex/grid display rules would otherwise override the hidden attribute */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
-  background: var(--bg);
+  background: var(--page);
   color: var(--fg);
   font: 16px/1.4 system-ui, sans-serif;
 }
 
 main {
   max-width: 960px;
+  min-height: 100vh;
   margin: 0 auto;
-  padding: 16px;
+  padding: 0 16px 16px;
+  background: var(--bg);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.06);
 }
+
+header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 0 -16px 16px;
+  padding: 12px 16px;
+  background: var(--header);
+}
+
+h1 { margin: 0; }
+
+#settings { position: relative; }
 
 form {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "swatch yarns"
+    "image text"
+    "text-size final-size";
   gap: 12px;
+}
+
+#swatch { grid-area: swatch; }
+#yarns { grid-area: yarns; }
+#image-source { grid-area: image; }
+#text-source { grid-area: text; }
+#text-size { grid-area: text-size; }
+#final-size { grid-area: final-size; }
+/* No text size for images: final size takes the first column */
+#text-size[hidden] + #final-size { grid-column: 1; }
+
+@media (max-width: 600px) {
+  form {
+    grid-template-columns: 1fr;
+    grid-template-areas: "swatch" "yarns" "image" "text" "text-size" "final-size";
+  }
 }
 
 fieldset {
@@ -44,6 +89,72 @@ label {
 }
 
 label.inline { justify-content: flex-start; }
+
+#image-source,
+#text-source { position: relative; }
+
+#image-source { align-items: flex-start; }
+
+#text { width: 100%; resize: vertical; }
+
+/* Native file input text follows the browser language; show our own button */
+.file-button {
+  position: relative;
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--header);
+  cursor: pointer;
+}
+
+.file-button input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.file-button:focus-within { outline: 2px solid var(--fg); }
+
+/* Covers the unused source; clicking it lets the user switch */
+.source-guard {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--overlay);
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+#lock-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: var(--overlay);
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.lock-notice {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 28em;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+}
 
 input[type="number"] { width: 6em; }
 
@@ -97,18 +208,17 @@ input[type="number"] { width: 6em; }
   color: var(--bg);
 }
 
-#paint-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
+#paint-hint {
+  margin-bottom: 0;
   color: var(--muted);
 }
 
-#lock-notice {
-  padding: 8px 12px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+#paint-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 canvas.painting {
@@ -138,8 +248,8 @@ canvas { display: block; }
 }
 
 @media print {
-  body { background: #fff; }
-  h1, form, #error, .no-print, #palette input { display: none; }
+  body, main { background: #fff; box-shadow: none; }
+  header, #settings, #error, .no-print, #palette input { display: none; }
   .print-only { display: inline-block; }
   #palette li { break-inside: avoid; }
   .canvas-wrap { overflow: visible; }
