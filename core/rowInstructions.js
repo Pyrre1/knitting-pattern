@@ -30,11 +30,13 @@ export function rowInstructions(grid, { start = 'bottom', method = 'flat' } = {}
   })
 }
 
+// Rows/rounds 1 and 2 are spelled out; later ones keep only the number (and side when flat)
 export function formatInstruction({ kind, number, side, direction, runs }, labels) {
   const arrow = direction === 'rtl' ? 'read chart right → left' : 'read chart left → right'
+  const full = number <= 2
   const heading = kind === 'round'
-    ? `Round ${number} (${arrow})`
-    : `Row ${number} (${side}, ${arrow})`
+    ? (full ? `Round ${number} (${arrow})` : `${number}`)
+    : (full ? `Row ${number} (${side}, ${arrow})` : `${number} (${side})`)
 
   return `${heading}: ${runs.map(run => `${run.count} ${labels[run.index]}`).join(', ')}`
 }

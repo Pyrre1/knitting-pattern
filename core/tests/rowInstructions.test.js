@@ -71,4 +71,16 @@ describe('Format Instruction', () => {
 
     expect(formatInstruction(instruction, labels)).toBe('Round 1 (read chart right → left): 3 A')
   })
+
+  test('shortens flat rows after row 2 to number and side', () => {
+    const instruction = { kind: 'row', number: 3, side: 'RS', direction: 'rtl', runs: [ { index: 0, count: 3 } ] }
+
+    expect(formatInstruction(instruction, labels)).toBe('3 (RS): 3 A')
+  })
+
+  test('shortens rounds after round 2 to number only', () => {
+    const instruction = { kind: 'round', number: 3, side: 'RS', direction: 'rtl', runs: [ { index: 0, count: 3 } ] }
+
+    expect(formatInstruction(instruction, labels)).toBe('3: 3 A')
+  })
 })
