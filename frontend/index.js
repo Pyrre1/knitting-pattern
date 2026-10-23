@@ -68,16 +68,17 @@ byId('use-yarns').addEventListener('change', () => {
   generate()
 })
 
-// The final width follows the swatch unit, converted, unless it is counted in stitches
+// Swatch size and final width follow the swatch unit, converted so the size stays the same.
+// A final width counted in stitches is left alone.
 byId('swatch-unit').addEventListener('change', () => {
-  const swatchUnit = byId('swatch-unit').value
-  const widthUnit = byId('width-unit').value
-  if (widthUnit === 'stitches' || widthUnit === swatchUnit) return
+  const unit = byId('swatch-unit').value
+  convertLength('swatch-width', unit)
+  convertLength('swatch-height', unit)
 
-  const widthValue = Number(byId('width-value').value)
-  const converted = swatchUnit === 'inch' ? widthValue / CM_PER_INCH : widthValue * CM_PER_INCH
-  byId('width-value').value = Math.round(converted * 10) / 10
-  byId('width-unit').value = swatchUnit
+  const widthUnit = byId('width-unit').value
+  if (widthUnit === 'stitches' || widthUnit === unit) return
+  convertLength('width-value', unit)
+  byId('width-unit').value = unit
 })
 
 byId('yarn-count').addEventListener('change', () => { renderYarnPickers(); generate() })
@@ -256,6 +257,14 @@ function updateSourceInputs() {
   byId('letter-spacing').disabled = isText && sizeMode === 'fill'
   byId('width-value').disabled = isText && sizeMode === 'height'
   byId('width-unit').disabled = isText && sizeMode === 'height'
+}
+
+// Inches keep two decimals so converting back lands on the same cm (10 cm → 3.94 in → 10 cm)
+function convertLength(inputId, toUnit) {
+  const value = Number(byId(inputId).value)
+  const converted = toUnit === 'inch' ? value / CM_PER_INCH : value * CM_PER_INCH
+  const decimals = toUnit === 'inch' ? 2 : 1
+  byId(inputId).value = Number(converted.toFixed(decimals))
 }
 
 function readSwatch() {
