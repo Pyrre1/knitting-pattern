@@ -45,6 +45,20 @@
         <label>Rows <input type="number" id="swatch-rows" value="30" min="1"></label>
       </fieldset>
 
+      <fieldset id="text-size" hidden>
+        <legend>Text size</legend>
+        <label>Set
+          <select id="text-fix">
+            <option value="height">height + spacing</option>
+            <option value="width">width + spacing</option>
+            <option value="fill">height + width (fill)</option>
+          </select>
+        </label>
+        <label>Letter height (rows) <input type="number" id="letter-rows" value="12" min="1" max="200"></label>
+        <span id="letter-cm" class="hint"></span>
+        <label>Spacing (stitches) <input type="number" id="letter-spacing" value="1" min="0"></label>
+      </fieldset>
+
       <fieldset>
         <legend>Final size</legend>
         <label>Width <input type="number" id="width-value" value="40" min="1" step="0.1"></label>

@@ -3,6 +3,7 @@ import { fromImageData } from "../core/fromImageData.js"
 import { gaugeInterpreter } from "../core/gaugeInterpreter.js"
 import { setYarn, paintCell } from "../core/patternEdits.js"
 import { rowInstructions, formatInstruction } from "../core/rowInstructions.js"
+import { toGlyph, composeText, fitRows, textPattern } from "../core/textGrid.js"
 
 // Longest image side kept after load; caps both work and max stitch count
 const MAX_IMAGE_SIDE = 600
@@ -17,10 +18,18 @@ const GUIDES = [
   { step: 10, colour: 'rgba(0, 0, 0, 0.38)', width: 1.5 }
 ]
 
+// Letters are drawn once at this size, then downsampled per letter height
+const GLYPH_FONT_SIZE = 300
+const MAX_LETTER_ROWS = 200
+
 const $ = id => document.getElementById(id)
 
 let pixels = null
 let pattern = null
+// 'image' or 'text'; text mode always uses 2 yarns and restores the image count after
+let source = 'image'
+let imageYarnCount = null
+const glyphCache = new Map()
 // Painting: selected palette index, grids before each stroke, cell size of the last draw
 let brush = null
 let undoStack = []
@@ -33,6 +42,7 @@ $('image').addEventListener('change', async event => {
 
   // One source at a time: an image replaces typed text
   $('text').value = ''
+  source = 'image'
   pixels = await loadPixels(file)
   generate()
 })
@@ -47,10 +57,10 @@ $('use-yarns').addEventListener('change', () => {
   generate()
 })
 
-$('yarn-count').addEventListener('change', renderYarnPickers)
+$('yarn-count').addEventListener('change', () => { renderYarnPickers(); generate() })
 
 // Any other input change regenerates the pattern
-const OWN_HANDLERS = ['image', 'text', 'font', 'bold', 'use-yarns']
+const OWN_HANDLERS = ['image', 'text', 'font', 'bold', 'use-yarns', 'yarn-count']
 $('inputs').addEventListener('change', event => {
   if (!OWN_HANDLERS.includes(event.target.id)) generate()
 })
@@ -107,45 +117,102 @@ function previewFonts() {
 }
 
 function loadText() {
-  const text = $('text').value.trim()
-  if (!text) return
-
   // One source at a time: typed text replaces an image
   $('image').value = ''
-  pixels = textPixels(text, $('font').value, $('bold').checked)
+  source = 'text'
   generate()
 }
 
-// Black text on white, sized so the longest side fits MAX_IMAGE_SIDE
-function textPixels(text, family, bold) {
-  const lines = text.split('\n')
+// Pixels of each character, cropped to its ink; all share one height so baselines line up
+function glyphPixels(chars, family, bold) {
   const ctx = document.createElement('canvas').getContext('2d')
-  const fontAt = size => `${bold ? 'bold ' : ''}${size}px ${family}`
-  const measure = size => {
-    ctx.font = fontAt(size)
-    const pad = size * 0.1
-    return {
-      width: Math.max(...lines.map(line => ctx.measureText(line).width)) + 2 * pad,
-      height: lines.length * size * 1.2 + 2 * pad,
-      pad
+  ctx.font = `${bold ? 'bold ' : ''}${GLYPH_FONT_SIZE}px ${family}`
+  const font = ctx.font
+  const metrics = Object.fromEntries(chars.map(char => [char, ctx.measureText(char)]))
+  const inked = chars.filter(char => char.trim())
+  if (inked.length === 0) throw new Error('text has no visible letters')
+
+  const ascent = Math.ceil(Math.max(...inked.map(char => metrics[char].actualBoundingBoxAscent)))
+  const descent = Math.ceil(Math.max(...inked.map(char => metrics[char].actualBoundingBoxDescent)))
+
+  return Object.fromEntries(chars.map(char => {
+    const key = `${font}|${ascent}|${descent}|${char}`
+    if (!glyphCache.has(key)) {
+      const m = metrics[char]
+      // A space has no ink; use its advance width instead
+      const width = char.trim() ? m.actualBoundingBoxLeft + m.actualBoundingBoxRight : m.width
+      const canvas = ctx.canvas
+      canvas.width = Math.max(1, Math.ceil(width))
+      canvas.height = ascent + descent
+      ctx.fillStyle = '#fff'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      ctx.fillStyle = '#000'
+      ctx.font = font
+      ctx.fillText(char, m.actualBoundingBoxLeft, ascent)
+      glyphCache.set(key, fromImageData(ctx.getImageData(0, 0, canvas.width, canvas.height)))
     }
+    return [char, glyphCache.get(key)]
+  }))
+}
+
+function createTextPattern() {
+  const text = $('text').value.trim()
+  const swatch = readSwatch()
+  const gauge = gaugeInterpreter(swatch)
+  const chars = [...new Set(text.replace(/\n/g, ''))]
+  const pixelsByChar = glyphPixels(chars, $('font').value, $('bold').checked)
+  const maxRows = Math.min(MAX_LETTER_ROWS, Object.values(pixelsByChar)[0].length)
+
+  const compose = (rows, options) => {
+    const glyphs = Object.fromEntries(chars.map(char => [char, toGlyph(pixelsByChar[char], rows, gauge)]))
+    return composeText(glyphs, text, { ...options, lineSpacing: Math.max(1, Math.round(rows * 0.3)) })
   }
 
-  const probe = measure(100)
-  const size = 100 * MAX_IMAGE_SIDE / Math.max(probe.width, probe.height)
-  const { width, height, pad } = measure(size)
+  const fix = $('text-fix').value
+  const spacing = Math.max(0, Math.round(Number($('letter-spacing').value)))
+  const requested = Math.min(maxRows, Math.max(1, Math.round(Number($('letter-rows').value))))
+  let rows = fix === 'width'
+    ? fitRows(r => compose(r, { spacing })[0].length, readWidthStitches(gauge), maxRows)
+    : requested
+  // Fill: height is a maximum; shrink letters until they fit the width with no spacing
+  if (fix === 'fill') {
+    rows = Math.min(rows, fitRows(r => compose(r, { spacing: 0 })[0].length, readWidthStitches(gauge), maxRows))
+  }
+  const grid = fix === 'fill' ? compose(rows, { width: readWidthStitches(gauge) }) : compose(rows, { spacing })
 
-  const canvas = ctx.canvas
-  canvas.width = Math.max(1, Math.round(width))
-  canvas.height = Math.max(1, Math.round(height))
-  ctx.fillStyle = '#fff'
-  ctx.fillRect(0, 0, canvas.width, canvas.height)
-  ctx.fillStyle = '#000'
-  ctx.font = fontAt(size)
-  ctx.textBaseline = 'top'
-  lines.forEach((line, i) => ctx.fillText(line, pad, pad + i * size * 1.2))
+  $('letter-rows').value = rows
+  $('letter-cm').textContent = `≈ ${(rows / gauge.rowsPerCm).toFixed(1)} cm per letter` +
+    (fix === 'fill' && rows < requested ? ' (reduced to fit width)' : '')
+  return textPattern({ swatch, grid, yarns: readYarns() })
+}
 
-  return fromImageData(ctx.getImageData(0, 0, canvas.width, canvas.height))
+function readWidthStitches(gauge) {
+  const value = Number($('width-value').value)
+  const perUnit = { stitches: 1, cm: gauge.stitchesPerCm, inch: gauge.stitchesPerInch }[$('width-unit').value]
+  return Math.max(1, Math.round(value * perUnit))
+}
+
+// Show text settings only for text; enable only the inputs the chosen mode uses
+function updateSourceInputs() {
+  const text = source === 'text'
+  const fix = $('text-fix').value
+  $('text-size').hidden = !text
+
+  if (text && imageYarnCount === null) {
+    imageYarnCount = $('yarn-count').value
+    $('yarn-count').value = '2'
+    renderYarnPickers()
+  } else if (!text && imageYarnCount !== null) {
+    $('yarn-count').value = imageYarnCount
+    imageYarnCount = null
+    renderYarnPickers()
+  }
+  $('yarn-count').disabled = text
+
+  $('letter-rows').disabled = text && fix === 'width'
+  $('letter-spacing').disabled = text && fix === 'fill'
+  $('width-value').disabled = text && fix === 'height'
+  $('width-unit').disabled = text && fix === 'height'
 }
 
 function readSwatch() {
@@ -189,10 +256,11 @@ function renderYarnPickers() {
 }
 
 function generate() {
-  if (!pixels) return
+  updateSourceInputs()
+  if (source === 'image' ? !pixels : !$('text').value.trim()) return
 
   try {
-    pattern = createPattern({
+    pattern = source === 'text' ? createTextPattern() : createPattern({
       swatch: readSwatch(),
       pixels,
       yarnCount: Number($('yarn-count').value),
