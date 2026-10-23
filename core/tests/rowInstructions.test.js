@@ -83,4 +83,32 @@ describe('Format Instruction', () => {
 
     expect(formatInstruction(instruction, labels)).toBe('3: 3 A')
   })
+
+  describe('with custom terms', () => {
+    const sv = {
+      row: 'Varv',
+      round: 'Varv',
+      sides: { RS: 'rät', WS: 'avig' },
+      shortSides: { RS: 'r', WS: 'a' },
+      arrows: { rtl: 'läs diagrammet höger → vänster', ltr: 'läs diagrammet vänster → höger' }
+    }
+
+    test('uses full terms for rows 1 and 2', () => {
+      const instruction = { kind: 'row', number: 2, side: 'WS', direction: 'ltr', runs: [ { index: 1, count: 1 }, { index: 0, count: 2 } ] }
+
+      expect(formatInstruction(instruction, labels, sv)).toBe('Varv 2 (avig, läs diagrammet vänster → höger): 1 B, 2 A')
+    })
+
+    test('uses short sides from row 3', () => {
+      const instruction = { kind: 'row', number: 3, side: 'RS', direction: 'rtl', runs: [ { index: 0, count: 3 } ] }
+
+      expect(formatInstruction(instruction, labels, sv)).toBe('3 (r): 3 A')
+    })
+
+    test('uses round term for rounds', () => {
+      const instruction = { kind: 'round', number: 1, side: 'RS', direction: 'rtl', runs: [ { index: 0, count: 3 } ] }
+
+      expect(formatInstruction(instruction, labels, sv)).toBe('Varv 1 (läs diagrammet höger → vänster): 3 A')
+    })
+  })
 })
