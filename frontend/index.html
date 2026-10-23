@@ -12,8 +12,23 @@
 
     <form id="inputs">
       <fieldset>
-        <legend>Image</legend>
+        <legend>Image or text</legend>
         <input type="file" id="image" accept="image/*">
+        <label>Text <textarea id="text" rows="2" placeholder="or type text"></textarea></label>
+        <label>Font
+          <select id="font">
+            <option value="sans-serif">Sans-serif</option>
+            <option value="serif">Serif</option>
+            <option value="monospace">Monospace</option>
+            <option value="Arial">Arial</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Georgia">Georgia</option>
+            <option value="'Times New Roman'">Times New Roman</option>
+            <option value="'Courier New'">Courier New</option>
+            <option value="Impact">Impact</option>
+          </select>
+        </label>
+        <label class="inline"><input type="checkbox" id="bold" checked> Bold</label>
       </fieldset>
 
       <fieldset>

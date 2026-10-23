@@ -25,7 +25,7 @@ Status: prototype ported from old repo. Goal: finish features + polish UI.
 - No build step, no linter configured yet
 
 ## Architecture
-Current state: `core/` holds all logic; `frontend/` is a vanilla MVP (upload → inputs → canvas grid + yarn list) that imports core directly. Frontend has no tests; keep logic out of it.
+Current state: `core/` holds all logic; `frontend/` is a vanilla MVP (upload or typed text → inputs → canvas grid + yarn list) that imports core directly. Frontend has no tests; keep logic out of it.
 
 Intended pipeline (core modules, all pure, tests in `core/tests/`):
 1. `gaugeInterpreter({unit, width, height, stitches, rows})` → swatch gauge normalised to stitches/rows per cm and per inch.
@@ -37,7 +37,7 @@ Intended pipeline (core modules, all pure, tests in `core/tests/`):
 7. `patternEdits`: `buildPattern(pixels, palette)` → `{ pixels, palette, grid }`; `setYarn` (grid unchanged), `removeColour` / `addColour` (remap), `paintCell(pattern, x, y, index)` (manual override of one stitch; lost on regenerate). All pure, return new patterns. Recount = rerun `createPattern` with current yarns.
 8. `createPattern({ swatch, pixels, yarnCount, yarns?, desiredWidth })` chains 1–6 (colours from full `pixels`, grid from scaled) → `{ pixels (scaled), palette, grid, size }`. `swatch` is raw `gaugeInterpreter` input.
 
-`rowInstructions(grid, { start: 'bottom'|'top', method: 'flat'|'round' })` → knitting-order rows `{ kind, number, displayRow, side, direction, runs: [{ index, count }] }`. `direction` is chart reading direction on the displayed grid: bottom up → RS right → left; top down → RS left → right (fabric hangs upside down); WS (flat only) opposite. Frontend puts each row number on the side the row starts. `formatInstruction(instr, labels)` → `"Row 2 (WS, read chart left → right): 1 B, 2 A"`. Yarns are labelled A, B, C, D by palette index.
+`rowInstructions(grid, { start: 'bottom'|'top', method: 'flat'|'round' })` → knitting-order rows `{ kind, number, displayRow, side, direction, runs: [{ index, count }] }`. `direction` is chart reading direction on the displayed grid: bottom up → RS right → left; top down → RS left → right (fabric hangs upside down); WS (flat only) opposite. Frontend puts each row number on the side the row starts. `formatInstruction(instr, labels)` → `"Row 2 (WS, read chart left → right): 1 B, 2 A"` for rows/rounds 1–2, then short form `"3 (RS): 3 A"` (rounds: `"3: 3 A"`). Yarns are labelled A, B, C, D by palette index.
 
 `fromImageData({ data, width, height })` adapts canvas `ImageData` (flat RGBA) to the `[y][x] = [r,g,b]` grid; transparency is blended onto white.
 

@@ -31,9 +31,15 @@ $('image').addEventListener('change', async event => {
   const file = event.target.files[0]
   if (!file) return
 
+  // One source at a time: an image replaces typed text
+  $('text').value = ''
   pixels = await loadPixels(file)
   generate()
 })
+
+$('text').addEventListener('input', loadText)
+$('font').addEventListener('change', loadText)
+$('bold').addEventListener('change', loadText)
 
 $('use-yarns').addEventListener('change', () => {
   $('yarn-pickers').hidden = !$('use-yarns').checked
@@ -44,8 +50,9 @@ $('use-yarns').addEventListener('change', () => {
 $('yarn-count').addEventListener('change', renderYarnPickers)
 
 // Any other input change regenerates the pattern
+const OWN_HANDLERS = ['image', 'text', 'font', 'bold', 'use-yarns']
 $('inputs').addEventListener('change', event => {
-  if (event.target.id !== 'image' && event.target.id !== 'use-yarns') generate()
+  if (!OWN_HANDLERS.includes(event.target.id)) generate()
 })
 
 // Knitting options only change numbering and instructions, not the pattern
@@ -73,6 +80,7 @@ $('print').addEventListener('click', () => window.print())
 $('save-png').addEventListener('click', savePng)
 
 renderYarnPickers()
+previewFonts()
 
 async function loadPixels(file) {
   const bitmap = await createImageBitmap(file)
@@ -87,6 +95,57 @@ async function loadPixels(file) {
   ctx.drawImage(bitmap, 0, 0, width, height)
 
   return fromImageData(ctx.getImageData(0, 0, width, height))
+}
+
+// Each option, and the closed select, shows its own font
+function previewFonts() {
+  const select = $('font')
+  for (const option of select.options) option.style.fontFamily = option.value
+  const update = () => { select.style.fontFamily = select.value }
+  select.addEventListener('change', update)
+  update()
+}
+
+function loadText() {
+  const text = $('text').value.trim()
+  if (!text) return
+
+  // One source at a time: typed text replaces an image
+  $('image').value = ''
+  pixels = textPixels(text, $('font').value, $('bold').checked)
+  generate()
+}
+
+// Black text on white, sized so the longest side fits MAX_IMAGE_SIDE
+function textPixels(text, family, bold) {
+  const lines = text.split('\n')
+  const ctx = document.createElement('canvas').getContext('2d')
+  const fontAt = size => `${bold ? 'bold ' : ''}${size}px ${family}`
+  const measure = size => {
+    ctx.font = fontAt(size)
+    const pad = size * 0.1
+    return {
+      width: Math.max(...lines.map(line => ctx.measureText(line).width)) + 2 * pad,
+      height: lines.length * size * 1.2 + 2 * pad,
+      pad
+    }
+  }
+
+  const probe = measure(100)
+  const size = 100 * MAX_IMAGE_SIDE / Math.max(probe.width, probe.height)
+  const { width, height, pad } = measure(size)
+
+  const canvas = ctx.canvas
+  canvas.width = Math.max(1, Math.round(width))
+  canvas.height = Math.max(1, Math.round(height))
+  ctx.fillStyle = '#fff'
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.fillStyle = '#000'
+  ctx.font = fontAt(size)
+  ctx.textBaseline = 'top'
+  lines.forEach((line, i) => ctx.fillText(line, pad, pad + i * size * 1.2))
+
+  return fromImageData(ctx.getImageData(0, 0, canvas.width, canvas.height))
 }
 
 function readSwatch() {
