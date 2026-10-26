@@ -11,6 +11,8 @@
   --grid-line: rgba(0, 0, 0, 0.15);
   /* Row help: subtle shade on wrong-side rows, visible on light and dark yarns */
   --row-help: rgba(128, 128, 128, 0.15);
+  --info-bg: #f1f7ec;
+  --info-accent: #7fae63;
 }
 
 * { box-sizing: border-box; }
@@ -258,11 +260,17 @@ input[type="number"] { width: 6em; }
   gap: 12px;
 }
 
+/* One framed card per yarn: label, yarn colour, image colour, stitch count */
 #palette li {
   display: flex;
   align-items: center;
   gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
 }
+
+#palette button.swatch { padding: 0; cursor: pointer; }
 
 .swatch {
   display: inline-block;
@@ -274,32 +282,33 @@ input[type="number"] { width: 6em; }
   print-color-adjust: exact;
 }
 
+/* Brushes are filled with their yarn colour (inline style) */
 .yarn-label {
   font-weight: bold;
   min-width: 2em;
-  border: 2px solid var(--border);
+  margin-right: 4px;
+  border: 1px solid var(--border);
   border-radius: 4px;
-  background: transparent;
   cursor: pointer;
 }
 
 .yarn-label.selected {
-  border-color: var(--fg);
-  background: var(--fg);
-  color: var(--bg);
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
 }
 
-#paint-hint {
-  margin-bottom: 0;
-  color: var(--muted);
+hr.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 12px 0;
 }
 
-#paint-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
+.info {
+  padding: 8px 12px;
+  border-left: 4px solid var(--info-accent);
+  border-radius: 4px;
+  background: var(--info-bg);
+  font-size: 14px;
 }
 
 canvas.painting {
@@ -315,12 +324,22 @@ canvas {
 
 .print-only { display: none; }
 
-#knit-options {
+#toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* Knitting options, painting, output */
+.tool-group {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
 }
 
 .canvas-wrap { overflow-x: auto; }

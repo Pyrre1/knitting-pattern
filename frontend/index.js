@@ -423,15 +423,23 @@ function render() {
   const counts = palette.map(() => 0)
   pattern.grid.flat().forEach(index => counts[index]++)
 
+  const brushes = palette.map((entry, i) => {
+    const button = document.createElement('button')
+    button.type = 'button'
+    button.className = i === brush ? 'yarn-label selected' : 'yarn-label'
+    button.textContent = yarnLabel(i)
+    button.title = translate('paintWith')
+    paintBrush(button, entry.yarn)
+    button.addEventListener('click', () => selectBrush(i))
+    return button
+  })
+  byId('brushes').replaceChildren(...brushes)
+
   byId('palette').replaceChildren(...palette.map((entry, i) => {
     const li = document.createElement('li')
 
-    const label = document.createElement('button')
-    label.type = 'button'
-    label.className = i === brush ? 'yarn-label selected' : 'yarn-label'
+    const label = document.createElement('strong')
     label.textContent = yarnLabel(i)
-    label.title = translate('paintWith')
-    label.addEventListener('click', () => selectBrush(i))
 
     const yarnSwatch = document.createElement('span')
     yarnSwatch.className = 'swatch print-only'
@@ -444,13 +452,19 @@ function render() {
     yarnPicker.addEventListener('input', () => {
       pattern = setYarn(pattern, i, hexToRgb(yarnPicker.value))
       yarnSwatch.style.background = yarnPicker.value
+      paintBrush(brushes[i], pattern.palette[i].yarn)
       drawGrid()
     })
 
-    const imageSwatch = document.createElement('span')
+    const imageSwatch = document.createElement('button')
+    imageSwatch.type = 'button'
     imageSwatch.className = 'swatch no-print'
     imageSwatch.style.background = rgbToHex(entry.source)
     imageSwatch.title = translate('imageColour')
+    imageSwatch.addEventListener('click', () => {
+      pattern = setYarn(pattern, i, entry.source)
+      render()
+    })
 
     li.append(label, yarnSwatch, yarnPicker, imageSwatch, ` ${translate('stitchCount', { n: counts[i] })}`)
     return li
@@ -617,9 +631,15 @@ function savePng() {
   })
 }
 
+// Brush button in its yarn colour, with a readable letter
+function paintBrush(button, [r, g, b]) {
+  button.style.background = rgbToHex([r, g, b])
+  button.style.color = 0.299 * r + 0.587 * g + 0.114 * b > 150 ? '#222' : '#fff'
+}
+
 function selectBrush(index) {
   brush = brush === index ? null : index
-  byId('palette').querySelectorAll('.yarn-label').forEach((label, i) => {
+  byId('brushes').querySelectorAll('.yarn-label').forEach((label, i) => {
     label.classList.toggle('selected', i === brush)
   })
   byId('grid').classList.toggle('painting', brush !== null)

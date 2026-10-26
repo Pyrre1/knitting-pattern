@@ -129,30 +129,37 @@
 
     <section id="result" hidden>
       <p id="size-info"></p>
-      <p id="paint-hint" class="no-print" data-i18n="paintHint">To paint in missed stitches, click a letter and paint in the preview. Right-click (on touch: press and hold) restores the original stitch.</p>
-      <div id="paint-bar">
-        <ul id="palette"></ul>
-        <button type="button" id="undo" class="no-print" disabled data-i18n="undo">Undo</button>
-      </div>
+      <hr class="divider">
+      <p id="paint-hint" class="info no-print" data-i18n="paintHint">To paint in missed stitches, click a letter and paint in the preview. Right-click (on touch: press and hold) restores the original stitch.</p>
+      <ul id="palette"></ul>
 
-      <div id="knit-options" class="no-print">
-        <label><span data-i18n="knit">Knit</span>
-          <select id="knit-method">
-            <option value="flat" data-i18n="flat">back and forth</option>
-            <option value="round" data-i18n="round">in the round</option>
-          </select>
-        </label>
-        <label><span data-i18n="startFrom">Start from</span>
-          <select id="knit-start">
-            <option value="bottom" data-i18n="bottomUp">bottom up</option>
-            <option value="top" data-i18n="topDown">top down</option>
-          </select>
-        </label>
-        <label class="inline" id="row-help-option" data-i18n-title="rowHelpTitle" title="Shade wrong-side rows">
-          <input type="checkbox" id="row-help"> <span data-i18n="rowHelp">Row help</span>
-        </label>
-        <button type="button" id="print" data-i18n="print">Print</button>
-        <button type="button" id="save-png" data-i18n="savePng">Save PNG</button>
+      <div id="toolbar" class="no-print">
+        <div class="tool-group">
+          <label><span data-i18n="knit">Knit</span>
+            <select id="knit-method">
+              <option value="flat" data-i18n="flat">back and forth</option>
+              <option value="round" data-i18n="round">in the round</option>
+            </select>
+          </label>
+          <label><span data-i18n="startFrom">Start from</span>
+            <select id="knit-start">
+              <option value="bottom" data-i18n="bottomUp">bottom up</option>
+              <option value="top" data-i18n="topDown">top down</option>
+            </select>
+          </label>
+          <label class="inline" id="row-help-option" data-i18n-title="rowHelpTitle" title="Shade wrong-side rows">
+            <input type="checkbox" id="row-help"> <span data-i18n="rowHelp">Row help</span>
+          </label>
+        </div>
+        <div class="tool-group">
+          <span data-i18n="selectToPaint">Select to paint:</span>
+          <span id="brushes"></span>
+          <button type="button" id="undo" disabled data-i18n="undo">Undo</button>
+        </div>
+        <div class="tool-group">
+          <button type="button" id="print" data-i18n="print">Print</button>
+          <button type="button" id="save-png" data-i18n="savePng">Save PNG</button>
+        </div>
       </div>
 
       <div class="canvas-wrap">
