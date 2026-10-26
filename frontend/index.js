@@ -456,14 +456,20 @@ function render() {
     yarnSwatch.className = 'swatch print-only'
     yarnSwatch.style.background = rgbToHex(entry.yarn)
 
+    // Native colour input made invisible over a labelled button in the yarn colour
     const yarnPicker = document.createElement('input')
     yarnPicker.type = 'color'
     yarnPicker.value = rgbToHex(entry.yarn)
-    yarnPicker.title = translate('yarnColour')
+    const pickerButton = document.createElement('label')
+    pickerButton.className = 'colour-button no-print'
+    pickerButton.title = translate('yarnColour')
+    pickerButton.append(translate('changeColour'), yarnPicker)
+    paintBrush(pickerButton, entry.yarn)
     yarnPicker.addEventListener('input', () => {
       pattern = setYarn(pattern, i, hexToRgb(yarnPicker.value))
       yarnSwatch.style.background = yarnPicker.value
       paintBrush(brushes[i], pattern.palette[i].yarn)
+      paintBrush(pickerButton, pattern.palette[i].yarn)
       pauseStitchView()
       drawGrid()
     })
@@ -482,7 +488,7 @@ function render() {
       render()
     })
 
-    li.append(label, yarnSwatch, yarnPicker, imageSwatch, ` ${translate('stitchCount', { n: counts[i] })}`)
+    li.append(label, yarnSwatch, pickerButton, imageSwatch, ` ${translate('stitchCount', { n: counts[i] })}`)
     return li
   }))
 
@@ -695,7 +701,7 @@ function savePng() {
   })
 }
 
-// Brush button in its yarn colour, with a readable letter
+// Button in its yarn colour, with readable text
 function paintBrush(button, yarn) {
   button.style.background = rgbToHex(yarn)
   button.style.color = isLight(yarn) ? '#222' : '#fff'
