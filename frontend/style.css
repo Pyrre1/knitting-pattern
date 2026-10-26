@@ -353,6 +353,9 @@ canvas {
 
 canvas { display: block; }
 
+/* Left out of print: dimmed on screen to show it */
+.chart-only #instructions-title, .chart-only #instructions { opacity: 0.4; }
+
 #instructions {
   list-style: none;
   padding: 0;
