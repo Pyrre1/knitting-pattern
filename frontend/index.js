@@ -535,8 +535,13 @@ function drawGrid() {
     })
   }
 
-  ctx.fillStyle = cssVar('--row-help')
-  shadedRows.forEach(y => ctx.fillRect(0, y * cellHeight, gridWidth, cellHeight))
+  // One path per yarn, since light and dark yarns get opposite shades
+  const shades = palette.map(() => new Path2D())
+  shadedRows.forEach(y => grid[y].forEach((index, x) => shades[index].rect(x * cellWidth, y * cellHeight, cellWidth, cellHeight)))
+  palette.forEach((entry, i) => {
+    ctx.fillStyle = rowHelpShade(entry.yarn)
+    ctx.fill(shades[i])
+  })
 
   // Grid lines only when cells are big enough to see them; stitches show their own edges
   if (cellWidth >= 6 && !stitchView) {
@@ -677,9 +682,18 @@ function savePng() {
 }
 
 // Brush button in its yarn colour, with a readable letter
-function paintBrush(button, [r, g, b]) {
-  button.style.background = rgbToHex([r, g, b])
-  button.style.color = 0.299 * r + 0.587 * g + 0.114 * b > 150 ? '#222' : '#fff'
+function paintBrush(button, yarn) {
+  button.style.background = rgbToHex(yarn)
+  button.style.color = isLight(yarn) ? '#222' : '#fff'
+}
+
+// Row help darkens light yarns and lightens dark ones, so it shows on both
+function rowHelpShade(yarn) {
+  return cssVar(isLight(yarn) ? '--row-help-dark' : '--row-help-light')
+}
+
+function isLight([r, g, b]) {
+  return 0.299 * r + 0.587 * g + 0.114 * b > 150
 }
 
 // Stitch view is for looking only: redrawing it on every edit lags on big charts
@@ -791,7 +805,7 @@ function paintCellAt({ x, y }) {
   }
   // Keep the row help shade on painted stitches
   if (layout.shadedRows.has(y)) {
-    ctx.fillStyle = cssVar('--row-help')
+    ctx.fillStyle = rowHelpShade(pattern.palette[index].yarn)
     ctx.fillRect(...cell)
   }
 }

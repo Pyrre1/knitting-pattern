@@ -9,8 +9,9 @@
   --border: #ccc;
   --error: #b00020;
   --grid-line: rgba(0, 0, 0, 0.15);
-  /* Row help: subtle shade on wrong-side rows, visible on light and dark yarns */
-  --row-help: rgba(128, 128, 128, 0.25);
+  /* Row help on wrong-side rows: shadow on light yarns, light on dark yarns */
+  --row-help-dark: rgba(0, 0, 0, 0.12);
+  --row-help-light: rgba(255, 255, 255, 0.25);
   --info-bg: #f1f7ec;
   --info-accent: #7fae63;
 }
