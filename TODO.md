@@ -19,3 +19,8 @@ Deferred until after the local visual MVP.
       - colour one letter (or word) with its own yarn (per-letter palette index in `composeText`)
       - nudge single letters up/down/sideways (per-letter offset)
       - set height and width independently (stretch letters) instead of fixing two of three
+- [ ] Row help contrast: the 15 % grey shade can vanish when two yarns are close in colour
+      or very dark. Detect low contrast between shaded and unshaded yarns and offer a
+      secondary shade (e.g. light tint, hatching or a row-edge marker).
+- [ ] Stitch view (preview): decide after trying it whether to develop further (highlights,
+      in print/PNG as an option) and whether it is a pro feature.
