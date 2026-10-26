@@ -62,7 +62,6 @@
             <span data-i18n="chooseImage">Choose image</span>
           </label>
           <span id="image-name" class="hint"></span>
-          <button type="button" id="image-guard" class="source-guard no-print" hidden data-i18n="imageGuard">If you choose an image, the text will be removed.</button>
         </fieldset>
 
         <fieldset id="text-source">
@@ -82,7 +81,6 @@
             </select>
           </label>
           <label class="inline"><input type="checkbox" id="bold" checked> <span data-i18n="bold">Bold</span></label>
-          <button type="button" id="text-guard" class="source-guard no-print" hidden data-i18n="textGuard">Image selected. If you write text or change the font, the image will be removed.</button>
         </fieldset>
 
         <fieldset id="text-size" hidden>
@@ -117,13 +115,6 @@
           </label>
         </fieldset>
       </form>
-
-      <button type="button" id="lock-overlay" class="no-print" hidden>
-        <span class="lock-notice">
-          <strong data-i18n="lockTitle">Settings are locked while you have painted stitches.</strong>
-          <span data-i18n="lockAction">Click here to change settings. Your painted stitches will be lost.</span>
-        </span>
-      </button>
     </div>
 
     <p id="error" role="alert" hidden></p>
@@ -161,6 +152,17 @@
       <ol id="instructions"></ol>
     </section>
   </main>
+
+ <dialog id="confirm" class="no-print" aria-labelledby="confirm-title">
+    <form method="dialog">
+      <h2 id="confirm-title" data-i18n="confirmTitle">Recalculate the pattern?</h2>
+      <div id="confirm-reasons"></div>
+      <div class="dialog-buttons">
+        <button value="cancel" data-i18n="cancel" autofocus>Cancel</button>
+        <button value="ok" class="primary" data-i18n="continue">Continue</button>
+      </div>
+    </form>
+  </dialog>
 
   <script type="module" src="index.js"></script>
 </body>

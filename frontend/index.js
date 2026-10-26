@@ -43,6 +43,8 @@ let layout = null
 let generatedGrid = null
 let stroke = null
 let hold = null
+// Form values of the current pattern; a cancelled change returns to them
+let settled = null
 // Kept so a language switch can re-render them
 let letterInfo = null
 let errorMessage = null
@@ -50,6 +52,10 @@ let errorMessage = null
 byId('image').addEventListener('change', async event => {
   const file = event.target.files[0]
   if (!file) return
+  if (!await confirmChange(source === 'text' && hasText() ? 'removeText' : null)) {
+    event.target.value = ''
+    return
+  }
 
   // One source at a time: an image replaces typed text
   byId('text').value = ''
@@ -59,32 +65,8 @@ byId('image').addEventListener('change', async event => {
   generate()
 })
 
-byId('text').addEventListener('input', loadText)
-byId('text-guard').addEventListener('click', () => {
-  byId('text-guard').hidden = true
-  byId('text').focus()
-})
-byId('image-guard').addEventListener('click', () => byId('image').click())
-byId('font').addEventListener('change', loadText)
-byId('bold').addEventListener('change', loadText)
-
-byId('use-yarns').addEventListener('change', () => {
-  byId('yarn-pickers').hidden = !byId('use-yarns').checked
-  renderYarnPickers()
-  generate()
-})
-
-// Swatch size and final width follow the swatch unit, converted so the size stays the same.
-// A final width counted in stitches is left alone.
-byId('swatch-inch').addEventListener('change', () => {
-  const unit = swatchUnit()
-  convertLength('swatch-width', unit)
-  convertLength('swatch-height', unit)
-
-  const widthUnit = byId('width-unit').value
-  if (widthUnit === 'stitches' || widthUnit === unit) return
-  convertLength('width-value', unit)
-  byId('width-unit').value = unit
+byId('text').addEventListener('input', async () => {
+  if (await confirmChange(source === 'image' && pixels ? 'removeImage' : null)) loadText()
 })
 
 // Linked swatch: width and height stay equal; relinking copies width to height
@@ -94,22 +76,36 @@ byId('swatch-width').addEventListener('input', () => {
 byId('swatch-height').addEventListener('input', () => {
   if (swatchLinked()) byId('swatch-width').value = byId('swatch-height').value
 })
-byId('swatch-link').addEventListener('click', () => {
+byId('swatch-link').addEventListener('click', async () => {
   const linked = !swatchLinked()
+  const changesSize = linked && byId('swatch-height').value !== byId('swatch-width').value
+  if (changesSize && !await confirmChange(null)) return
+
   byId('swatch-link').setAttribute('aria-pressed', String(linked))
   renderLinkTitle()
-  if (linked && byId('swatch-height').value !== byId('swatch-width').value) {
+  if (changesSize) {
     byId('swatch-height').value = byId('swatch-width').value
     generate()
+  } else {
+    settled = readSettings()
   }
 })
 
-byId('yarn-count').addEventListener('change', () => { renderYarnPickers(); generate() })
+// Any other input change regenerates the pattern, once confirmed
+byId('inputs').addEventListener('change', async event => {
+  const { id } = event.target
+  if (id === 'image' || id === 'text') return
+  // Font only matters for text
+  if ((id === 'font' || id === 'bold') && source !== 'text') {
+    settled = readSettings()
+    return
+  }
+  if (!await confirmChange(null)) return
 
-// Any other input change regenerates the pattern
-const OWN_HANDLERS = ['image', 'text', 'font', 'bold', 'use-yarns', 'yarn-count']
-byId('inputs').addEventListener('change', event => {
-  if (!OWN_HANDLERS.includes(event.target.id)) generate()
+  if (id === 'swatch-inch') convertSwatchUnit()
+  if (id === 'use-yarns') byId('yarn-pickers').hidden = !byId('use-yarns').checked
+  if (id === 'use-yarns' || id === 'yarn-count') renderYarnPickers()
+  generate()
 })
 
 // Knitting options only change numbering and instructions, not the pattern
@@ -129,10 +125,6 @@ byId('undo').addEventListener('click', () => {
   render()
 })
 
-byId('lock-overlay').addEventListener('click', () => {
-  undoStack = []
-  updateLock()
-})
 
 byId('language').addEventListener('change', () => {
   setLanguage(byId('language').value)
@@ -151,6 +143,7 @@ translatePage()
 renderLinkTitle()
 renderYarnPickers()
 previewFonts()
+settled = readSettings()
 
 async function loadPixels(file) {
   const bitmap = await createImageBitmap(file)
@@ -275,8 +268,6 @@ function updateSourceInputs() {
 
   const sizeMode = byId('text-fix').value
   byId('text-size').hidden = !(isText && hasText)
-  byId('text-guard').hidden = !(source === 'image' && pixels)
-  byId('image-guard').hidden = !(isText && hasText)
 
   if (isText && imageYarnCount === null) {
     imageYarnCount = byId('yarn-count').value
@@ -293,6 +284,19 @@ function updateSourceInputs() {
   byId('letter-spacing').disabled = isText && sizeMode === 'fill'
   byId('width-value').disabled = isText && sizeMode === 'height'
   byId('width-unit').disabled = isText && sizeMode === 'height'
+}
+
+// Swatch size and final width follow the swatch unit, converted so the size stays the same.
+// A final width counted in stitches is left alone.
+function convertSwatchUnit() {
+  const unit = swatchUnit()
+  convertLength('swatch-width', unit)
+  convertLength('swatch-height', unit)
+
+  const widthUnit = byId('width-unit').value
+  if (widthUnit === 'stitches' || widthUnit === unit) return
+  convertLength('width-value', unit)
+  byId('width-unit').value = unit
 }
 
 // Inches keep two decimals so converting back lands on the same cm (10 cm → 3.94 in → 10 cm)
@@ -356,6 +360,7 @@ function renderYarnPickers() {
 }
 
 function generate() {
+  settled = readSettings()
   updateSourceInputs()
   if (source === 'image' ? !pixels : !byId('text').value.trim()) {
     // Switching source can leave nothing to show; drop the old pattern
@@ -677,12 +682,61 @@ function paintCellAt({ x, y }) {
   )
 }
 
-// Settings that regenerate the pattern would wipe painted stitches, so lock them
 function updateLock() {
-  const locked = undoStack.length > 0
-  byId('inputs').querySelectorAll('fieldset').forEach(fieldset => { fieldset.disabled = locked })
-  byId('lock-overlay').hidden = !locked
-  byId('undo').disabled = !locked
+  byId('undo').disabled = undoStack.length === 0
+}
+
+function hasText() {
+  return byId('text').value.trim() !== ''
+}
+
+// A change that recalculates the pattern asks first when it would lose painted stitches
+// or the other source ('removeImage' / 'removeText'). Cancel puts the form back.
+async function confirmChange(removes) {
+  const reasons = [removes, undoStack.length > 0 && 'losePainted'].filter(Boolean)
+  if (reasons.length > 0 && !await ask(reasons)) {
+    restoreSettings(settled)
+    return false
+  }
+  undoStack = []
+  updateLock()
+  return true
+}
+
+function ask(reasons) {
+  const dialog = byId('confirm')
+  byId('confirm-reasons').replaceChildren(...reasons.map(key => {
+    const p = document.createElement('p')
+    p.textContent = translate(key)
+    return p
+  }))
+  dialog.returnValue = ''
+  dialog.showModal()
+  return new Promise(resolve => {
+    dialog.addEventListener('close', () => resolve(dialog.returnValue === 'ok'), { once: true })
+  })
+}
+
+function readSettings() {
+  return {
+    controls: [...byId('inputs').querySelectorAll('input:not([type="file"]), select, textarea')]
+      .filter(control => control.id)
+      .map(control => [control, control.type === 'checkbox' ? control.checked : control.value]),
+    yarns: [...byId('yarn-pickers').querySelectorAll('input')].map(input => input.value),
+    linked: swatchLinked()
+  }
+}
+
+function restoreSettings({ controls, yarns, linked }) {
+  for (const [control, value] of controls) {
+    if (control.type === 'checkbox') control.checked = value
+    else control.value = value
+  }
+  byId('swatch-link').setAttribute('aria-pressed', String(linked))
+  renderLinkTitle()
+  byId('yarn-pickers').hidden = !byId('use-yarns').checked
+  renderYarnPickers()
+  byId('yarn-pickers').querySelectorAll('input').forEach((input, i) => { if (yarns[i]) input.value = yarns[i] })
 }
 
 function showError(message) {
