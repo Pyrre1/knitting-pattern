@@ -22,14 +22,22 @@
       <form id="inputs">
         <fieldset id="swatch">
           <legend data-i18n="swatch">Swatch (gauge)</legend>
-          <label><span data-i18n="unit">Unit</span>
-            <select id="swatch-unit">
-              <option value="cm">cm</option>
-              <option value="inch" data-i18n="unitInch">inch</option>
-            </select>
-          </label>
-          <label><span data-i18n="width">Width</span> <input type="number" id="swatch-width" value="10" min="0.1" step="any"></label>
-          <label><span data-i18n="height">Height</span> <input type="number" id="swatch-height" value="10" min="0.1" step="any"></label>
+          <div class="row"><span data-i18n="unit">Unit</span>
+            <label class="switch"><span>cm</span> <input type="checkbox" id="swatch-inch" role="switch"> <span data-i18n="unitInch">inch</span></label>
+          </div>
+          <div class="linked">
+            <div class="linked-inputs">
+              <label><span data-i18n="width">Width</span> <input type="number" id="swatch-width" value="10" min="0.1" step="any"></label>
+              <label><span data-i18n="height">Height</span> <input type="number" id="swatch-height" value="10" min="0.1" step="any"></label>
+            </div>
+            <button type="button" id="swatch-link" class="link-button" aria-pressed="true" data-i18n-title="linkSize">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/>
+                <path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>
+                <path class="link-break" d="M4 4l16 16"/>
+              </svg>
+            </button>
+          </div>
           <label><span data-i18n="stitches">Stitches</span> <input type="number" id="swatch-stitches" value="22" min="1"></label>
           <label><span data-i18n="rows">Rows</span> <input type="number" id="swatch-rows" value="30" min="1"></label>
         </fieldset>
@@ -79,6 +87,12 @@
 
         <fieldset id="text-size" hidden>
           <legend data-i18n="textSize">Text size</legend>
+          <label><span data-i18n="textLayout">Letters</span>
+            <select id="text-layout">
+              <option value="row" data-i18n="layoutRow">side by side</option>
+              <option value="column" data-i18n="layoutColumn">on top of each other</option>
+            </select>
+          </label>
           <label><span data-i18n="textFix">Set</span>
             <select id="text-fix">
               <option value="height" data-i18n="fixHeight">height + spacing</option>
@@ -88,7 +102,7 @@
           </label>
           <label><span data-i18n="letterRows">Letter height (rows)</span> <input type="number" id="letter-rows" value="12" min="1" max="200"></label>
           <span id="letter-cm" class="hint"></span>
-          <label><span data-i18n="letterSpacing">Spacing (stitches)</span> <input type="number" id="letter-spacing" value="1" min="0"></label>
+          <label><span id="letter-spacing-label" data-i18n="letterSpacing">Spacing (stitches)</span> <input type="number" id="letter-spacing" value="1" min="0"></label>
         </fieldset>
 
         <fieldset id="final-size">
@@ -116,7 +130,7 @@
 
     <section id="result" hidden>
       <p id="size-info"></p>
-      <p id="paint-hint" class="no-print" data-i18n="paintHint">To paint in missed stitches, click a letter and paint in the preview.</p>
+      <p id="paint-hint" class="no-print" data-i18n="paintHint">To paint in missed stitches, click a letter and paint in the preview. Right-click (on touch: press and hold) restores the original stitch.</p>
       <div id="paint-bar">
         <ul id="palette"></ul>
         <button type="button" id="undo" class="no-print" disabled data-i18n="undo">Undo</button>

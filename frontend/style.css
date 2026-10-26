@@ -90,6 +90,89 @@ label {
 
 label.inline { justify-content: flex-start; }
 
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+/* cm/inch toggle: track with a sliding knob */
+.switch { cursor: pointer; }
+
+.switch input {
+  appearance: none;
+  position: relative;
+  width: 36px;
+  height: 20px;
+  margin: 0;
+  border-radius: 10px;
+  background: var(--header);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.switch input::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--fg);
+  transition: transform 0.15s;
+}
+
+.switch input:checked::after { transform: translateX(16px); }
+
+.switch input:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+
+/* Width and height with a link button joined to both by a bracket */
+.linked {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.linked-inputs {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.link-button {
+  position: relative;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  border: none;
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.link-button::before {
+  content: "";
+  position: absolute;
+  top: 25%;
+  bottom: 25%;
+  left: 0;
+  width: 6px;
+  border: 1px solid var(--border);
+  border-left: none;
+}
+
+.link-button svg { margin-left: 6px; }
+
+.link-button .link-break { display: none; }
+
+.link-button[aria-pressed="false"] { color: var(--muted); }
+.link-button[aria-pressed="false"]::before { border-style: dashed; }
+.link-button[aria-pressed="false"] .link-break { display: inline; }
+
 #image-source,
 #text-source { position: relative; }
 
@@ -224,6 +307,12 @@ input[type="number"] { width: 6em; }
 canvas.painting {
   cursor: crosshair;
   touch-action: none;
+}
+
+/* Long press restores a stitch; no text selection or iOS callout */
+canvas {
+  -webkit-touch-callout: none;
+  user-select: none;
 }
 
 .print-only { display: none; }

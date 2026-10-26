@@ -26,6 +26,12 @@ const STRINGS = {
     fixFill: 'height + width (fill)',
     letterRows: 'Letter height (rows)',
     letterSpacing: 'Spacing (stitches)',
+    letterSpacingRows: 'Spacing (rows)',
+    textLayout: 'Letters',
+    layoutRow: 'side by side',
+    layoutColumn: 'on top of each other',
+    linkSize: 'Same width and height. Click to set them separately.',
+    unlinkSize: 'Separate width and height. Click to link them.',
     letterCm: '≈ {cm} cm per letter',
     letterReduced: ' (reduced to fit width)',
     finalSize: 'Final size',
@@ -36,7 +42,7 @@ const STRINGS = {
     lockTitle: 'Settings are locked while you have painted stitches.',
     lockAction: 'Click here to change settings. Your painted stitches will be lost.',
     sizeInfo: 'Estimated size of finished fabric: {stitches} stitches × {rows} rows · {width} × {height} cm',
-    paintHint: 'To paint in missed stitches, click a letter and paint in the preview.',
+    paintHint: 'To paint in missed stitches, click a letter and paint in the preview. Right-click (on touch: press and hold) restores the original stitch.',
     paintWith: 'Paint with this yarn',
     yarnColour: 'Yarn colour',
     imageColour: 'Image colour',
@@ -78,6 +84,12 @@ const STRINGS = {
     fixFill: 'höjd + bredd (fyll ut)',
     letterRows: 'Bokstavshöjd (varv)',
     letterSpacing: 'Mellanrum (maskor)',
+    letterSpacingRows: 'Mellanrum (varv)',
+    textLayout: 'Bokstäver',
+    layoutRow: 'bredvid varandra',
+    layoutColumn: 'ovanpå varandra',
+    linkSize: 'Samma bredd och höjd. Klicka för att ange dem var för sig.',
+    unlinkSize: 'Bredd och höjd var för sig. Klicka för att koppla ihop dem.',
     letterCm: '≈ {cm} cm per bokstav',
     letterReduced: ' (minskad för att få plats i bredden)',
     finalSize: 'Färdig storlek',
@@ -88,7 +100,7 @@ const STRINGS = {
     lockTitle: 'Inställningarna är låsta medan du har målade maskor.',
     lockAction: 'Klicka här för att ändra inställningar. Dina målade maskor försvinner.',
     sizeInfo: 'Beräknad storlek på färdigt projekt: {stitches} maskor × {rows} varv · {width} × {height} cm',
-    paintHint: 'Klicka på en bokstav och måla i förhandsvisningen för att fylla i missade maskor.',
+    paintHint: 'Klicka på en bokstav och måla i förhandsvisningen för att fylla i missade maskor. Högerklicka (pekskärm: håll kvar) för att återställa ursprunglig maska.',
     paintWith: 'Måla med det här garnet',
     yarnColour: 'Garnfärg',
     imageColour: 'Bildfärg',
@@ -188,5 +200,6 @@ export function formatNumber(value, decimals) {
 export function translatePage() {
   document.documentElement.lang = language
   document.querySelectorAll('[data-i18n]').forEach(element => { element.textContent = translate(element.dataset.i18n) })
+  document.querySelectorAll('[data-i18n-title]').forEach(element => { element.title = translate(element.dataset.i18nTitle) })
   document.querySelectorAll('[data-i18n-placeholder]').forEach(element => { element.placeholder = translate(element.dataset.i18nPlaceholder) })
 }

@@ -23,6 +23,8 @@ const GUIDES = [
 const GLYPH_FONT_SIZE = 300
 const MAX_LETTER_ROWS = 200
 const CM_PER_INCH = 2.54
+// Touch: holding a stitch this long restores it instead of painting
+const HOLD_MS = 500
 
 const byId = id => document.getElementById(id)
 
@@ -37,6 +39,10 @@ let brush = null
 let undoStack = []
 let painting = false
 let layout = null
+// Grid as generated, for restoring stitches; stroke is 'paint' or 'restore'
+let generatedGrid = null
+let stroke = null
+let hold = null
 // Kept so a language switch can re-render them
 let letterInfo = null
 let errorMessage = null
@@ -70,8 +76,8 @@ byId('use-yarns').addEventListener('change', () => {
 
 // Swatch size and final width follow the swatch unit, converted so the size stays the same.
 // A final width counted in stitches is left alone.
-byId('swatch-unit').addEventListener('change', () => {
-  const unit = byId('swatch-unit').value
+byId('swatch-inch').addEventListener('change', () => {
+  const unit = swatchUnit()
   convertLength('swatch-width', unit)
   convertLength('swatch-height', unit)
 
@@ -79,6 +85,23 @@ byId('swatch-unit').addEventListener('change', () => {
   if (widthUnit === 'stitches' || widthUnit === unit) return
   convertLength('width-value', unit)
   byId('width-unit').value = unit
+})
+
+// Linked swatch: width and height stay equal; relinking copies width to height
+byId('swatch-width').addEventListener('input', () => {
+  if (swatchLinked()) byId('swatch-height').value = byId('swatch-width').value
+})
+byId('swatch-height').addEventListener('input', () => {
+  if (swatchLinked()) byId('swatch-width').value = byId('swatch-height').value
+})
+byId('swatch-link').addEventListener('click', () => {
+  const linked = !swatchLinked()
+  byId('swatch-link').setAttribute('aria-pressed', String(linked))
+  renderLinkTitle()
+  if (linked && byId('swatch-height').value !== byId('swatch-width').value) {
+    byId('swatch-height').value = byId('swatch-width').value
+    generate()
+  }
 })
 
 byId('yarn-count').addEventListener('change', () => { renderYarnPickers(); generate() })
@@ -94,9 +117,11 @@ byId('knit-method').addEventListener('change', () => { drawGrid(); renderInstruc
 byId('knit-start').addEventListener('change', () => { drawGrid(); renderInstructions() })
 
 byId('grid').addEventListener('pointerdown', startStroke)
-byId('grid').addEventListener('pointermove', event => { if (painting) paintAt(event) })
+byId('grid').addEventListener('pointermove', moveStroke)
 byId('grid').addEventListener('pointerup', endStroke)
 byId('grid').addEventListener('pointercancel', endStroke)
+// Right-click and long press restore stitches; no context menu
+byId('grid').addEventListener('contextmenu', event => event.preventDefault())
 
 byId('undo').addEventListener('click', () => {
   pattern = { ...pattern, grid: undoStack.pop() }
@@ -111,6 +136,7 @@ byId('lock-overlay').addEventListener('click', () => {
 
 byId('language').addEventListener('change', () => {
   setLanguage(byId('language').value)
+  renderLinkTitle()
   renderYarnPickers()
   renderLetterInfo()
   showError(errorMessage)
@@ -122,6 +148,7 @@ byId('save-png').addEventListener('click', savePng)
 
 byId('language').value = getLanguage()
 translatePage()
+renderLinkTitle()
 renderYarnPickers()
 previewFonts()
 
@@ -198,9 +225,10 @@ function createTextPattern() {
   const pixelsByChar = glyphPixels(chars, byId('font').value, byId('bold').checked)
   const maxRows = Math.min(MAX_LETTER_ROWS, Object.values(pixelsByChar)[0].length)
 
+  const textLayout = byId('text-layout').value
   const compose = (rows, options) => {
     const glyphs = Object.fromEntries(chars.map(char => [char, toGlyph(pixelsByChar[char], rows, gauge)]))
-    return composeText(glyphs, text, { ...options, lineSpacing: Math.max(1, Math.round(rows * 0.3)) })
+    return composeText(glyphs, text, { ...options, layout: textLayout, lineSpacing: Math.max(1, Math.round(rows * 0.3)) })
   }
 
   const sizeMode = byId('text-fix').value
@@ -237,6 +265,14 @@ function readWidthStitches(gauge) {
 function updateSourceInputs() {
   const isText = source === 'text'
   const hasText = byId('text').value.trim() !== ''
+  // Stacked letters have nothing to spread across the width, and are spaced in rows
+  const isColumn = byId('text-layout').value === 'column'
+  byId('text-fix').querySelector('[value="fill"]').disabled = isColumn
+  if (isColumn && byId('text-fix').value === 'fill') byId('text-fix').value = 'height'
+  const spacingLabel = byId('letter-spacing-label')
+  spacingLabel.dataset.i18n = isColumn ? 'letterSpacingRows' : 'letterSpacing'
+  spacingLabel.textContent = translate(spacingLabel.dataset.i18n)
+
   const sizeMode = byId('text-fix').value
   byId('text-size').hidden = !(isText && hasText)
   byId('text-guard').hidden = !(source === 'image' && pixels)
@@ -267,9 +303,21 @@ function convertLength(inputId, toUnit) {
   byId(inputId).value = Number(converted.toFixed(decimals))
 }
 
+function swatchUnit() {
+  return byId('swatch-inch').checked ? 'inch' : 'cm'
+}
+
+function swatchLinked() {
+  return byId('swatch-link').getAttribute('aria-pressed') === 'true'
+}
+
+function renderLinkTitle() {
+  byId('swatch-link').title = translate(swatchLinked() ? 'linkSize' : 'unlinkSize')
+}
+
 function readSwatch() {
   return {
-    unit: byId('swatch-unit').value,
+    unit: swatchUnit(),
     width: Number(byId('swatch-width').value),
     height: Number(byId('swatch-height').value),
     stitches: Number(byId('swatch-stitches').value),
@@ -327,6 +375,7 @@ function generate() {
       yarns: readYarns(),
       desiredWidth: { unit: byId('width-unit').value, value: Number(byId('width-value').value) }
     })
+    generatedGrid = pattern.grid
     // Fewer yarns than before can leave the brush pointing at a missing colour
     if (brush !== null && brush >= pattern.palette.length) brush = null
     showError(null)
@@ -545,16 +594,42 @@ function selectBrush(index) {
   byId('grid').classList.toggle('painting', brush !== null)
 }
 
+// Left button paints with the brush, right button restores the generated stitch.
+// Touch: a tap paints; holding still on a stitch switches the stroke to restore.
 function startStroke(event) {
-  if (brush === null) return
+  const restore = event.button === 2
+  const touch = event.pointerType === 'touch'
+  if (event.button !== 0 && !restore) return
+  if (brush === null && !restore && !touch) return
 
   byId('grid').setPointerCapture(event.pointerId)
   undoStack.push(pattern.grid)
   painting = true
+  stroke = restore ? 'restore' : 'paint'
+  paintAt(event)
+
+  const cell = cellAt(event)
+  if (touch && !restore && cell) {
+    hold = { cell, timer: setTimeout(() => { stroke = 'restore'; paintCellAt(cell) }, HOLD_MS) }
+  }
+}
+
+function moveStroke(event) {
+  if (!painting) return
+  // Moving to another stitch before the hold time makes it a paint stroke
+  const cell = cellAt(event)
+  if (hold && (cell?.x !== hold.cell?.x || cell?.y !== hold.cell?.y)) cancelHold()
   paintAt(event)
 }
 
+function cancelHold() {
+  if (!hold) return
+  clearTimeout(hold.timer)
+  hold = null
+}
+
 function endStroke() {
+  cancelHold()
   if (!painting) return
   painting = false
 
@@ -565,8 +640,8 @@ function endStroke() {
   render()
 }
 
-// Paint the stitch under the pointer; only that cell is redrawn until the stroke ends
-function paintAt(event) {
+// Stitch under the pointer, or null outside the grid
+function cellAt(event) {
   const canvas = byId('grid')
   const rect = canvas.getBoundingClientRect()
   const gridX = (event.clientX - rect.left) * (canvas.width / rect.width) - LABEL_MARGIN
@@ -574,14 +649,26 @@ function paintAt(event) {
   const x = Math.floor(gridX / layout.cellWidth)
   const y = Math.floor(gridY / layout.cellHeight)
 
-  if (x < 0 || y < 0 || x >= pattern.size.stitches || y >= pattern.size.rows) return
+  if (x < 0 || y < 0 || x >= pattern.size.stitches || y >= pattern.size.rows) return null
+  return { x, y }
+}
 
-  const next = paintCell(pattern, x, y, brush)
+function paintAt(event) {
+  const cell = cellAt(event)
+  if (cell) paintCellAt(cell)
+}
+
+// Paint or restore one stitch; only that cell is redrawn until the stroke ends
+function paintCellAt({ x, y }) {
+  const index = stroke === 'restore' ? generatedGrid[y][x] : brush
+  if (index === null) return
+
+  const next = paintCell(pattern, x, y, index)
   if (next === pattern) return
   pattern = next
 
-  const ctx = canvas.getContext('2d')
-  ctx.fillStyle = rgbToHex(pattern.palette[brush].yarn)
+  const ctx = byId('grid').getContext('2d')
+  ctx.fillStyle = rgbToHex(pattern.palette[index].yarn)
   ctx.fillRect(
     LABEL_MARGIN + x * layout.cellWidth,
     LABEL_MARGIN + y * layout.cellHeight,
