@@ -110,8 +110,14 @@ byId('inputs').addEventListener('change', async event => {
 })
 
 // Knitting options only change numbering and instructions, not the pattern
-byId('knit-method').addEventListener('change', () => { drawGrid(); renderInstructions() })
+byId('knit-method').addEventListener('change', () => {
+  // Row help shades wrong-side rows, which only exist when knitting back and forth
+  byId('row-help-option').hidden = byId('knit-method').value !== 'flat'
+  drawGrid()
+  renderInstructions()
+})
 byId('knit-start').addEventListener('change', () => { drawGrid(); renderInstructions() })
+byId('row-help').addEventListener('change', drawGrid)
 
 byId('grid').addEventListener('pointerdown', startStroke)
 byId('grid').addEventListener('pointermove', moveStroke)
@@ -475,7 +481,11 @@ function drawGrid() {
   const cellHeight = cellWidth * (gauge.stitchesPerCm / gauge.rowsPerCm)
   const gridWidth = cellWidth * size.stitches
   const gridHeight = cellHeight * size.rows
-  layout = { cellWidth, cellHeight }
+  // Displayed rows knitted on the wrong side, shaded when row help is on
+  const shadedRows = options.method === 'flat' && byId('row-help').checked
+    ? new Set(rowInstructions(grid, options).filter(row => row.side === 'WS').map(row => row.displayRow))
+    : new Set()
+  layout = { cellWidth, cellHeight, shadedRows }
 
   const canvas = byId('grid')
   canvas.width = Math.ceil(gridWidth + 2 * LABEL_MARGIN)
@@ -499,9 +509,12 @@ function drawGrid() {
     })
   })
 
+  ctx.fillStyle = cssVar('--row-help')
+  shadedRows.forEach(y => ctx.fillRect(0, y * cellHeight, gridWidth, cellHeight))
+
   // Grid lines only when cells are big enough to see them
   if (cellWidth >= 6) {
-    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--grid-line')
+    ctx.strokeStyle = cssVar('--grid-line')
     ctx.lineWidth = 1
     ctx.beginPath()
     for (let x = 0; x <= size.stitches; x++) {
@@ -686,13 +699,14 @@ function paintCellAt({ x, y }) {
   pattern = next
 
   const ctx = byId('grid').getContext('2d')
+  const cell = [LABEL_MARGIN + x * layout.cellWidth, LABEL_MARGIN + y * layout.cellHeight, layout.cellWidth, layout.cellHeight]
   ctx.fillStyle = rgbToHex(pattern.palette[index].yarn)
-  ctx.fillRect(
-    LABEL_MARGIN + x * layout.cellWidth,
-    LABEL_MARGIN + y * layout.cellHeight,
-    layout.cellWidth,
-    layout.cellHeight
-  )
+  ctx.fillRect(...cell)
+  // Keep the row help shade on painted stitches
+  if (layout.shadedRows.has(y)) {
+    ctx.fillStyle = cssVar('--row-help')
+    ctx.fillRect(...cell)
+  }
 }
 
 function updateLock() {
@@ -756,6 +770,10 @@ function showError(message) {
   errorMessage = message
   byId('error').hidden = !message
   byId('error').textContent = message ? translateError(message) : ''
+}
+
+function cssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name)
 }
 
 function rgbToHex(rgb) {
