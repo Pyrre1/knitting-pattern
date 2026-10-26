@@ -9,6 +9,8 @@
   --border: #ccc;
   --error: #b00020;
   --grid-line: rgba(0, 0, 0, 0.15);
+  /* Number inputs; the cm/inch switch above them uses the same width */
+  --number-width: 80px;
   /* Row help on wrong-side rows: shadow on light yarns, light on dark yarns */
   --row-help-dark: rgba(0, 0, 0, 0.12);
   --row-help-light: rgba(255, 255, 255, 0.25);
@@ -102,8 +104,21 @@ label.inline { justify-content: flex-start; }
   gap: 8px;
 }
 
-/* cm/inch toggle: track with a sliding knob */
-.switch { cursor: pointer; }
+/* Every swatch row leaves room for the link button, so all inputs line up */
+#swatch { --link-gutter: 36px; }
+#swatch > label, #swatch > .row { padding-right: var(--link-gutter); }
+
+/* cm/inch toggle: track with a sliding knob, centred over the inputs below */
+.switch {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 4px;
+  width: var(--number-width);
+  cursor: pointer;
+}
+
+.switch > span:first-child { justify-self: end; }
+.switch > span:last-child { justify-self: start; }
 
 .switch input {
   appearance: none;
@@ -152,6 +167,7 @@ label.inline { justify-content: flex-start; }
   align-self: stretch;
   display: flex;
   align-items: center;
+  width: calc(var(--link-gutter) - 4px);
   padding: 0 4px;
   border: none;
   background: transparent;
@@ -240,7 +256,7 @@ label.inline { justify-content: flex-start; }
   color: var(--bg);
 }
 
-input[type="number"] { width: 6em; }
+input[type="number"] { width: var(--number-width); }
 
 #yarn-pickers {
   display: flex;
