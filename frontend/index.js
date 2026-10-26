@@ -708,7 +708,8 @@ function startStroke(event) {
   if (event.button !== 0 && !restore) return
   if (brush === null && !restore && !touch) return
 
-  if (byId('stitch-view').checked) {
+  // A touch tap without a brush paints nothing, so it keeps the view
+  if (byId('stitch-view').checked && (brush !== null || restore)) {
     stopStitchView()
     drawGrid()
   }
