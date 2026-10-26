@@ -98,7 +98,7 @@
               <option value="fill" data-i18n="fixFill">height + width (fill)</option>
             </select>
           </label>
-          <label><span data-i18n="letterRows">Letter height (rows)</span> <input type="number" id="letter-rows" value="12" min="1" max="200"></label>
+          <label><span id="letter-rows-label" data-i18n="letterRows">Letter height (rows)</span> <input type="number" id="letter-rows" value="12" min="1" max="200"></label>
           <span id="letter-cm" class="hint"></span>
           <label><span id="letter-spacing-label" data-i18n="letterSpacing">Spacing (stitches)</span> <input type="number" id="letter-spacing" value="1" min="0"></label>
         </fieldset>
@@ -113,6 +113,14 @@
               <option value="inch" data-i18n="unitInch">inch</option>
             </select>
           </label>
+          <label><span data-i18n="rotate">Rotate</span>
+            <select id="rotate">
+              <option value="none" data-i18n="rotateNone">no</option>
+              <option value="right" data-i18n="rotateRight">90° right</option>
+              <option value="left" data-i18n="rotateLeft">90° left</option>
+            </select>
+          </label>
+          <span id="rotate-hint" class="hint" data-i18n="rotateHint" hidden>Rotated: the chart is shown as knitted, e.g. text along a scarf. Width is across the knitting.</span>
         </fieldset>
       </form>
     </div>

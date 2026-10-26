@@ -4,6 +4,7 @@ import { gaugeInterpreter } from "../core/gaugeInterpreter.js"
 import { setYarn, paintCell } from "../core/patternEdits.js"
 import { rowInstructions, formatInstruction } from "../core/rowInstructions.js"
 import { toGlyph, composeText, fitRows, textPattern } from "../core/textGrid.js"
+import { rotateGrid, rotateGauge } from "../core/rotateGrid.js"
 import { translate, translatePage, getLanguage, setLanguage, instructionTerms, translateError, formatNumber } from "./i18n.js"
 
 // Longest image side kept after load; caps both work and max stitch count
@@ -218,9 +219,14 @@ function createTextPattern() {
   const pixelsByChar = glyphPixels(chars, byId('font').value, byId('bold').checked)
   const maxRows = Math.min(MAX_LETTER_ROWS, Object.values(pixelsByChar)[0].length)
 
+  // Rotated text is composed upright with stitches and rows swapped, then turned,
+  // so its height runs across the stitches of the knitted fabric
+  const turn = byId('rotate').value
+  const textGauge = turn === 'none' ? gauge : rotateGauge(gauge)
+  const across = grid => turn === 'none' ? grid[0].length : grid.length
   const textLayout = byId('text-layout').value
   const compose = (rows, options) => {
-    const glyphs = Object.fromEntries(chars.map(char => [char, toGlyph(pixelsByChar[char], rows, gauge)]))
+    const glyphs = Object.fromEntries(chars.map(char => [char, toGlyph(pixelsByChar[char], rows, textGauge)]))
     return composeText(glyphs, text, { ...options, layout: textLayout, lineSpacing: Math.max(1, Math.round(rows * 0.3)) })
   }
 
@@ -228,7 +234,7 @@ function createTextPattern() {
   const spacing = Math.max(0, Math.round(Number(byId('letter-spacing').value)))
   const requested = Math.min(maxRows, Math.max(1, Math.round(Number(byId('letter-rows').value))))
   let rows = sizeMode === 'width'
-    ? fitRows(letterRows => compose(letterRows, { spacing })[0].length, readWidthStitches(gauge), maxRows)
+    ? fitRows(letterRows => across(compose(letterRows, { spacing })), readWidthStitches(gauge), maxRows)
     : requested
   // Fill: height is a maximum; shrink letters until they fit the width with no spacing
   if (sizeMode === 'fill') {
@@ -237,9 +243,9 @@ function createTextPattern() {
   const grid = sizeMode === 'fill' ? compose(rows, { width: readWidthStitches(gauge) }) : compose(rows, { spacing })
 
   byId('letter-rows').value = rows
-  letterInfo = { cm: rows / gauge.rowsPerCm, reduced: sizeMode === 'fill' && rows < requested }
+  letterInfo = { cm: rows / textGauge.rowsPerCm, reduced: sizeMode === 'fill' && rows < requested }
   renderLetterInfo()
-  return textPattern({ swatch, grid, yarns: readYarns() })
+  return textPattern({ swatch, grid: rotateGrid(grid, turn), yarns: readYarns() })
 }
 
 function renderLetterInfo() {
@@ -258,13 +264,15 @@ function readWidthStitches(gauge) {
 function updateSourceInputs() {
   const isText = source === 'text'
   const hasText = byId('text').value.trim() !== ''
-  // Stacked letters have nothing to spread across the width, and are spaced in rows
+  // Stacked or rotated letters have nothing to spread across the width. Stacking and
+  // rotating each turn spacing from stitches into rows; rotating measures height in stitches.
   const isColumn = byId('text-layout').value === 'column'
-  byId('text-fix').querySelector('[value="fill"]').disabled = isColumn
-  if (isColumn && byId('text-fix').value === 'fill') byId('text-fix').value = 'height'
-  const spacingLabel = byId('letter-spacing-label')
-  spacingLabel.dataset.i18n = isColumn ? 'letterSpacingRows' : 'letterSpacing'
-  spacingLabel.textContent = translate(spacingLabel.dataset.i18n)
+  const isTurned = byId('rotate').value !== 'none'
+  byId('rotate-hint').hidden = !isTurned
+  byId('text-fix').querySelector('[value="fill"]').disabled = isColumn || isTurned
+  if ((isColumn || isTurned) && byId('text-fix').value === 'fill') byId('text-fix').value = 'height'
+  setLabel('letter-spacing-label', isColumn !== isTurned ? 'letterSpacingRows' : 'letterSpacing')
+  setLabel('letter-rows-label', isTurned ? 'letterStitches' : 'letterRows')
 
   const sizeMode = byId('text-fix').value
   byId('text-size').hidden = !(isText && hasText)
@@ -284,6 +292,11 @@ function updateSourceInputs() {
   byId('letter-spacing').disabled = isText && sizeMode === 'fill'
   byId('width-value').disabled = isText && sizeMode === 'height'
   byId('width-unit').disabled = isText && sizeMode === 'height'
+}
+
+function setLabel(id, key) {
+  byId(id).dataset.i18n = key
+  byId(id).textContent = translate(key)
 }
 
 // Swatch size and final width follow the swatch unit, converted so the size stays the same.
@@ -375,7 +388,7 @@ function generate() {
   try {
     pattern = source === 'text' ? createTextPattern() : createPattern({
       swatch: readSwatch(),
-      pixels,
+      pixels: rotateGrid(pixels, byId('rotate').value),
       yarnCount: Number(byId('yarn-count').value),
       yarns: readYarns(),
       desiredWidth: { unit: byId('width-unit').value, value: Number(byId('width-value').value) }

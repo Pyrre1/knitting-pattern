@@ -41,6 +41,8 @@ Intended pipeline (core modules, all pure, tests in `core/tests/`):
 
 Text path (`textGrid.js`) skips colour reduction: each distinct letter is drawn once and downsampled with `toGlyph(pixels, rows, gauge)` (0/1, narrowed for gauge), so repeated letters are identical. `composeText(glyphs, text, { layout, spacing | width, lineSpacing })` places them (fixed spacing, or fill `width` spreading spare stitches; `layout: 'column'` stacks letters top to bottom, `spacing` in rows, lines side by side, no `width`); `fitRows` binary-searches letter height for a target width; `textPattern({ swatch, grid, yarns? })` → pattern with palette [background, text]. Frontend renders the glyph pixels (system fonts only).
 
+`rotateGrid(grid, 'none'|'right'|'left')` turns any grid 90° (right = clockwise) for sideways knitting; frontend rotates image pixels before `createPattern`, and text is composed with `rotateGauge(gauge)` (stitches↔rows) then rotated. Chart is shown as knitted; final width = across the knitting.
+
 `fromImageData({ data, width, height })` adapts canvas `ImageData` (flat RGBA) to the `[y][x] = [r,g,b]` grid; transparency is blended onto white.
 
 Palette entry = `{ source, yarn }`: stitches map by `source`, display/output uses `yarn`.
