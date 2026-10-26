@@ -66,6 +66,7 @@ const STRINGS = {
     rowHelpTitle: 'Shade wrong-side rows',
     print: 'Print',
     savePng: 'Save PNG',
+    printInstructions: 'Include instructions in print',
     undo: 'Undo',
     instructions: 'Instructions'
   },
@@ -135,6 +136,7 @@ const STRINGS = {
     rowHelpTitle: 'Skugga avigvarven',
     print: 'Skriv ut',
     savePng: 'Spara PNG',
+    printInstructions: 'Ta med instruktioner i utskrift',
     undo: 'Ångra',
     instructions: 'Instruktioner'
   }

@@ -143,6 +143,9 @@ byId('language').addEventListener('change', () => {
 })
 
 byId('print').addEventListener('click', () => window.print())
+byId('print-instructions').addEventListener('change', () => {
+  byId('result').classList.toggle('chart-only', !byId('print-instructions').checked)
+})
 byId('save-png').addEventListener('click', savePng)
 
 byId('language').value = getLanguage()

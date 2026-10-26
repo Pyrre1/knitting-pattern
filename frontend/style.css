@@ -361,4 +361,5 @@ canvas { display: block; }
   .canvas-wrap { overflow: visible; }
   canvas { max-width: 100%; height: auto; }
   #instructions li { break-inside: avoid; }
+  .chart-only #instructions-title, .chart-only #instructions { display: none; }
 }
