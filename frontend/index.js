@@ -14,6 +14,8 @@ const MAX_CELL_WIDTH = 24
 // Margin on every side for row and stitch numbers
 const LABEL_MARGIN = 32
 const LABEL_FONT = '11px system-ui, sans-serif'
+// Stitch view needs room for a visible V; smaller cells fall back to flat colour
+const MIN_STITCH_CELL = 6
 // Guide lines: every 5th between the plain grid line (0.15) and the every 10th
 const GUIDES = [
   { step: 5, colour: 'rgba(0, 0, 0, 0.25)', width: 1 },
@@ -118,6 +120,7 @@ byId('knit-method').addEventListener('change', () => {
 })
 byId('knit-start').addEventListener('change', () => { drawGrid(); renderInstructions() })
 byId('row-help').addEventListener('change', drawGrid)
+byId('stitch-view').addEventListener('change', drawGrid)
 
 byId('grid').addEventListener('pointerdown', startStroke)
 byId('grid').addEventListener('pointermove', moveStroke)
@@ -502,7 +505,8 @@ function drawGrid() {
   const shadedRows = options.method === 'flat' && byId('row-help').checked
     ? new Set(rowInstructions(grid, options).filter(row => row.side === 'WS').map(row => row.displayRow))
     : new Set()
-  layout = { cellWidth, cellHeight, shadedRows }
+  const stitchView = byId('stitch-view').checked && cellWidth >= MIN_STITCH_CELL
+  layout = { cellWidth, cellHeight, shadedRows, stitchView }
 
   const canvas = byId('grid')
   canvas.width = Math.ceil(gridWidth + 2 * LABEL_MARGIN)
@@ -517,20 +521,23 @@ function drawGrid() {
   ctx.save()
   ctx.translate(LABEL_MARGIN, LABEL_MARGIN)
 
-  const colours = palette.map(entry => rgbToHex(entry.yarn))
-
-  grid.forEach((row, y) => {
-    row.forEach((index, x) => {
-      ctx.fillStyle = colours[index]
-      ctx.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight)
+  if (stitchView) {
+    drawStitches(ctx, grid.flatMap((row, y) => row.map((index, x) => ({ x, y, index }))))
+  } else {
+    const colours = palette.map(entry => rgbToHex(entry.yarn))
+    grid.forEach((row, y) => {
+      row.forEach((index, x) => {
+        ctx.fillStyle = colours[index]
+        ctx.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight)
+      })
     })
-  })
+  }
 
   ctx.fillStyle = cssVar('--row-help')
   shadedRows.forEach(y => ctx.fillRect(0, y * cellHeight, gridWidth, cellHeight))
 
-  // Grid lines only when cells are big enough to see them
-  if (cellWidth >= 6) {
+  // Grid lines only when cells are big enough to see them; stitches show their own edges
+  if (cellWidth >= 6 && !stitchView) {
     ctx.strokeStyle = cssVar('--grid-line')
     ctx.lineWidth = 1
     ctx.beginPath()
@@ -548,6 +555,39 @@ function drawGrid() {
   drawGuideLines(ctx, { cellWidth, cellHeight, gridWidth, gridHeight, size, options })
   drawLabels(ctx, { cellWidth, cellHeight, gridWidth, gridHeight, size, options })
   ctx.restore()
+}
+
+// Stitch view: each stitch is a V of two tilted legs on a darker gap.
+// Legs are batched into one path per yarn, so large grids stay one fill per colour.
+function drawStitches(ctx, cells) {
+  const { cellWidth, cellHeight } = layout
+  const { palette } = pattern
+  const legs = palette.map(() => new Path2D())
+  const tilt = Math.atan2(cellWidth * 0.4, cellHeight)
+  const radiusX = cellWidth * 0.2
+  const radiusY = cellHeight * 0.5
+
+  palette.forEach((entry, i) => {
+    ctx.fillStyle = rgbToHex(entry.yarn.map(channel => Math.round(channel * 0.6)))
+    for (const { x, y, index } of cells) {
+      if (index === i) ctx.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight)
+    }
+  })
+
+  for (const { x, y, index } of cells) {
+    const centreY = (y + 0.5) * cellHeight
+    for (const [offset, rotation] of [[0.28, -tilt], [0.72, tilt]]) {
+      const centreX = (x + offset) * cellWidth
+      // Start a new subpath so legs are not joined by a line
+      legs[index].moveTo(centreX + radiusX * Math.cos(rotation), centreY + radiusX * Math.sin(rotation))
+      legs[index].ellipse(centreX, centreY, radiusX, radiusY, rotation, 0, 2 * Math.PI)
+    }
+  }
+
+  palette.forEach((entry, i) => {
+    ctx.fillStyle = rgbToHex(entry.yarn)
+    ctx.fill(legs[i])
+  })
 }
 
 // Guide lines every 5th and 10th stitch/row, counted from stitch 1 and row 1
@@ -723,8 +763,15 @@ function paintCellAt({ x, y }) {
 
   const ctx = byId('grid').getContext('2d')
   const cell = [LABEL_MARGIN + x * layout.cellWidth, LABEL_MARGIN + y * layout.cellHeight, layout.cellWidth, layout.cellHeight]
-  ctx.fillStyle = rgbToHex(pattern.palette[index].yarn)
-  ctx.fillRect(...cell)
+  if (layout.stitchView) {
+    ctx.save()
+    ctx.translate(LABEL_MARGIN, LABEL_MARGIN)
+    drawStitches(ctx, [{ x, y, index }])
+    ctx.restore()
+  } else {
+    ctx.fillStyle = rgbToHex(pattern.palette[index].yarn)
+    ctx.fillRect(...cell)
+  }
   // Keep the row help shade on painted stitches
   if (layout.shadedRows.has(y)) {
     ctx.fillStyle = cssVar('--row-help')
