@@ -528,7 +528,7 @@ function drawGrid() {
     notify('stitchViewTooLarge')
   }
   const stitchView = byId('stitch-view').checked
-  layout = { cellWidth, cellHeight, shadedRows, stitchView }
+  layout = { cellWidth, cellHeight, shadedRows, stitchView, topDown: options.start === 'top' }
 
   const canvas = byId('grid')
   canvas.width = Math.ceil(gridWidth + 2 * LABEL_MARGIN)
@@ -584,18 +584,19 @@ function drawGrid() {
   ctx.restore()
 }
 
-// Stitch view: each stitch is a V of two tilted legs on a darker gap.
+// Stitch view: each stitch is a V of two tilted legs on a gap, darker for light
+// yarns and lighter for dark ones. Knitted top down the chart hangs upside down, so legs form a Λ.
 // Legs are batched into one path per yarn, so large grids stay one fill per colour.
 function drawStitches(ctx, cells) {
-  const { cellWidth, cellHeight } = layout
+  const { cellWidth, cellHeight, topDown } = layout
   const { palette } = pattern
   const legs = palette.map(() => new Path2D())
-  const tilt = Math.atan2(cellWidth * 0.4, cellHeight)
+  const tilt = (topDown ? -1 : 1) * Math.atan2(cellWidth * 0.4, cellHeight)
   const radiusX = cellWidth * 0.2
   const radiusY = cellHeight * 0.5
 
   palette.forEach((entry, i) => {
-    ctx.fillStyle = rgbToHex(entry.yarn.map(channel => Math.round(channel * 0.6)))
+    ctx.fillStyle = rgbToHex(stitchGap(entry.yarn))
     for (const { x, y, index } of cells) {
       if (index === i) ctx.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight)
     }
@@ -657,6 +658,12 @@ function drawLabels(ctx, { cellWidth, cellHeight, gridWidth, gridHeight, size, o
 
   const rowStep = labelStep(cellHeight)
   ctx.textBaseline = 'middle'
+function stitchGap(yarn) {
+  return isLight(yarn)
+    ? yarn.map(channel => Math.round(channel * 0.6))
+    : yarn.map(channel => Math.round(channel + (255 - channel) * 0.35))
+}
+
   for (const { number, displayRow, direction } of rowInstructions(pattern.grid, options)) {
     if (number !== 1 && number % rowStep !== 0) continue
 
