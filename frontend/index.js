@@ -37,8 +37,10 @@ let pattern = null
 let source = 'image'
 let imageYarnCount = null
 const glyphCache = new Map()
-// Painting: selected palette index, grids before each stroke, cell size of the last draw
+// Painting: selected palette index or 'swap' (2 yarns), grids before each stroke, cell size of the last draw
 let brush = null
+// Swap brush: yarn the current stroke paints, set by its first stitch
+let swapTarget = null
 let undoStack = []
 let painting = false
 let layout = null
@@ -133,6 +135,30 @@ byId('grid').addEventListener('pointerup', endStroke)
 byId('grid').addEventListener('pointercancel', endStroke)
 // Right-click and long press restore stitches; no context menu
 byId('grid').addEventListener('contextmenu', event => event.preventDefault())
+
+// Keys pick a brush: 1–4 or A–D a yarn, S swap, Esc none; same key again deselects.
+// Ctrl+Z undoes a stroke. Fields keep their own keys.
+document.addEventListener('keydown', event => {
+  if (!pattern || byId('result').hidden || painting) return
+  if (event.target.closest('input, select, textarea, dialog')) return
+
+  const key = event.key.toLowerCase()
+  if ((event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey && key === 'z') {
+    if (!byId('undo').disabled) byId('undo').click()
+    event.preventDefault()
+    return
+  }
+  if (event.ctrlKey || event.metaKey || event.altKey) return
+  if (key === 'escape') {
+    if (brush !== null) selectBrush(brush)
+    return
+  }
+  const index = '1234'.includes(key) ? Number(key) - 1 : 'abcd'.indexOf(key)
+  if (key === 's' && pattern.palette.length === 2) selectBrush('swap')
+  else if (key.length === 1 && index >= 0 && index < pattern.palette.length) selectBrush(index)
+  else return
+  event.preventDefault()
+})
 
 byId('undo').addEventListener('click', () => {
   pattern = { ...pattern, grid: undoStack.pop() }
@@ -412,7 +438,7 @@ function generate() {
     })
     generatedGrid = pattern.grid
     // Fewer yarns than before can leave the brush pointing at a missing colour
-    if (brush !== null && brush >= pattern.palette.length) brush = null
+    if (brush === 'swap' ? pattern.palette.length !== 2 : brush !== null && brush >= pattern.palette.length) brush = null
     showError(null)
     render()
   } catch (error) {
@@ -438,13 +464,27 @@ function render() {
     const button = document.createElement('button')
     button.type = 'button'
     button.className = i === brush ? 'yarn-label selected' : 'yarn-label'
+    button.dataset.brush = i
     button.textContent = yarnLabel(i)
     button.title = translate('paintWith')
     paintBrush(button, entry.yarn)
     button.addEventListener('click', () => selectBrush(i))
     return button
   })
-  byId('brushes').replaceChildren(...brushes)
+  // With two yarns a stroke can flip stitches to the other yarn
+  const swap = []
+  if (palette.length === 2) {
+    const button = document.createElement('button')
+    button.type = 'button'
+    button.className = brush === 'swap' ? 'yarn-label selected' : 'yarn-label'
+    button.dataset.brush = 'swap'
+    button.textContent = `${yarnLabel(0)} ⇄ ${yarnLabel(1)}`
+    button.title = translate('swapBrush')
+    button.addEventListener('click', () => selectBrush('swap'))
+    swap.push(button)
+  }
+  byId('brushes').replaceChildren(...brushes, ...swap)
+  byId('swap-hint').hidden = swap.length === 0
 
   byId('palette').replaceChildren(...palette.map((entry, i) => {
     const li = document.createElement('li')
@@ -618,6 +658,12 @@ function drawStitches(ctx, cells) {
   })
 }
 
+function stitchGap(yarn) {
+  return isLight(yarn)
+    ? yarn.map(channel => Math.round(channel * 0.6))
+    : yarn.map(channel => Math.round(channel + (255 - channel) * 0.35))
+}
+
 // Guide lines every 5th and 10th stitch/row, counted from stitch 1 and row 1
 // so they line up with the numbering. Drawn even when cells are too small for grid lines.
 function drawGuideLines(ctx, { cellWidth, cellHeight, gridWidth, gridHeight, size, options }) {
@@ -658,12 +704,6 @@ function drawLabels(ctx, { cellWidth, cellHeight, gridWidth, gridHeight, size, o
 
   const rowStep = labelStep(cellHeight)
   ctx.textBaseline = 'middle'
-function stitchGap(yarn) {
-  return isLight(yarn)
-    ? yarn.map(channel => Math.round(channel * 0.6))
-    : yarn.map(channel => Math.round(channel + (255 - channel) * 0.35))
-}
-
   for (const { number, displayRow, direction } of rowInstructions(pattern.grid, options)) {
     if (number !== 1 && number % rowStep !== 0) continue
 
@@ -742,8 +782,8 @@ function resumeStitchView() {
 function selectBrush(index) {
   brush = brush === index ? null : index
   if (brush !== null ? pauseStitchView() : resumeStitchView()) drawGrid()
-  byId('brushes').querySelectorAll('.yarn-label').forEach((label, i) => {
-    label.classList.toggle('selected', i === brush)
+  byId('brushes').querySelectorAll('.yarn-label').forEach(label => {
+    label.classList.toggle('selected', label.dataset.brush === String(brush))
   })
   byId('grid').classList.toggle('painting', brush !== null)
 }
@@ -762,6 +802,7 @@ function startStroke(event) {
   undoStack.push(pattern.grid)
   painting = true
   stroke = restore ? 'restore' : 'paint'
+  swapTarget = null
   paintAt(event)
 
   const cell = cellAt(event)
@@ -818,7 +859,8 @@ function paintAt(event) {
 
 // Paint or restore one stitch; only that cell is redrawn until the stroke ends
 function paintCellAt({ x, y }) {
-  const index = stroke === 'restore' ? generatedGrid[y][x] : brush
+  if (stroke === 'paint' && brush === 'swap' && swapTarget === null) swapTarget = 1 - pattern.grid[y][x]
+  const index = stroke === 'restore' ? generatedGrid[y][x] : brush === 'swap' ? swapTarget : brush
   if (index === null) return
 
   const next = paintCell(pattern, x, y, index)
