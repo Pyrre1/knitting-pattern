@@ -76,6 +76,31 @@ describe('Text Grid', () => {
       ])
     })
 
+    test('column layout stacks letters with spacing rows between, centred in the widest', () => {
+      expect(composeText(glyphs, 'LI', { layout: 'column', spacing: 1 })).toEqual([
+        [ 1, 0 ],
+        [ 1, 1 ],
+        [ 0, 0 ],
+        [ 1, 0 ],
+        [ 1, 0 ]
+      ])
+    })
+
+    test('column layout places lines side by side, first line left, shorter ones centred', () => {
+      expect(composeText(glyphs, 'I\nIII', { layout: 'column', spacing: 0, lineSpacing: 1 })).toEqual([
+        [ 0, 0, 1 ],
+        [ 0, 0, 1 ],
+        [ 1, 0, 1 ],
+        [ 1, 0, 1 ],
+        [ 0, 0, 1 ],
+        [ 0, 0, 1 ]
+      ])
+    })
+
+    test('column layout does not fill a width', () => {
+      expect(() => composeText(glyphs, 'II', { layout: 'column', width: 3 })).toThrow('width fill needs row layout')
+    })
+
     test('throws on a character without a glyph', () => {
       expect(() => composeText(glyphs, 'IX', { spacing: 1 })).toThrow('no glyph for "X"')
     })

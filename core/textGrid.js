@@ -20,12 +20,17 @@ export function toGlyph(pixels, rows, gauge) {
   )
 }
 
-// Fixed `spacing` stitches between glyphs, or fill `width` by spreading the spare stitches
-export function composeText(glyphs, text, { spacing = 1, width, lineSpacing = 1 } = {}) {
+// Fixed `spacing` stitches between glyphs, or fill `width` by spreading the spare stitches.
+// Column layout stacks each line's letters top to bottom (`spacing` rows apart), lines side by side.
+export function composeText(glyphs, text, { layout = 'row', spacing = 1, width, lineSpacing = 1 } = {}) {
   const lines = text.split('\n').map(line => [...line].map(char => {
     if (!glyphs[char]) throw new Error(`no glyph for "${char}"`)
     return glyphs[char]
   }))
+  if (layout === 'column') {
+    if (width !== undefined) throw new Error('width fill needs row layout')
+    return composeColumns(lines, spacing, lineSpacing)
+  }
   const glyphRows = lines.flat()[0]?.length ?? 0
 
   const composed = lines.map(line => {
@@ -47,13 +52,36 @@ export function composeText(glyphs, text, { spacing = 1, width, lineSpacing = 1 
   const blankRow = () => new Array(gridWidth).fill(0)
 
   return composed.flatMap((line, i) => {
-    const lineWidth = line[0]?.length ?? 0
-    const left = Math.floor((gridWidth - lineWidth) / 2)
-    const right = gridWidth - lineWidth - left
-    const rows = line.map(row => [...new Array(left).fill(0), ...row, ...new Array(right).fill(0)])
+    const rows = line.map(row => centre(row, gridWidth))
     const gap = i < composed.length - 1 ? Array.from({ length: lineSpacing }, blankRow) : []
     return [...rows, ...gap]
   })
+}
+
+function composeColumns(lines, spacing, lineSpacing) {
+  const columns = lines.map(line => {
+    const width = Math.max(0, ...line.map(glyph => glyph[0].length))
+    const blank = () => new Array(width).fill(0)
+    const rows = line.flatMap((glyph, i) => [
+      ...glyph.map(row => centre(row, width)),
+      ...(i < line.length - 1 ? Array.from({ length: spacing }, blank) : [])
+    ])
+    return { width, rows }
+  })
+  const height = Math.max(...columns.map(column => column.rows.length))
+
+  // Shorter columns are centred vertically
+  return Array.from({ length: height }, (_, y) => columns.flatMap((column, i) => {
+    const top = Math.floor((height - column.rows.length) / 2)
+    const cells = column.rows[y - top] ?? new Array(column.width).fill(0)
+    return i < columns.length - 1 ? [...cells, ...new Array(lineSpacing).fill(0)] : cells
+  }))
+}
+
+// Pads a row with background on both sides; odd spare stitch goes right
+function centre(row, width) {
+  const left = Math.floor((width - row.length) / 2)
+  return [...new Array(left).fill(0), ...row, ...new Array(width - row.length - left).fill(0)]
 }
 
 // Most rows in 1..maxRows whose composed width fits; width grows with rows, so binary search
