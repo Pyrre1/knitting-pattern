@@ -459,6 +459,7 @@ function render() {
       pattern = setYarn(pattern, i, hexToRgb(yarnPicker.value))
       yarnSwatch.style.background = yarnPicker.value
       paintBrush(brushes[i], pattern.palette[i].yarn)
+      stopStitchView()
       drawGrid()
     })
 
@@ -506,6 +507,7 @@ function drawGrid() {
     ? new Set(rowInstructions(grid, options).filter(row => row.side === 'WS').map(row => row.displayRow))
     : new Set()
   const stitchView = byId('stitch-view').checked && cellWidth >= MIN_STITCH_CELL
+  byId('stitch-view-note').hidden = !byId('stitch-view').checked || stitchView
   layout = { cellWidth, cellHeight, shadedRows, stitchView }
 
   const canvas = byId('grid')
@@ -680,8 +682,18 @@ function paintBrush(button, [r, g, b]) {
   button.style.color = 0.299 * r + 0.587 * g + 0.114 * b > 150 ? '#222' : '#fff'
 }
 
+// Stitch view is for looking only: redrawing it on every edit lags on big charts
+function stopStitchView() {
+  byId('stitch-view').checked = false
+  byId('stitch-view-note').hidden = true
+}
+
 function selectBrush(index) {
   brush = brush === index ? null : index
+  if (brush !== null && byId('stitch-view').checked) {
+    stopStitchView()
+    drawGrid()
+  }
   byId('brushes').querySelectorAll('.yarn-label').forEach((label, i) => {
     label.classList.toggle('selected', i === brush)
   })
@@ -696,6 +708,10 @@ function startStroke(event) {
   if (event.button !== 0 && !restore) return
   if (brush === null && !restore && !touch) return
 
+  if (byId('stitch-view').checked) {
+    stopStitchView()
+    drawGrid()
+  }
   byId('grid').setPointerCapture(event.pointerId)
   undoStack.push(pattern.grid)
   painting = true
