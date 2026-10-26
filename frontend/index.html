@@ -160,15 +160,16 @@
           <span id="brushes"></span>
           <button type="button" id="undo" disabled data-i18n="undo">Undo</button>
         </div>
-        <div class="tool-group">
-          <button type="button" id="print" data-i18n="print">Print</button>
-          <button type="button" id="save-png" data-i18n="savePng">Save PNG</button>
-          <label class="inline"><input type="checkbox" id="print-instructions" checked> <span data-i18n="printInstructions">Include instructions in print</span></label>
-        </div>
       </div>
 
       <div class="canvas-wrap">
         <canvas id="grid"></canvas>
+      </div>
+
+      <div id="output" class="tool-group no-print">
+        <button type="button" id="print" data-i18n="print">Print</button>
+        <button type="button" id="save-png" data-i18n="savePng">Save PNG</button>
+        <label class="inline"><input type="checkbox" id="print-instructions" checked> <span data-i18n="printInstructions">Include instructions in print</span></label>
       </div>
 
       <h2 id="instructions-title" data-i18n="instructions">Instructions</h2>

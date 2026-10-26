@@ -344,6 +344,12 @@ canvas {
 
 .canvas-wrap { overflow-x: auto; }
 
+#output {
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 12px;
+}
+
 canvas { display: block; }
 
 #instructions {
