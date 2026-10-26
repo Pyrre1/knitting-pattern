@@ -150,10 +150,9 @@
           <label class="inline" id="row-help-option" data-i18n-title="rowHelpTitle" title="Shade wrong-side rows">
             <input type="checkbox" id="row-help"> <span data-i18n="rowHelp">Row help</span>
           </label>
-          <label class="inline" data-i18n-title="stitchViewTitle" title="Draws each stitch as a V. Turns off when you paint or change a colour.">
+          <label class="inline" data-i18n-title="stitchViewTitle" title="Draws each stitch as a V. Paused while you paint or change a colour.">
             <input type="checkbox" id="stitch-view"> <span data-i18n="stitchView">Stitch view (preview)</span>
           </label>
-          <span id="stitch-view-note" class="hint" hidden data-i18n="stitchViewTooSmall">The chart is too large to show stitches</span>
         </div>
         <div class="tool-group">
           <span data-i18n="selectToPaint">Select to paint:</span>
@@ -184,6 +183,15 @@
       <div class="dialog-buttons">
         <button value="cancel" data-i18n="cancel" autofocus>Cancel</button>
         <button value="ok" class="primary" data-i18n="continue">Continue</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="notice" class="no-print" aria-labelledby="notice-text">
+    <form method="dialog">
+      <p id="notice-text"></p>
+      <div class="dialog-buttons">
+        <button value="ok" class="primary" autofocus>OK</button>
       </div>
     </form>
   </dialog>

@@ -51,6 +51,8 @@ let settled = null
 // Kept so a language switch can re-render them
 let letterInfo = null
 let errorMessage = null
+// Stitch view switched off by an edit; it comes back when editing stops
+let stitchViewPaused = false
 
 byId('image').addEventListener('change', async event => {
   const file = event.target.files[0]
@@ -120,7 +122,10 @@ byId('knit-method').addEventListener('change', () => {
 })
 byId('knit-start').addEventListener('change', () => { drawGrid(); renderInstructions() })
 byId('row-help').addEventListener('change', drawGrid)
-byId('stitch-view').addEventListener('change', drawGrid)
+byId('stitch-view').addEventListener('change', () => {
+  stitchViewPaused = false
+  drawGrid()
+})
 
 byId('grid').addEventListener('pointerdown', startStroke)
 byId('grid').addEventListener('pointermove', moveStroke)
@@ -459,8 +464,12 @@ function render() {
       pattern = setYarn(pattern, i, hexToRgb(yarnPicker.value))
       yarnSwatch.style.background = yarnPicker.value
       paintBrush(brushes[i], pattern.palette[i].yarn)
-      stopStitchView()
+      pauseStitchView()
       drawGrid()
+    })
+    // Picker closed: back to stitch view unless a brush keeps editing going
+    yarnPicker.addEventListener('change', () => {
+      if (brush === null && resumeStitchView()) drawGrid()
     })
 
     const imageSwatch = document.createElement('button')
@@ -506,8 +515,13 @@ function drawGrid() {
   const shadedRows = options.method === 'flat' && byId('row-help').checked
     ? new Set(rowInstructions(grid, options).filter(row => row.side === 'WS').map(row => row.displayRow))
     : new Set()
-  const stitchView = byId('stitch-view').checked && cellWidth >= MIN_STITCH_CELL
-  byId('stitch-view-note').hidden = !byId('stitch-view').checked || stitchView
+  // Too large, whether just switched on or the chart grew: switch off and say why
+  if (byId('stitch-view').checked && cellWidth < MIN_STITCH_CELL) {
+    byId('stitch-view').checked = false
+    stitchViewPaused = false
+    notify('stitchViewTooLarge')
+  }
+  const stitchView = byId('stitch-view').checked
   layout = { cellWidth, cellHeight, shadedRows, stitchView }
 
   const canvas = byId('grid')
@@ -696,18 +710,25 @@ function isLight([r, g, b]) {
   return 0.299 * r + 0.587 * g + 0.114 * b > 150
 }
 
-// Stitch view is for looking only: redrawing it on every edit lags on big charts
-function stopStitchView() {
+// Stitch view is for looking only: redrawing it on every edit lags on big charts.
+// Both return whether the view changed.
+function pauseStitchView() {
+  if (!byId('stitch-view').checked) return false
   byId('stitch-view').checked = false
-  byId('stitch-view-note').hidden = true
+  stitchViewPaused = true
+  return true
+}
+
+function resumeStitchView() {
+  if (!stitchViewPaused) return false
+  byId('stitch-view').checked = true
+  stitchViewPaused = false
+  return true
 }
 
 function selectBrush(index) {
   brush = brush === index ? null : index
-  if (brush !== null && byId('stitch-view').checked) {
-    stopStitchView()
-    drawGrid()
-  }
+  if (brush !== null ? pauseStitchView() : resumeStitchView()) drawGrid()
   byId('brushes').querySelectorAll('.yarn-label').forEach((label, i) => {
     label.classList.toggle('selected', i === brush)
   })
@@ -723,10 +744,7 @@ function startStroke(event) {
   if (brush === null && !restore && !touch) return
 
   // A touch tap without a brush paints nothing, so it keeps the view
-  if (byId('stitch-view').checked && (brush !== null || restore)) {
-    stopStitchView()
-    drawGrid()
-  }
+  if ((brush !== null || restore) && pauseStitchView()) drawGrid()
   byId('grid').setPointerCapture(event.pointerId)
   undoStack.push(pattern.grid)
   painting = true
@@ -762,6 +780,8 @@ function endStroke() {
   if (undoStack[undoStack.length - 1] === pattern.grid) undoStack.pop()
 
   updateLock()
+  // A restore stroke without a brush is over once released
+  if (brush === null) resumeStitchView()
   render()
 }
 
@@ -829,6 +849,12 @@ async function confirmChange(removes) {
   undoStack = []
   updateLock()
   return true
+}
+
+function notify(key) {
+  const dialog = byId('notice')
+  byId('notice-text').textContent = translate(key)
+  if (!dialog.open) dialog.showModal()
 }
 
 function ask(reasons) {

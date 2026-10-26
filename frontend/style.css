@@ -201,7 +201,7 @@ label.inline { justify-content: flex-start; }
 
 .file-button:focus-within { outline: 2px solid var(--fg); }
 
-#confirm {
+#confirm, #notice {
   max-width: min(28em, calc(100vw - 32px));
   padding: 16px 20px;
   border: 1px solid var(--border);
@@ -211,11 +211,11 @@ label.inline { justify-content: flex-start; }
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-#confirm::backdrop { background: var(--overlay); }
+#confirm::backdrop, #notice::backdrop { background: var(--overlay); }
 
 #confirm h2 { margin: 0 0 8px; font-size: 18px; }
 
-#confirm-reasons p { margin: 4px 0; }
+#confirm-reasons p, #notice-text { margin: 4px 0; }
 
 .dialog-buttons {
   display: flex;
