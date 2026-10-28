@@ -402,6 +402,9 @@ canvas { display: block; }
 
 @media print {
   body, main { background: #fff; box-shadow: none; }
+  /* 100vh plus trailing margins spill onto a blank extra page */
+  main { min-height: 0; padding-bottom: 0; }
+  #instructions { margin-bottom: 0; }
   header, #settings, #error, .no-print, #palette input { display: none; }
   .print-only { display: inline-block; }
   #palette li { break-inside: avoid; }
