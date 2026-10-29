@@ -23,3 +23,12 @@ Deferred until after the local visual MVP.
       offer a secondary marker (e.g. hatching or a row-edge marker).
 - [ ] Stitch view (preview): decide after trying it whether to develop further (highlights,
       in print/PNG as an option) and whether it is a pro feature.
+- [ ] Print size for long, narrow charts (e.g. scarves). A canvas cannot split across
+      pages, so print currently fits the chart on page 1 (`max-height: 75vh`): fine for
+      e.g. 88 × 52, but scarf cells get too small to follow or mark with a pencil.
+      - print option: fit to page (default) / mid-sized cells (more paper) / full width
+        (most paper, easiest to read, suits detailed colourwork)
+      - minimum print cell size; warn if the chosen size cannot be met
+      - needs the chart split into page-sized slices (repeat row numbers on each slice)
+      - on Print, if estimated pages > 4: confirm "Needs about X pages"; tip: without
+        duplex, print odd pages, flip the stack, print even pages
