@@ -409,7 +409,8 @@ canvas { display: block; }
   .print-only { display: inline-block; }
   #palette li { break-inside: avoid; }
   .canvas-wrap { overflow: visible; }
-  canvas { max-width: 100%; height: auto; }
+  /* A canvas cannot split across pages: fit tall charts (e.g. rotated text) under the yarn list */
+  canvas { width: auto; height: auto; max-width: 100%; max-height: 75vh; }
   #instructions li { break-inside: avoid; }
   .chart-only #instructions-title, .chart-only #instructions { display: none; }
 }
