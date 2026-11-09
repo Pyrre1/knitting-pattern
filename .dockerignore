@@ -1,0 +1,6 @@
+# Whitelist: only what the site needs goes into the image.
+*
+!Caddyfile
+!frontend
+!core
+core/tests

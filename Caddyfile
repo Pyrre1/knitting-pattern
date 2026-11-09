@@ -1,0 +1,22 @@
+# App server (inside the container). TLS and generic security headers are
+# handled by Cloudflare and the edge Caddy in pi-infra.
+{
+	admin off
+	auto_https off
+	persist_config off
+	http_port 8080
+}
+
+:8080 {
+	root * /srv
+	redir / /frontend/
+
+	header {
+		Content-Security-Policy "default-src 'self'; img-src 'self' blob: data:; style-src 'self'; script-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'"
+		# No hashed file names: always revalidate (ETag makes it cheap),
+		# so a deploy never mixes old and new modules.
+		Cache-Control "no-cache"
+	}
+
+	file_server
+}
