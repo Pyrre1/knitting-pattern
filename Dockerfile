@@ -6,6 +6,7 @@ FROM caddy:2.10.2-alpine
 RUN cp /usr/bin/caddy /tmp/caddy && mv /tmp/caddy /usr/bin/caddy
 
 COPY Caddyfile /etc/caddy/Caddyfile
+COPY robots.txt /srv/robots.txt
 COPY frontend /srv/frontend
 COPY core /srv/core
 # Build date for the "Last update" line in the prototype banner

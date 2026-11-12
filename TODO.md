@@ -64,8 +64,9 @@ Replaces backlog item "Print size for long, narrow charts".
 - [ ] Map instruction ↔ displayed row via `rowInstructions` `displayRow`; core helper + test only if needed.
 
 ### Phase E — deploy hygiene
-- [ ] `robots.txt` (prototype: `Disallow: /`). Served from `/srv`: add `COPY` to `Dockerfile`.
-- [ ] `<meta name="robots" content="noindex">`, meta description, favicon.
+- [x] `robots.txt` (prototype: `Disallow: /`). Served from `/srv`: add `COPY` to `Dockerfile`.
+- [x] `<meta name="robots" content="noindex">`
+- [ ] Meta description, favicon.
 - [ ] Caddy: optional 404 page; security headers beyond CSP are at the edge (pi-infra).
 - [ ] Real site later: allow indexing, `sitemap.xml`, Open Graph image, redirect from prototype address.
 

@@ -1,6 +1,7 @@
 # Whitelist: only what the site needs goes into the image.
 *
 !Caddyfile
+!robots.txt
 !frontend
 !core
 core/tests
