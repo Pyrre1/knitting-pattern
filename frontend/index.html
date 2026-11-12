@@ -1,11 +1,13 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title data-i18n="title">Knitting Pattern</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <main>
     <header>
@@ -23,22 +25,27 @@
         <fieldset id="swatch">
           <legend data-i18n="swatch">Swatch (gauge)</legend>
           <div class="row"><span data-i18n="unit">Unit</span>
-            <label class="switch"><span>cm</span> <input type="checkbox" id="swatch-inch" role="switch"> <span data-i18n="unitInch">inch</span></label>
+            <label class="switch"><span>cm</span> <input type="checkbox" id="swatch-inch" role="switch"> <span
+                data-i18n="unitInch">inch</span></label>
           </div>
           <div class="linked">
             <div class="linked-inputs">
-              <label><span data-i18n="width">Width</span> <input type="number" id="swatch-width" value="10" min="0.1" step="any"></label>
-              <label><span data-i18n="height">Height</span> <input type="number" id="swatch-height" value="10" min="0.1" step="any"></label>
+              <label><span data-i18n="width">Width</span> <input type="number" id="swatch-width" value="10" min="0.1"
+                  step="any"></label>
+              <label><span data-i18n="height">Height</span> <input type="number" id="swatch-height" value="10" min="0.1"
+                  step="any"></label>
             </div>
             <button type="button" id="swatch-link" class="link-button" aria-pressed="true" data-i18n-title="linkSize">
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/>
-                <path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>
-                <path class="link-break" d="M4 4l16 16"/>
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round">
+                <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" />
+                <path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />
+                <path class="link-break" d="M4 4l16 16" />
               </svg>
             </button>
           </div>
-          <label><span data-i18n="stitches">Stitches</span> <input type="number" id="swatch-stitches" value="22" min="1"></label>
+          <label><span data-i18n="stitches">Stitches</span> <input type="number" id="swatch-stitches" value="22"
+              min="1"></label>
           <label><span data-i18n="rows">Rows</span> <input type="number" id="swatch-rows" value="30" min="1"></label>
         </fieldset>
 
@@ -51,7 +58,8 @@
               <option value="4">4</option>
             </select>
           </label>
-          <label class="inline"><input type="checkbox" id="use-yarns"> <span data-i18n="useYarns">I know my yarn colours</span></label>
+          <label class="inline"><input type="checkbox" id="use-yarns"> <span data-i18n="useYarns">I know my yarn
+              colours</span></label>
           <div id="yarn-pickers" hidden></div>
         </fieldset>
 
@@ -98,14 +106,17 @@
               <option value="fill" data-i18n="fixFill">height + width (fill)</option>
             </select>
           </label>
-          <label><span id="letter-rows-label" data-i18n="letterRows">Letter height (rows)</span> <input type="number" id="letter-rows" value="12" min="1" max="200"></label>
+          <label><span id="letter-rows-label" data-i18n="letterRows">Letter height (rows)</span> <input type="number"
+              id="letter-rows" value="12" min="1" max="200"></label>
           <span id="letter-cm" class="hint"></span>
-          <label><span id="letter-spacing-label" data-i18n="letterSpacing">Spacing (stitches)</span> <input type="number" id="letter-spacing" value="1" min="0"></label>
+          <label><span id="letter-spacing-label" data-i18n="letterSpacing">Spacing (stitches)</span> <input
+              type="number" id="letter-spacing" value="1" min="0"></label>
         </fieldset>
 
         <fieldset id="final-size">
           <legend data-i18n="finalSize">Goal size</legend>
-          <label><span data-i18n="width">Width</span> <input type="number" id="width-value" value="40" min="1" step="any"></label>
+          <label><span data-i18n="width">Width</span> <input type="number" id="width-value" value="40" min="1"
+              step="any"></label>
           <label><span data-i18n="unit">Unit</span>
             <select id="width-unit">
               <option value="stitches" data-i18n="unitStitches">stitches</option>
@@ -120,7 +131,8 @@
               <option value="left" data-i18n="rotateLeft">90° left</option>
             </select>
           </label>
-          <span id="rotate-hint" class="hint" data-i18n="rotateHint" hidden>Rotated: the chart is shown as knitted, e.g. text along a scarf. Width is across the knitting.</span>
+          <span id="rotate-hint" class="hint" data-i18n="rotateHint" hidden>Rotated: the chart is shown as knitted, e.g.
+            text along a scarf. Width is across the knitting.</span>
         </fieldset>
       </form>
     </div>
@@ -130,10 +142,14 @@
     <section id="result" hidden>
       <p id="size-info"></p>
       <hr class="divider">
-      <p class="info no-print" data-i18n="paletteHint">These are the colours that best match your design. Click Change to pick another yarn colour, or click the colour next to it to restore the matched colour.</p>
+      <p class="info no-print" data-i18n="paletteHint">These are the colours that best match your design. Click Change
+        to pick another yarn colour, or click the colour next to it to restore the matched colour.</p>
       <ul id="palette"></ul>
 
-      <p id="paint-hint" class="info no-print"><span data-i18n="paintHint">To paint in missed stitches, pick a letter in the “Select to paint” section below (or press 1–4 or A–D, Esc to stop) and paint in the chart. Right-click (on touch: press and hold) restores the original stitch. Ctrl+Z undoes.</span> <span id="swap-hint" data-i18n="swapHint">⇄ (S) flips stitches to the other yarn.</span></p>
+      <p id="paint-hint" class="info no-print"><span data-i18n="paintHint">To paint in missed stitches, pick a letter in
+          the “Select to paint” section below (or press 1-4 or A-D, Esc to stop) and paint in the chart. Right-click (on
+          touch: press and hold) restores the original stitch. Ctrl+Z undoes.</span> <span id="swap-hint"
+          data-i18n="swapHint">⇄ (S) flips stitches to the other yarn.</span></p>
 
       <div id="toolbar" class="no-print">
         <div class="tool-group">
@@ -152,7 +168,8 @@
           <label class="inline" id="row-help-option" data-i18n-title="rowHelpTitle" title="Shade wrong-side rows">
             <input type="checkbox" id="row-help"> <span data-i18n="rowHelp">Row help</span>
           </label>
-          <label class="inline" data-i18n-title="stitchViewTitle" title="Draws each stitch as a V. Paused while you paint or change a colour.">
+          <label class="inline" data-i18n-title="stitchViewTitle"
+            title="Draws each stitch as a V. Paused while you paint or change a colour.">
             <input type="checkbox" id="stitch-view"> <span data-i18n="stitchView">Stitch view (preview)</span>
           </label>
         </div>
@@ -170,7 +187,8 @@
       <div id="output" class="tool-group no-print">
         <button type="button" id="print" data-i18n="print">Print</button>
         <button type="button" id="save-png" data-i18n="savePng">Save PNG</button>
-        <label class="inline"><input type="checkbox" id="print-instructions" checked> <span data-i18n="printInstructions">Include instructions in print</span></label>
+        <label class="inline"><input type="checkbox" id="print-instructions" checked> <span
+            data-i18n="printInstructions">Include instructions in print</span></label>
       </div>
 
       <h2 id="instructions-title" data-i18n="instructions">Instructions</h2>
@@ -178,16 +196,18 @@
     </section>
 
     <footer class="no-print">
-      <button type="button" id="about-open" class="link-text" data-i18n="aboutOpen">Prototype – feedback</button>
+      <button type="button" id="about-open" class="link-text" data-i18n="aboutOpen">Prototype - feedback</button>
     </footer>
   </main>
 
   <dialog id="about" class="no-print" aria-labelledby="about-title">
     <form method="dialog">
       <h2 id="about-title" data-i18n="aboutTitle">Prototype under test</h2>
-      <p data-i18n="aboutTest">This is a first prototype under test. If something does not work, anything is unclear or you miss a function, please mail me and I will see if I can solve it.</p>
+      <p data-i18n="aboutTest">This is a first prototype under test. If something does not work, anything is unclear or
+        you miss a function, please mail me and I will see if I can solve it.</p>
       <p class="contact"><span data-i18n="aboutMail">Feedback:</span> <a id="about-email"></a></p>
-      <p data-i18n="aboutDev">The site is under development and will later be replaced by the real one at another address.</p>
+      <p data-i18n="aboutDev">The site is under development and will later be replaced by the real one at another
+        address.</p>
       <p class="contact"><span data-i18n="aboutFuture">New address:</span> <a id="about-future"></a></p>
       <div class="dialog-buttons">
         <button value="ok" class="primary" data-i18n="close" autofocus>Close</button>
@@ -195,7 +215,7 @@
     </form>
   </dialog>
 
- <dialog id="confirm" class="no-print" aria-labelledby="confirm-title">
+  <dialog id="confirm" class="no-print" aria-labelledby="confirm-title">
     <form method="dialog">
       <h2 id="confirm-title" data-i18n="confirmTitle">Recalculate the pattern?</h2>
       <div id="confirm-reasons"></div>
@@ -217,4 +237,5 @@
 
   <script type="module" src="index.js"></script>
 </body>
+
 </html>
