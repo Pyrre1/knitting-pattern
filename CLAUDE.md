@@ -61,6 +61,8 @@ Grep for the function name before opening `index.js` (~770 lines); read only tha
 - `chart.js`: canvas drawing. `drawChart(canvas, { grid, palette, options, cellWidth, cellHeight, rowHelp, stitchView, scale, region })` draws the chart or one region (print tile) with numbers counted on the whole chart, returns layout; `drawCell` repaints one stitch; `fitCellSize`, `rgbToHex`, `isLight`, `LABEL_MARGIN`.
 - `print.js`: Print / Save PDF, print in scale % (tiles via `planTiles`, page estimate + confirm), tiles aligned to joining edges, page 1 side column (moves `#print-info`/`#palette` in, back after print); paper only in scale mode (cm → A4, inch → Letter/A4 select), normal print leaves it to the dialog; `initPrint` returns `updatePaper`, called by `render`, paper orientation (`@page` rule via CSSOM), print-only info block (`#print-info`, `#print-footer`), PNG with optional info strip. `index.js` passes `printInfo`, `drawGrid(scale)` (print redraws sharper, CSS fits it), `chartSettings` and `ask`.
 - `config.js`: deploy-specific constants (feedback email, future URL, `APP_NAME`); empty = feature hidden.
+- `banner.js`: permanent prototype banner (`#banner`, above `#settings`): feedback mail from `config.js`, "Last update" from `version.js`.
+- `version.js`: `LAST_UPDATE`, committed empty (no date locally); `Dockerfile` overwrites it with the build date. Do not set by hand.
 - `style.css`: `@media print` at the end; `.no-print`, `.print-only`, `#result.chart-only` (print without instructions).
 - Rule: new features go in their own module (e.g. `print.js`, `liveView.js`) imported by `index.js`; do not grow `index.js`.
 - Deploy: `Dockerfile` copies only `frontend/` and `core/`; `Caddyfile` sets CSP (`'self'` only, no inline scripts/styles) and `no-cache`.

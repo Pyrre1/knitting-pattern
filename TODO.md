@@ -46,7 +46,14 @@ Replaces backlog item "Print size for long, narrow charts".
 - [x] Estimate pages; confirm when > 4 ("Needs about X pages"); duplex tip. Ctrl+P skips the confirm.
 - [x] Chart drawing moved from `index.js` to `frontend/chart.js` (`drawChart` draws whole chart or a region).
 
-### Phase C — live view
+### Phase C — prototype banner
+- [x] Permanent banner above Swatch / Yarns (`frontend/banner.js`), pale amber against the green theme:
+      "This is a prototype. Please email feedback or suggestions to <FEEDBACK_EMAIL>. Last update: <date>".
+      en + sv. Hidden in print. First-visit dialog and footer link stay.
+- [x] Date written at build time: `Dockerfile` overwrites `frontend/version.js` (`LAST_UPDATE`, ISO date).
+      Committed default is empty → no date locally. No email → no email sentence.
+
+### Phase D — live view
 - [ ] New `frontend/liveView.js`; "Live view" button opens a fullscreen view.
 - [ ] Full chart, current row highlighted; current `formatInstruction` text shown large.
 - [ ] Big Prev / Next buttons, arrow keys, tap.
@@ -56,11 +63,9 @@ Replaces backlog item "Print size for long, narrow charts".
 - [ ] Zoom: pinch on touch, Ctrl+scroll / buttons on PC; keep current row in view.
 - [ ] Map instruction ↔ displayed row via `rowInstructions` `displayRow`; core helper + test only if needed.
 
-### Phase D — deploy hygiene
+### Phase E — deploy hygiene
 - [ ] `robots.txt` (prototype: `Disallow: /`). Served from `/srv`: add `COPY` to `Dockerfile`.
 - [ ] `<meta name="robots" content="noindex">`, meta description, favicon.
-- [ ] Line at the top of the page: "Last update: <date>" = date of the last deploy to the Pi.
-      Date written at build time (e.g. Dockerfile writes `version.js`/`version.json`), no manual edit.
 - [ ] Caddy: optional 404 page; security headers beyond CSP are at the edge (pi-infra).
 - [ ] Real site later: allow indexing, `sitemap.xml`, Open Graph image, redirect from prototype address.
 
