@@ -3,9 +3,9 @@
 ## Phase 2 roadmap (test deploy)
 One phase per chat. Start a chat with "Do Phase X from TODO.md"; decisions below are settled.
 
-### Phase A — notice + docs
+### Phase A — notice + docs ✔
 - [x] CLAUDE.md frontend map
-- [ ] Prototype notice dialog (first visit, remembered) + footer link; `frontend/config.js` holds `FEEDBACK_EMAIL`, `FUTURE_URL`
+- [x] Prototype notice dialog (first visit, remembered) + footer link; `frontend/config.js` holds `FEEDBACK_EMAIL`, `FUTURE_URL`
 
 ### Phase B — print upgrade + upside down
 - [ ] Core: `rotateGrid(grid, '180')` + test. `#rotate` gets "Upside down (180°)" for image and text

@@ -6,6 +6,7 @@ import { rowInstructions, formatInstruction } from "../core/rowInstructions.js"
 import { toGlyph, composeText, fitRows, textPattern } from "../core/textGrid.js"
 import { rotateGrid, rotateGauge } from "../core/rotateGrid.js"
 import { translate, translatePage, getLanguage, setLanguage, instructionTerms, translateError, formatNumber } from "./i18n.js"
+import { initAbout } from "./about.js"
 
 // Longest image side kept after load; caps both work and max stitch count
 const MAX_IMAGE_SIDE = 600
@@ -188,6 +189,7 @@ renderLinkTitle()
 renderYarnPickers()
 previewFonts()
 settled = readSettings()
+initAbout()
 
 async function loadPixels(file) {
   const bitmap = await createImageBitmap(file)

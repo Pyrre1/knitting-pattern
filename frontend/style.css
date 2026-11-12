@@ -54,7 +54,7 @@ h1 { margin: 0; }
 
 #settings { position: relative; }
 
-form {
+#inputs {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-areas:
@@ -74,7 +74,7 @@ form {
 #text-size[hidden] + #final-size { grid-column: 1; }
 
 @media (max-width: 600px) {
-  form {
+  #inputs {
     grid-template-columns: 1fr;
     grid-template-areas: "swatch" "yarns" "image" "text" "text-size" "final-size";
   }
@@ -217,7 +217,7 @@ label.inline { justify-content: flex-start; }
 
 .file-button:focus-within { outline: 2px solid var(--fg); }
 
-#confirm, #notice {
+#confirm, #notice, #about {
   max-width: min(28em, calc(100vw - 32px));
   padding: 16px 20px;
   border: 1px solid var(--border);
@@ -227,9 +227,9 @@ label.inline { justify-content: flex-start; }
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-#confirm::backdrop, #notice::backdrop { background: var(--overlay); }
+#confirm::backdrop, #notice::backdrop, #about::backdrop { background: var(--overlay); }
 
-#confirm h2 { margin: 0 0 8px; font-size: 18px; }
+#confirm h2, #about h2 { margin: 0 0 8px; font-size: 18px; }
 
 #confirm-reasons p, #notice-text { margin: 4px 0; }
 
@@ -399,6 +399,30 @@ canvas { display: block; }
   font-family: ui-monospace, monospace;
   font-size: 14px;
 }
+
+footer {
+  margin-top: 24px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 14px;
+}
+
+.link-text {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+#about p { margin: 8px 0; }
+
+#about a { color: inherit; }
+
+#about .contact { text-align: center; }
 
 @media print {
   body, main { background: #fff; box-shadow: none; }

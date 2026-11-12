@@ -176,7 +176,24 @@
       <h2 id="instructions-title" data-i18n="instructions">Instructions</h2>
       <ol id="instructions"></ol>
     </section>
+
+    <footer class="no-print">
+      <button type="button" id="about-open" class="link-text" data-i18n="aboutOpen">Prototype – feedback</button>
+    </footer>
   </main>
+
+  <dialog id="about" class="no-print" aria-labelledby="about-title">
+    <form method="dialog">
+      <h2 id="about-title" data-i18n="aboutTitle">Prototype under test</h2>
+      <p data-i18n="aboutTest">This is a first prototype under test. If something does not work, anything is unclear or you miss a function, please mail me and I will see if I can solve it.</p>
+      <p class="contact"><span data-i18n="aboutMail">Feedback:</span> <a id="about-email"></a></p>
+      <p data-i18n="aboutDev">The site is under development and will later be replaced by the real one at another address.</p>
+      <p class="contact"><span data-i18n="aboutFuture">New address:</span> <a id="about-future"></a></p>
+      <div class="dialog-buttons">
+        <button value="ok" class="primary" data-i18n="close" autofocus>Close</button>
+      </div>
+    </form>
+  </dialog>
 
  <dialog id="confirm" class="no-print" aria-labelledby="confirm-title">
     <form method="dialog">
