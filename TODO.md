@@ -20,6 +20,7 @@ One phase per chat. Start a chat with "Do Phase X from TODO.md"; decisions below
       - final size: stitches × rows, and cm or inch (follows the selected unit)
       - text: letter height in rows (or stitches when rotated 90°), and cm/inch
       - rotation: "Upside down (hem): yes/no", plus 90° right/left if used
+      - knitting setup: start bottom up / top down, flat (back and forth) / in the round
       - footer: site, date, "prototype"
 - [ ] PNG: decide whether it gets the same info (ask).
 
