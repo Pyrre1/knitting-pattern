@@ -8,21 +8,10 @@ import { rotateGrid, rotateGauge } from "../core/rotateGrid.js"
 import { translate, translatePage, getLanguage, setLanguage, instructionTerms, translateError, formatNumber } from "./i18n.js"
 import { initAbout } from "./about.js"
 import { initPrint } from "./print.js"
+import { drawChart, drawCell, fitCellSize, rgbToHex, isLight, LABEL_MARGIN, MIN_STITCH_CELL } from "./chart.js"
 
 // Longest image side kept after load; caps both work and max stitch count
 const MAX_IMAGE_SIDE = 600
-const MAX_CANVAS_WIDTH = 900
-const MAX_CELL_WIDTH = 24
-// Margin on every side for row and stitch numbers
-const LABEL_MARGIN = 32
-const LABEL_FONT = '11px system-ui, sans-serif'
-// Stitch view needs room for a visible V; smaller cells fall back to flat colour
-const MIN_STITCH_CELL = 6
-// Guide lines: every 5th between the plain grid line (0.15) and the every 10th
-const GUIDES = [
-  { step: 5, colour: 'rgba(0, 0, 0, 0.25)', width: 1 },
-  { step: 10, colour: 'rgba(0, 0, 0, 0.38)', width: 1.5 }
-]
 
 // Letters are drawn once at this size, then downsampled per letter height
 const GLYPH_FONT_SIZE = 300
@@ -186,7 +175,7 @@ renderYarnPickers()
 previewFonts()
 settled = readSettings()
 initAbout()
-initPrint({ getInfo: printInfo, redraw: drawGrid })
+const updatePaper = initPrint({ getInfo: printInfo, redraw: drawGrid, chart: chartSettings, ask })
 
 async function loadPixels(file) {
   const bitmap = await createImageBitmap(file)
@@ -451,6 +440,7 @@ function render() {
   const { size, palette } = pattern
 
   byId('result').hidden = false
+  updatePaper()
   byId('size-info').textContent = translate('sizeInfo', {
     stitches: size.stitches,
     rows: size.rows,
@@ -550,194 +540,25 @@ function renderInstructions() {
 
 // scale > 1 draws a sharper backing canvas for print; layout stays in unscaled units
 function drawGrid(scale = 1) {
-  const { grid, palette, size } = pattern
-  const gauge = gaugeInterpreter(readSwatch())
-  const options = readKnitOptions()
-
-  // Knitted stitches are wider than tall: cell height = width × stitch/row ratio
-  const cellWidth = Math.min(MAX_CELL_WIDTH, (MAX_CANVAS_WIDTH - 2 * LABEL_MARGIN) / size.stitches)
-  const cellHeight = cellWidth * (gauge.stitchesPerCm / gauge.rowsPerCm)
-  const gridWidth = cellWidth * size.stitches
-  const gridHeight = cellHeight * size.rows
-  // Displayed rows knitted on the wrong side, shaded when row help is on
-  const shadedRows = options.method === 'flat' && byId('row-help').checked
-    ? new Set(rowInstructions(grid, options).filter(row => row.side === 'WS').map(row => row.displayRow))
-    : new Set()
+  const cells = fitCellSize(pattern.size.stitches, gaugeInterpreter(readSwatch()))
   // Too large, whether just switched on or the chart grew: switch off and say why
-  if (byId('stitch-view').checked && cellWidth < MIN_STITCH_CELL) {
+  if (byId('stitch-view').checked && cells.cellWidth < MIN_STITCH_CELL) {
     byId('stitch-view').checked = false
     stitchViewPaused = false
     notify('stitchViewTooLarge')
   }
-  const stitchView = byId('stitch-view').checked
-  layout = { cellWidth, cellHeight, shadedRows, stitchView, topDown: options.start === 'top' }
-
-  const canvas = byId('grid')
-  canvas.width = Math.ceil((gridWidth + 2 * LABEL_MARGIN) * scale)
-  canvas.height = Math.ceil((gridHeight + 2 * LABEL_MARGIN) * scale)
-  const ctx = canvas.getContext('2d')
-
-  // Opaque background so the saved PNG is not transparent
-  ctx.fillStyle = '#ffffff'
-  ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-  // Labels sit in a margin on every side; the grid is drawn inside it
-  ctx.save()
-  ctx.scale(scale, scale)
-  ctx.translate(LABEL_MARGIN, LABEL_MARGIN)
-
-  if (stitchView) {
-    drawStitches(ctx, grid.flatMap((row, y) => row.map((index, x) => ({ x, y, index }))))
-  } else {
-    const colours = palette.map(entry => rgbToHex(entry.yarn))
-    grid.forEach((row, y) => {
-      row.forEach((index, x) => {
-        ctx.fillStyle = colours[index]
-        ctx.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight)
-      })
-    })
-  }
-
-  // One path per yarn, since light and dark yarns get opposite shades
-  const shades = palette.map(() => new Path2D())
-  shadedRows.forEach(y => grid[y].forEach((index, x) => shades[index].rect(x * cellWidth, y * cellHeight, cellWidth, cellHeight)))
-  palette.forEach((entry, i) => {
-    ctx.fillStyle = rowHelpShade(entry.yarn)
-    ctx.fill(shades[i])
-  })
-
-  // Grid lines only when cells are big enough to see them; stitches show their own edges
-  if (cellWidth >= 6 && !stitchView) {
-    ctx.strokeStyle = cssVar('--grid-line')
-    ctx.lineWidth = 1
-    ctx.beginPath()
-    for (let x = 0; x <= size.stitches; x++) {
-      ctx.moveTo(Math.round(x * cellWidth) + 0.5, 0)
-      ctx.lineTo(Math.round(x * cellWidth) + 0.5, gridHeight)
-    }
-    for (let y = 0; y <= size.rows; y++) {
-      ctx.moveTo(0, Math.round(y * cellHeight) + 0.5)
-      ctx.lineTo(gridWidth, Math.round(y * cellHeight) + 0.5)
-    }
-    ctx.stroke()
-  }
-
-  drawGuideLines(ctx, { cellWidth, cellHeight, gridWidth, gridHeight, size, options })
-  drawLabels(ctx, { cellWidth, cellHeight, gridWidth, gridHeight, size, options })
-  ctx.restore()
+  layout = drawChart(byId('grid'), { ...chartSettings(), ...cells, scale })
 }
 
-// Stitch view: each stitch is a V of two tilted legs on a gap, darker for light
-// yarns and lighter for dark ones. Knitted top down the chart hangs upside down, so legs form a Λ.
-// Legs are batched into one path per yarn, so large grids stay one fill per colour.
-function drawStitches(ctx, cells) {
-  const { cellWidth, cellHeight, topDown } = layout
-  const { palette } = pattern
-  const legs = palette.map(() => new Path2D())
-  const tilt = (topDown ? -1 : 1) * Math.atan2(cellWidth * 0.4, cellHeight)
-  const radiusX = cellWidth * 0.2
-  const radiusY = cellHeight * 0.5
-
-  palette.forEach((entry, i) => {
-    ctx.fillStyle = rgbToHex(stitchGap(entry.yarn))
-    for (const { x, y, index } of cells) {
-      if (index === i) ctx.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight)
-    }
-  })
-
-  for (const { x, y, index } of cells) {
-    const centreY = (y + 0.5) * cellHeight
-    for (const [offset, rotation] of [[0.28, -tilt], [0.72, tilt]]) {
-      const centreX = (x + offset) * cellWidth
-      // Start a new subpath so legs are not joined by a line
-      legs[index].moveTo(centreX + radiusX * Math.cos(rotation), centreY + radiusX * Math.sin(rotation))
-      legs[index].ellipse(centreX, centreY, radiusX, radiusY, rotation, 0, 2 * Math.PI)
-    }
+// Everything drawChart needs except cell size; print tiles reuse it
+function chartSettings() {
+  return {
+    grid: pattern.grid,
+    palette: pattern.palette,
+    options: readKnitOptions(),
+    rowHelp: byId('row-help').checked,
+    stitchView: byId('stitch-view').checked
   }
-
-  palette.forEach((entry, i) => {
-    ctx.fillStyle = rgbToHex(entry.yarn)
-    ctx.fill(legs[i])
-  })
-}
-
-function stitchGap(yarn) {
-  return isLight(yarn)
-    ? yarn.map(channel => Math.round(channel * 0.6))
-    : yarn.map(channel => Math.round(channel + (255 - channel) * 0.35))
-}
-
-// Guide lines every 5th and 10th stitch/row, counted from stitch 1 and row 1
-// so they line up with the numbering. Drawn even when cells are too small for grid lines.
-function drawGuideLines(ctx, { cellWidth, cellHeight, gridWidth, gridHeight, size, options }) {
-  const fromBottom = options.start === 'bottom'
-
-  for (const { step, colour, width } of GUIDES) {
-    // Leave positions to a coarser guide so overlapping strokes don't darken
-    const isGuide = counted => counted % step === 0 &&
-      !GUIDES.some(guide => guide.step > step && counted % guide.step === 0)
-
-    ctx.strokeStyle = colour
-    ctx.lineWidth = width
-    ctx.beginPath()
-
-    for (let line = 1; line < size.stitches; line++) {
-      const counted = fromBottom ? size.stitches - line : line
-      if (!isGuide(counted)) continue
-      ctx.moveTo(Math.round(line * cellWidth) + 0.5, 0)
-      ctx.lineTo(Math.round(line * cellWidth) + 0.5, gridHeight)
-    }
-
-    for (let line = 1; line < size.rows; line++) {
-      const counted = fromBottom ? size.rows - line : line
-      if (!isGuide(counted)) continue
-      ctx.moveTo(0, Math.round(line * cellHeight) + 0.5)
-      ctx.lineTo(gridWidth, Math.round(line * cellHeight) + 0.5)
-    }
-
-    ctx.stroke()
-  }
-}
-
-// Each row number sits on the side where that row starts (flat: odd and even on
-// opposite sides). Stitch 1 is where RS rows start, numbered along the starting edge.
-function drawLabels(ctx, { cellWidth, cellHeight, gridWidth, gridHeight, size, options }) {
-  ctx.fillStyle = '#444'
-  ctx.font = LABEL_FONT
-
-  const rowStep = labelStep(cellHeight)
-  ctx.textBaseline = 'middle'
-  for (const { number, displayRow, direction } of rowInstructions(pattern.grid, options)) {
-    if (number !== 1 && number % rowStep !== 0) continue
-
-    const y = (displayRow + 0.5) * cellHeight
-    if (direction === 'rtl') {
-      ctx.textAlign = 'left'
-      ctx.fillText(String(number), gridWidth + 4, y)
-    } else {
-      ctx.textAlign = 'right'
-      ctx.fillText(String(number), -4, y)
-    }
-  }
-
-  const fromBottom = options.start === 'bottom'
-  const stitchStep = labelStep(cellWidth)
-  ctx.textAlign = 'center'
-  ctx.textBaseline = fromBottom ? 'top' : 'bottom'
-  for (let number = 1; number <= size.stitches; number++) {
-    if (number !== 1 && number % stitchStep !== 0) continue
-
-    // Bottom up: stitch 1 at the right. Top down: stitch 1 at the left.
-    const x = fromBottom ? size.stitches - number : number - 1
-    ctx.fillText(String(number), (x + 0.5) * cellWidth, fromBottom ? gridHeight + 4 : -4)
-  }
-}
-
-// Label every cell when there is room, otherwise every 5th or 10th
-function labelStep(cellSize) {
-  if (cellSize >= 14) return 1
-  if (cellSize >= 4) return 5
-  return 10
 }
 
 function isQuarterTurn(turn) {
@@ -763,15 +584,6 @@ function printInfo() {
 function paintBrush(button, yarn) {
   button.style.background = rgbToHex(yarn)
   button.style.color = isLight(yarn) ? '#222' : '#fff'
-}
-
-// Row help darkens light yarns and lightens dark ones, so it shows on both
-function rowHelpShade(yarn) {
-  return cssVar(isLight(yarn) ? '--row-help-dark' : '--row-help-light')
-}
-
-function isLight([r, g, b]) {
-  return 0.299 * r + 0.587 * g + 0.114 * b > 150
 }
 
 // Stitch view is for looking only: redrawing it on every edit lags on big charts.
@@ -878,22 +690,7 @@ function paintCellAt({ x, y }) {
   if (next === pattern) return
   pattern = next
 
-  const ctx = byId('grid').getContext('2d')
-  const cell = [LABEL_MARGIN + x * layout.cellWidth, LABEL_MARGIN + y * layout.cellHeight, layout.cellWidth, layout.cellHeight]
-  if (layout.stitchView) {
-    ctx.save()
-    ctx.translate(LABEL_MARGIN, LABEL_MARGIN)
-    drawStitches(ctx, [{ x, y, index }])
-    ctx.restore()
-  } else {
-    ctx.fillStyle = rgbToHex(pattern.palette[index].yarn)
-    ctx.fillRect(...cell)
-  }
-  // Keep the row help shade on painted stitches
-  if (layout.shadedRows.has(y)) {
-    ctx.fillStyle = rowHelpShade(pattern.palette[index].yarn)
-    ctx.fillRect(...cell)
-  }
+  drawCell(byId('grid'), layout, pattern.palette, { x, y, index })
 }
 
 function updateLock() {
@@ -923,11 +720,14 @@ function notify(key) {
   if (!dialog.open) dialog.showModal()
 }
 
-function ask(reasons) {
+// Each reason is a string key or [key, values]
+function ask(reasons, title = 'confirmTitle') {
   const dialog = byId('confirm')
-  byId('confirm-reasons').replaceChildren(...reasons.map(key => {
+  byId('confirm-title').textContent = translate(title)
+  byId('confirm-reasons').replaceChildren(...reasons.map(reason => {
+    const [key, values] = [reason].flat()
     const p = document.createElement('p')
-    p.textContent = translate(key)
+    p.textContent = translate(key, values)
     return p
   }))
   dialog.returnValue = ''
@@ -963,14 +763,6 @@ function showError(message) {
   errorMessage = message
   byId('error').hidden = !message
   byId('error').textContent = message ? translateError(message) : ''
-}
-
-function cssVar(name) {
-  return getComputedStyle(document.documentElement).getPropertyValue(name)
-}
-
-function rgbToHex(rgb) {
-  return '#' + rgb.map(channel => channel.toString(16).padStart(2, '0')).join('')
 }
 
 function hexToRgb(hex) {

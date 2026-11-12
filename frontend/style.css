@@ -384,11 +384,13 @@ canvas {
 
 .canvas-wrap { overflow-x: auto; }
 
-#output {
+#output, #png-output {
   width: fit-content;
   max-width: 100%;
   margin-top: 12px;
 }
+
+#png-output .info { flex-basis: 100%; margin: 0; }
 
 canvas { display: block; }
 
@@ -460,4 +462,26 @@ footer {
   canvas { width: auto; height: auto; max-width: 100%; max-height: 70vh; }
   #instructions li { break-inside: avoid; }
   .chart-only #instructions-title, .chart-only #instructions { display: none; }
+  /* Print in scale: real-size page tiles replace the fitted chart */
+  main { max-width: none; padding-left: 0; padding-right: 0; }
+  .tiled .canvas-wrap { display: none; }
+  .tiled #print-tiles { display: block; }
+  #print-tiles canvas { max-width: none; max-height: none; }
+  /* Each tile page is sized and aligned by print.js (flex, against the joining edges) */
+  .print-tile { display: flex; flex-direction: column; margin: 0; break-inside: avoid; }
+  #print-tiles > * + * { break-before: page; }
+  /* Page 1: info, yarns and tile map in a column, A1 beside it at full page height */
+  .first-page { display: flex; align-items: flex-start; break-inside: avoid; }
+  .print-sidebar { flex: 1; min-width: 0; padding-right: 4mm; }
+  .side-layout hr.divider { display: none; }
+  .print-sidebar #palette { flex-direction: column; gap: 4px; margin: 0 0 8px; }
+  .print-sidebar #palette li { padding: 2px 8px; }
+  .print-tile figcaption { font-size: 10pt; font-weight: bold; }
+  .tile-overview { margin: 0 0 8px; font-size: 10pt; }
+  .tile-overview p { margin: 0 0 4px; }
+  .tile-overview table { border-collapse: collapse; }
+  .tile-overview td { border: 1px solid #999; padding: 2px 8px; text-align: center; }
 }
+
+/* Tiles are planned for this margin (print.js PAGE_MARGIN_MM) */
+@page { margin: 10mm; }

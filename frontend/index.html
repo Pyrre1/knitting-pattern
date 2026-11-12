@@ -190,20 +190,40 @@
       <div class="canvas-wrap">
         <canvas id="grid"></canvas>
       </div>
+      <div id="print-tiles" class="print-only"></div>
 
       <div id="output" class="tool-group no-print">
         <button type="button" id="print" data-i18n="print">Print / Save PDF</button>
-        <label><span data-i18n="paper">Paper</span>
+        <label class="inline"><input type="checkbox" id="print-in-scale"> <span data-i18n="printInScale">Print in
+            scale</span></label>
+        <!-- Shown with Print in scale: tiles are planned for this paper; a normal print uses the print dialog -->
+        <label id="print-scale-option" class="scale-option" hidden data-i18n-title="printScaleTitle"
+          title="100 % = each square is the size of a real stitch. Larger charts are split over several pages to tape together.">
+          <span data-i18n="printScale">Scale %</span>
+          <input type="number" id="print-scale" min="25" max="400" step="5" value="100">
+        </label>
+        <label class="scale-option" hidden><span data-i18n="paper">Paper</span>
           <select id="paper">
             <option value="portrait" data-i18n="portrait">portrait</option>
             <option value="landscape" data-i18n="landscape">landscape</option>
           </select>
         </label>
+        <label id="paper-size-option" hidden><span data-i18n="paperSize">Paper size</span>
+          <select id="paper-size">
+            <option value="letter">Letter</option>
+            <option value="a4">A4</option>
+          </select>
+        </label>
         <label class="inline"><input type="checkbox" id="print-instructions" checked> <span
             data-i18n="printInstructions">Include instructions in print</span></label>
+      </div>
+
+      <div id="png-output" class="tool-group no-print">
         <button type="button" id="save-png" data-i18n="savePng">Save PNG</button>
-        <label class="inline"><input type="checkbox" id="png-info"> <span data-i18n="pngInfo">Include info in
+        <label class="inline"><input type="checkbox" id="png-info" checked> <span data-i18n="pngInfo">Include info in
             PNG</span></label>
+        <p class="info" data-i18n="pngHint">To print, use Print / Save PDF: it prints faster and sharper, since printers
+          do not treat it as a photo. PNG suits viewing on a phone or iPad.</p>
       </div>
 
       <h2 id="instructions-title" data-i18n="instructions">Instructions</h2>
