@@ -86,7 +86,7 @@ const STRINGS = {
     textPlaceholder: 'Skriv text',
     font: 'Typsnitt',
     bold: 'Fet',
-    swatch: 'Provlapp (masktäthet)',
+    swatch: 'Provlapp (stickfasthet)',
     unit: 'Enhet',
     width: 'Bredd',
     height: 'Höjd',
@@ -198,7 +198,7 @@ function initialLanguage() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (STRINGS[saved]) return saved
-  } catch {}
+  } catch { }
   const preferred = (navigator.languages ?? [navigator.language])
     .map(tag => tag.slice(0, 2).toLowerCase())
     .find(code => STRINGS[code])
@@ -211,7 +211,7 @@ export function getLanguage() {
 
 export function setLanguage(code) {
   language = code
-  try { localStorage.setItem(STORAGE_KEY, code) } catch {}
+  try { localStorage.setItem(STORAGE_KEY, code) } catch { }
   translatePage()
 }
 
