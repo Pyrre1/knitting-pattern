@@ -1,9 +1,11 @@
-// Turns a grid 90° so a design can be knitted sideways (e.g. text along a scarf).
+// Turns a grid 90° so a design can be knitted sideways (e.g. text along a scarf),
+// or 180° so it reads right once a brim or cuff is folded over.
 // Works on any cell values: pixels [r, g, b] or palette indexes.
 export function rotateGrid(grid, turn) {
   if (turn === 'none') return grid
+  if (turn === '180') return grid.map(row => [...row].reverse()).reverse()
   if (turn !== 'right' && turn !== 'left') {
-    throw new Error("turn must be 'none', 'right' or 'left'")
+    throw new Error("turn must be 'none', 'right', 'left' or '180'")
   }
 
   const rows = grid.length
