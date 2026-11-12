@@ -231,11 +231,13 @@ label.inline { justify-content: flex-start; }
 
 #confirm h2, #about h2 { margin: 0 0 8px; font-size: 18px; }
 
+#about h2 { text-align: center; }
+
 #confirm-reasons p, #notice-text { margin: 4px 0; }
 
 .dialog-buttons {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 8px;
   margin-top: 16px;
 }
