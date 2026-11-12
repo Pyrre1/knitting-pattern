@@ -7,22 +7,38 @@ One phase per chat. Start a chat with "Do Phase X from TODO.md"; decisions below
 - [x] CLAUDE.md frontend map
 - [x] Prototype notice dialog (first visit, remembered) + footer link; `frontend/config.js` holds `FEEDBACK_EMAIL`, `FUTURE_URL`
 
-### Phase B — print upgrade + upside down
-- [ ] Core: `rotateGrid(grid, '180')` + test. `#rotate` gets "Upside down (180°)" for image and text
+### Phase B — print upgrade + upside down ✔
+- [x] Core: `rotateGrid(grid, '180')` + test. `#rotate` gets "Upside down (180°)" for image and text
       (folded hem: motif knitted upside down). Chart, instructions, print and live view follow it.
       Text: compose with unrotated gauge, then rotate. Hint text in en + sv.
-- [ ] New `frontend/print.js`; `index.js` only wires it up.
-- [ ] Button "Print / Save PDF" (browser print-to-PDF, no dependency). Keep Save PNG.
-- [ ] Orientation select portrait / landscape → injected `@page { size: … }` (CSP: no inline
+- [x] New `frontend/print.js`; `index.js` only wires it up.
+- [x] Button "Print / Save PDF" (browser print-to-PDF, no dependency). Keep Save PNG.
+- [x] Orientation select portrait / landscape → injected `@page { size: … }` (CSP: no inline
       `<style>`; use a stylesheet toggled by class or CSSOM `insertRule`). Firefox may ignore it.
-- [ ] Print-only info block:
+- [x] Print-only info block:
       - gauge (stitches/rows per 10 cm or 4 in, as entered)
       - final size: stitches × rows, and cm or inch (follows the selected unit)
       - text: letter height in rows (or stitches when rotated 90°), and cm/inch
-      - rotation: "Upside down (hem): yes/no", plus 90° right/left if used
+      - rotation: "Upside down (hem): yes" only when chosen, plus 90° right/left if used
       - knitting setup: start bottom up / top down, flat (back and forth) / in the round
-      - footer: site, date, "prototype"
-- [ ] PNG: decide whether it gets the same info (ask).
+      - footer: "This pattern was created at <AppName - url>", date, "(currently just a prototype)" (print and PNG)
+- [x] PNG: checkbox "Include info" adds the info block as a text strip under the chart; unchecked = chart only.
+- [x] Footer name: `APP_NAME` in `config.js`; set → "AppName - url", empty → url only.
+- [x] Hint for upside down: right side of the motif must face out after folding (knit the cuff
+      part with the inside as right side, e.g. work turned inside out). 180° alone is enough: no mirror needed.
+- [x] Chart fits the page in the chosen orientation (now locked to screen width / 75vh).
+
+### Phase B2 — print scale
+Replaces backlog item "Print size for long, narrow charts".
+- [ ] Print option: "Fit to page" (default) / "Print in scale" with a scale %.
+      100 % = cells match the real knitted size; > 100 % for small intricate charts that need
+      room to read and mark with a pen. Instructions keep their own size.
+- [ ] Scale larger than a page: split the chart into page tiles, each marked (e.g. A1, A2, B1 …,
+      overview map, repeated row/stitch numbers, overlap or cut marks) for print, cut and tape.
+- [ ] Browser print scale (Chrome/Firefox "Scale %") does not enlarge the chart: print CSS fits it
+      to the page (`max-width: 100%`, `max-height: 70vh`), so only the text grows. A canvas cannot
+      overflow onto a second sheet; enlarging needs our own scale control + tiles (above).
+- [ ] Estimate pages; confirm when > 4 ("Needs about X pages"); duplex tip.
 
 ### Phase C — live view
 - [ ] New `frontend/liveView.js`; "Live view" button opens a fullscreen view.
@@ -37,6 +53,8 @@ One phase per chat. Start a chat with "Do Phase X from TODO.md"; decisions below
 ### Phase D — deploy hygiene
 - [ ] `robots.txt` (prototype: `Disallow: /`). Served from `/srv`: add `COPY` to `Dockerfile`.
 - [ ] `<meta name="robots" content="noindex">`, meta description, favicon.
+- [ ] Line at the top of the page: "Last update: <date>" = date of the last deploy to the Pi.
+      Date written at build time (e.g. Dockerfile writes `version.js`/`version.json`), no manual edit.
 - [ ] Caddy: optional 404 page; security headers beyond CSP are at the edge (pi-infra).
 - [ ] Real site later: allow indexing, `sitemap.xml`, Open Graph image, redirect from prototype address.
 
@@ -65,7 +83,7 @@ Deferred until after the local visual MVP.
       offer a secondary marker (e.g. hatching or a row-edge marker).
 - [ ] Stitch view (preview): decide after trying it whether to develop further (highlights,
       in print/PNG as an option) and whether it is a pro feature.
-- [ ] Print size for long, narrow charts (e.g. scarves). A canvas cannot split across
+- [ ] (moved to Phase B2) Print size for long, narrow charts (e.g. scarves). A canvas cannot split across
       pages, so print currently fits the chart on page 1 (`max-height: 75vh`): fine for
       e.g. 88 × 52, but scarf cells get too small to follow or mark with a pencil.
       - print option: fit to page (default) / mid-sized cells (more paper) / full width
