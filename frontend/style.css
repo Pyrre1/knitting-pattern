@@ -429,7 +429,9 @@ footer {
   /* 100vh plus trailing margins spill onto a blank extra page */
   main { min-height: 0; padding-bottom: 0; }
   #instructions { margin-bottom: 0; }
-  header, #settings, #error, .no-print, #palette input { display: none; }
+  header, #settings, #error, #palette input { display: none; }
+  /* !important: ID rules like #toolbar { display: flex } would win over the class */
+  .no-print { display: none !important; }
   .print-only { display: inline-block; }
   #palette li { break-inside: avoid; }
   .canvas-wrap { overflow: visible; }
