@@ -7,6 +7,7 @@ import { toGlyph, composeText, fitRows, textPattern } from "../core/textGrid.js"
 import { rotateGrid, rotateGauge } from "../core/rotateGrid.js"
 import { translate, translatePage, getLanguage, setLanguage, instructionTerms, translateError, formatNumber } from "./i18n.js"
 import { initAbout } from "./about.js"
+import { initBanner } from "./banner.js"
 import { initPrint } from "./print.js"
 import { drawChart, drawCell, fitCellSize, rgbToHex, isLight, LABEL_MARGIN, MIN_STITCH_CELL } from "./chart.js"
 
@@ -175,6 +176,7 @@ renderYarnPickers()
 previewFonts()
 settled = readSettings()
 initAbout()
+initBanner()
 const updatePaper = initPrint({ getInfo: printInfo, redraw: drawGrid, chart: chartSettings, ask })
 
 async function loadPixels(file) {

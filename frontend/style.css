@@ -16,6 +16,9 @@
   --row-help-light: rgba(255, 255, 255, 0.25);
   --info-bg: #f1f7ec;
   --info-accent: #7fae63;
+  /* Prototype banner: pale amber, set apart from the green theme */
+  --notice-bg: #fff4d6;
+  --notice-border: #e8c46a;
 }
 
 * { box-sizing: border-box; }
@@ -51,6 +54,16 @@ header {
 }
 
 h1 { margin: 0; }
+
+#banner {
+  margin: 0 0 12px;
+  padding: 6px 10px;
+  border: 1px solid var(--notice-border);
+  border-radius: 6px;
+  background: var(--notice-bg);
+  font-size: 13px;
+  text-align: center;
+}
 
 #settings { position: relative; }
 
