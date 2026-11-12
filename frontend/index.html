@@ -129,10 +129,14 @@
               <option value="none" data-i18n="rotateNone">no</option>
               <option value="right" data-i18n="rotateRight">90° right</option>
               <option value="left" data-i18n="rotateLeft">90° left</option>
+              <option value="180" data-i18n="rotateFlip">upside down (180°)</option>
             </select>
           </label>
           <span id="rotate-hint" class="hint" data-i18n="rotateHint" hidden>Rotated: the chart is shown as knitted, e.g.
             text along a scarf. Width is across the knitting.</span>
+          <span id="flip-hint" class="hint" data-i18n="flipHint" hidden>Upside down: for a turned-up brim or
+            folded-down cuff. Knit this part with the motif's right side facing the inside (e.g. turn the work inside
+            out), so it reads right once folded.</span>
         </fieldset>
       </form>
     </div>
@@ -140,7 +144,10 @@
     <p id="error" role="alert" hidden></p>
 
     <section id="result" hidden>
-      <p id="size-info"></p>
+      <p id="size-info" class="no-print"></p>
+      <div id="print-info" class="print-only">
+        <dl id="print-info-list"></dl>
+      </div>
       <hr class="divider">
       <p class="info no-print" data-i18n="paletteHint">These are the colours that best match your design. Click Change
         to pick another yarn colour, or click the colour next to it to restore the matched colour.</p>
@@ -185,14 +192,23 @@
       </div>
 
       <div id="output" class="tool-group no-print">
-        <button type="button" id="print" data-i18n="print">Print</button>
-        <button type="button" id="save-png" data-i18n="savePng">Save PNG</button>
+        <button type="button" id="print" data-i18n="print">Print / Save PDF</button>
+        <label><span data-i18n="paper">Paper</span>
+          <select id="paper">
+            <option value="portrait" data-i18n="portrait">portrait</option>
+            <option value="landscape" data-i18n="landscape">landscape</option>
+          </select>
+        </label>
         <label class="inline"><input type="checkbox" id="print-instructions" checked> <span
             data-i18n="printInstructions">Include instructions in print</span></label>
+        <button type="button" id="save-png" data-i18n="savePng">Save PNG</button>
+        <label class="inline"><input type="checkbox" id="png-info"> <span data-i18n="pngInfo">Include info in
+            PNG</span></label>
       </div>
 
       <h2 id="instructions-title" data-i18n="instructions">Instructions</h2>
       <ol id="instructions"></ol>
+      <p id="print-footer" class="print-only"></p>
     </section>
 
     <footer class="no-print">

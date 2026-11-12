@@ -41,7 +41,7 @@ Intended pipeline (core modules, all pure, tests in `core/tests/`):
 
 Text path (`textGrid.js`) skips colour reduction: each distinct letter is drawn once and downsampled with `toGlyph(pixels, rows, gauge)` (0/1, narrowed for gauge), so repeated letters are identical. `composeText(glyphs, text, { layout, spacing | width, lineSpacing })` places them (fixed spacing, or fill `width` spreading spare stitches; `layout: 'column'` stacks letters top to bottom, `spacing` in rows, lines side by side, no `width`); `fitRows` binary-searches letter height for a target width; `textPattern({ swatch, grid, yarns? })` → pattern with palette [background, text]. Frontend renders the glyph pixels (system fonts only).
 
-`rotateGrid(grid, 'none'|'right'|'left')` turns any grid 90° (right = clockwise) for sideways knitting; frontend rotates image pixels before `createPattern`, and text is composed with `rotateGauge(gauge)` (stitches↔rows) then rotated. Chart is shown as knitted; final width = across the knitting.
+`rotateGrid(grid, 'none'|'right'|'left'|'180')` turns any grid 90° (right = clockwise) for sideways knitting, or 180° for a turned-up brim / folded-down cuff (text composed with normal gauge, then turned); frontend rotates image pixels before `createPattern`, and text is composed with `rotateGauge(gauge)` (stitches↔rows) then rotated. Chart is shown as knitted; final width = across the knitting.
 
 `fromImageData({ data, width, height })` adapts canvas `ImageData` (flat RGBA) to the `[y][x] = [r,g,b]` grid; transparency is blended onto white.
 
@@ -56,7 +56,8 @@ Grep for the function name before opening `index.js` (~970 lines); read only tha
 - `index.html`: settings form (Image/Text, Swatch, Final size, Yarns, knitting options, `#rotate`), `#result` (palette, toolbar, canvas, instructions, `#output` print/PNG), dialogs `#confirm` (recalculate?) and `#notice` (message).
 - `index.js`, top to bottom: imports + state → input handlers (change → `confirmChange` → `generate`) → keys/brush/undo handlers → `loadPixels`, text glyphs (`glyphPixels`, `createTextPattern`) → form readers (`readSwatch`, `readYarns`, `readKnitOptions`) → `generate` / `render` / `renderInstructions` → canvas (`drawGrid`, `drawStitches`, `drawGuideLines`, `drawLabels`) → `savePng` → painting (`startStroke` … `cellAt`) → `confirmChange` → dialogs (`notify`, `ask`).
 - `i18n.js`: `STRINGS.en` / `STRINGS.sv` (both required for every key). Static text: `data-i18n`, `data-i18n-title`, `data-i18n-placeholder`; dynamic: `translate(key, { name })` with `{name}` placeholders. `translatePage()` runs on language switch.
-- `config.js`: deploy-specific constants (feedback email, future URL); empty = feature hidden.
+- `print.js`: Print / Save PDF, paper orientation (`@page` rule via CSSOM), print-only info block (`#print-info`, `#print-footer`), PNG with optional info strip. `index.js` passes `printInfo` and `drawGrid(scale)` (print redraws sharper, CSS fits it).
+- `config.js`: deploy-specific constants (feedback email, future URL, `APP_NAME`); empty = feature hidden.
 - `style.css`: `@media print` at the end; `.no-print`, `.print-only`, `#result.chart-only` (print without instructions).
 - Rule: new features go in their own module (e.g. `print.js`, `liveView.js`) imported by `index.js`; do not grow `index.js`.
 - Deploy: `Dockerfile` copies only `frontend/` and `core/`; `Caddyfile` sets CSP (`'self'` only, no inline scripts/styles) and `no-cache`.

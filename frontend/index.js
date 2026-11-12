@@ -7,6 +7,7 @@ import { toGlyph, composeText, fitRows, textPattern } from "../core/textGrid.js"
 import { rotateGrid, rotateGauge } from "../core/rotateGrid.js"
 import { translate, translatePage, getLanguage, setLanguage, instructionTerms, translateError, formatNumber } from "./i18n.js"
 import { initAbout } from "./about.js"
+import { initPrint } from "./print.js"
 
 // Longest image side kept after load; caps both work and max stitch count
 const MAX_IMAGE_SIDE = 600
@@ -124,7 +125,7 @@ byId('knit-method').addEventListener('change', () => {
   renderInstructions()
 })
 byId('knit-start').addEventListener('change', () => { drawGrid(); renderInstructions() })
-byId('row-help').addEventListener('change', drawGrid)
+byId('row-help').addEventListener('change', () => drawGrid())
 byId('stitch-view').addEventListener('change', () => {
   stitchViewPaused = false
   drawGrid()
@@ -177,11 +178,6 @@ byId('language').addEventListener('change', () => {
   if (pattern) render()
 })
 
-byId('print').addEventListener('click', () => window.print())
-byId('print-instructions').addEventListener('change', () => {
-  byId('result').classList.toggle('chart-only', !byId('print-instructions').checked)
-})
-byId('save-png').addEventListener('click', savePng)
 
 byId('language').value = getLanguage()
 translatePage()
@@ -190,6 +186,7 @@ renderYarnPickers()
 previewFonts()
 settled = readSettings()
 initAbout()
+initPrint({ getInfo: printInfo, redraw: drawGrid })
 
 async function loadPixels(file) {
   const bitmap = await createImageBitmap(file)
@@ -264,11 +261,12 @@ function createTextPattern() {
   const pixelsByChar = glyphPixels(chars, byId('font').value, byId('bold').checked)
   const maxRows = Math.min(MAX_LETTER_ROWS, Object.values(pixelsByChar)[0].length)
 
-  // Rotated text is composed upright with stitches and rows swapped, then turned,
-  // so its height runs across the stitches of the knitted fabric
+  // Text turned 90° is composed upright with stitches and rows swapped, then turned,
+  // so its height runs across the stitches of the knitted fabric. 180° keeps the gauge.
   const turn = byId('rotate').value
-  const textGauge = turn === 'none' ? gauge : rotateGauge(gauge)
-  const across = grid => turn === 'none' ? grid[0].length : grid.length
+  const quarterTurn = isQuarterTurn(turn)
+  const textGauge = quarterTurn ? rotateGauge(gauge) : gauge
+  const across = grid => quarterTurn ? grid.length : grid[0].length
   const textLayout = byId('text-layout').value
   const compose = (rows, options) => {
     const glyphs = Object.fromEntries(chars.map(char => [char, toGlyph(pixelsByChar[char], rows, textGauge)]))
@@ -312,8 +310,9 @@ function updateSourceInputs() {
   // Stacked or rotated letters have nothing to spread across the width. Stacking and
   // rotating each turn spacing from stitches into rows; rotating measures height in stitches.
   const isColumn = byId('text-layout').value === 'column'
-  const isTurned = byId('rotate').value !== 'none'
+  const isTurned = isQuarterTurn(byId('rotate').value)
   byId('rotate-hint').hidden = !isTurned
+  byId('flip-hint').hidden = byId('rotate').value !== '180'
   byId('text-fix').querySelector('[value="fill"]').disabled = isColumn || isTurned
   if ((isColumn || isTurned) && byId('text-fix').value === 'fill') byId('text-fix').value = 'height'
   setLabel('letter-spacing-label', isColumn !== isTurned ? 'letterSpacingRows' : 'letterSpacing')
@@ -549,7 +548,8 @@ function renderInstructions() {
   }))
 }
 
-function drawGrid() {
+// scale > 1 draws a sharper backing canvas for print; layout stays in unscaled units
+function drawGrid(scale = 1) {
   const { grid, palette, size } = pattern
   const gauge = gaugeInterpreter(readSwatch())
   const options = readKnitOptions()
@@ -573,8 +573,8 @@ function drawGrid() {
   layout = { cellWidth, cellHeight, shadedRows, stitchView, topDown: options.start === 'top' }
 
   const canvas = byId('grid')
-  canvas.width = Math.ceil(gridWidth + 2 * LABEL_MARGIN)
-  canvas.height = Math.ceil(gridHeight + 2 * LABEL_MARGIN)
+  canvas.width = Math.ceil((gridWidth + 2 * LABEL_MARGIN) * scale)
+  canvas.height = Math.ceil((gridHeight + 2 * LABEL_MARGIN) * scale)
   const ctx = canvas.getContext('2d')
 
   // Opaque background so the saved PNG is not transparent
@@ -583,6 +583,7 @@ function drawGrid() {
 
   // Labels sit in a margin on every side; the grid is drawn inside it
   ctx.save()
+  ctx.scale(scale, scale)
   ctx.translate(LABEL_MARGIN, LABEL_MARGIN)
 
   if (stitchView) {
@@ -739,15 +740,23 @@ function labelStep(cellSize) {
   return 10
 }
 
-function savePng() {
-  byId('grid').toBlob(blob => {
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
-    link.download = 'knitting-pattern.png'
-    link.click()
-    // Revoking straight away can cancel the download in some browsers
-    setTimeout(() => URL.revokeObjectURL(link.href), 1000)
-  })
+function isQuarterTurn(turn) {
+  return turn === 'right' || turn === 'left'
+}
+
+// Settings for the print info block and PNG strip
+function printInfo() {
+  const rotate = byId('rotate').value
+  return {
+    swatch: readSwatch(),
+    size: pattern.size,
+    widthUnit: byId('width-unit').value,
+    letter: source === 'text' && letterInfo
+      ? { count: Number(byId('letter-rows').value), cm: letterInfo.cm, inStitches: isQuarterTurn(rotate) }
+      : null,
+    rotate,
+    options: readKnitOptions()
+  }
 }
 
 // Button in its yarn colour, with readable text
