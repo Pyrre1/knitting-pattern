@@ -51,6 +51,16 @@ Palette entry = `{ source, yarn }`: stitches map by `source`, display/output use
 
 Test-driven history: commits prefixed `GREEN -` mark red/green TDD steps.
 
+## Frontend map
+Grep for the function name before opening `index.js` (~970 lines); read only that section.
+- `index.html`: settings form (Image/Text, Swatch, Final size, Yarns, knitting options, `#rotate`), `#result` (palette, toolbar, canvas, instructions, `#output` print/PNG), dialogs `#confirm` (recalculate?) and `#notice` (message).
+- `index.js`, top to bottom: imports + state → input handlers (change → `confirmChange` → `generate`) → keys/brush/undo handlers → `loadPixels`, text glyphs (`glyphPixels`, `createTextPattern`) → form readers (`readSwatch`, `readYarns`, `readKnitOptions`) → `generate` / `render` / `renderInstructions` → canvas (`drawGrid`, `drawStitches`, `drawGuideLines`, `drawLabels`) → `savePng` → painting (`startStroke` … `cellAt`) → `confirmChange` → dialogs (`notify`, `ask`).
+- `i18n.js`: `STRINGS.en` / `STRINGS.sv` (both required for every key). Static text: `data-i18n`, `data-i18n-title`, `data-i18n-placeholder`; dynamic: `translate(key, { name })` with `{name}` placeholders. `translatePage()` runs on language switch.
+- `config.js`: deploy-specific constants (feedback email, future URL); empty = feature hidden.
+- `style.css`: `@media print` at the end; `.no-print`, `.print-only`, `#result.chart-only` (print without instructions).
+- Rule: new features go in their own module (e.g. `print.js`, `liveView.js`) imported by `index.js`; do not grow `index.js`.
+- Deploy: `Dockerfile` copies only `frontend/` and `core/`; `Caddyfile` sets CSP (`'self'` only, no inline scripts/styles) and `no-cache`.
+
 ## Communication
 - Terse, aerospace style: state facts, actions, results. No preamble, no praise, no recap.
 - One-line answer when one line suffices.

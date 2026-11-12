@@ -1,5 +1,46 @@
 # TODO
 
+## Phase 2 roadmap (test deploy)
+One phase per chat. Start a chat with "Do Phase X from TODO.md"; decisions below are settled.
+
+### Phase A — notice + docs
+- [x] CLAUDE.md frontend map
+- [ ] Prototype notice dialog (first visit, remembered) + footer link; `frontend/config.js` holds `FEEDBACK_EMAIL`, `FUTURE_URL`
+
+### Phase B — print upgrade + upside down
+- [ ] Core: `rotateGrid(grid, '180')` + test. `#rotate` gets "Upside down (180°)" for image and text
+      (folded hem: motif knitted upside down). Chart, instructions, print and live view follow it.
+      Text: compose with unrotated gauge, then rotate. Hint text in en + sv.
+- [ ] New `frontend/print.js`; `index.js` only wires it up.
+- [ ] Button "Print / Save PDF" (browser print-to-PDF, no dependency). Keep Save PNG.
+- [ ] Orientation select portrait / landscape → injected `@page { size: … }` (CSP: no inline
+      `<style>`; use a stylesheet toggled by class or CSSOM `insertRule`). Firefox may ignore it.
+- [ ] Print-only info block:
+      - gauge (stitches/rows per 10 cm or 4 in, as entered)
+      - final size: stitches × rows, and cm or inch (follows the selected unit)
+      - text: letter height in rows (or stitches when rotated 90°), and cm/inch
+      - rotation: "Upside down (hem): yes/no", plus 90° right/left if used
+      - footer: site, date, "prototype"
+- [ ] PNG: decide whether it gets the same info (ask).
+
+### Phase C — live view
+- [ ] New `frontend/liveView.js`; "Live view" button opens a fullscreen view.
+- [ ] Full chart, current row highlighted; current `formatInstruction` text shown large.
+- [ ] Big Prev / Next buttons, arrow keys, tap.
+- [ ] Wake Lock API keeps the screen on; re-acquire on `visibilitychange`; fallback hint
+      "keep screen on" when unsupported (iOS Safari < 16.4) or without HTTPS.
+- [ ] Progress saved in localStorage keyed by a pattern hash (grid + options).
+- [ ] Zoom: pinch on touch, Ctrl+scroll / buttons on PC; keep current row in view.
+- [ ] Map instruction ↔ displayed row via `rowInstructions` `displayRow`; core helper + test only if needed.
+
+### Phase D — deploy hygiene
+- [ ] `robots.txt` (prototype: `Disallow: /`). Served from `/srv`: add `COPY` to `Dockerfile`.
+- [ ] `<meta name="robots" content="noindex">`, meta description, favicon.
+- [ ] Caddy: optional 404 page; security headers beyond CSP are at the edge (pi-infra).
+- [ ] Real site later: allow indexing, `sitemap.xml`, Open Graph image, redirect from prototype address.
+
+## Backlog
+
 Deferred until after the local visual MVP.
 
 - [ ] Yarn limit: free tier max 4 yarns; more than 4 as a possible premium feature.
