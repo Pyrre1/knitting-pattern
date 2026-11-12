@@ -28,17 +28,23 @@ One phase per chat. Start a chat with "Do Phase X from TODO.md"; decisions below
       part with the inside as right side, e.g. work turned inside out). 180° alone is enough: no mirror needed.
 - [x] Chart fits the page in the chosen orientation (now locked to screen width / 75vh).
 
-### Phase B2 — print scale
+### Phase B2 — print scale ✔
 Replaces backlog item "Print size for long, narrow charts".
-- [ ] Print option: "Fit to page" (default) / "Print in scale" with a scale %.
+- [x] Checkbox "Print in scale" with a scale % (unchecked = normal print, chart fitted to the page).
       100 % = cells match the real knitted size; > 100 % for small intricate charts that need
       room to read and mark with a pen. Instructions keep their own size.
-- [ ] Scale larger than a page: split the chart into page tiles, each marked (e.g. A1, A2, B1 …,
-      overview map, repeated row/stitch numbers, overlap or cut marks) for print, cut and tape.
-- [ ] Browser print scale (Chrome/Firefox "Scale %") does not enlarge the chart: print CSS fits it
-      to the page (`max-width: 100%`, `max-height: 70vh`), so only the text grows. A canvas cannot
-      overflow onto a second sheet; enlarging needs our own scale control + tiles (above).
-- [ ] Estimate pages; confirm when > 4 ("Needs about X pages"); duplex tip.
+- [x] Scale larger than a page: split the chart into page tiles (`core/printTiles.js`), named A1, A2, B1 …,
+      overview map on page 1, row/stitch numbers repeated on each tile, no overlap (cut along the chart edge).
+      Each tile is placed against its joining edges (top row at the page bottom, left column at the right,
+      middle ones centred), so one straight cut per join. Page 1: info, yarns and tile map in a 55 mm column
+      beside A1 (first tile column planned narrower when needed).
+      Paper: normal print → print dialog chooses paper and orientation; in scale → Paper (orientation)
+      select, swatch in cm → A4, inch → "Paper size" select (Letter default, A4). `@page` margin 10 mm.
+- [x] Save PNG in its own box, "Include info" ticked by default, hint: PDF prints faster and sharper, PNG for phone/iPad.
+- [x] Browser print scale does not enlarge the chart (print CSS fits it), so we use our own scale + tiles.
+      Hint in the confirm: keep browser scale at 100 % / Default.
+- [x] Estimate pages; confirm when > 4 ("Needs about X pages"); duplex tip. Ctrl+P skips the confirm.
+- [x] Chart drawing moved from `index.js` to `frontend/chart.js` (`drawChart` draws whole chart or a region).
 
 ### Phase C — live view
 - [ ] New `frontend/liveView.js`; "Live view" button opens a fullscreen view.
@@ -83,7 +89,7 @@ Deferred until after the local visual MVP.
       offer a secondary marker (e.g. hatching or a row-edge marker).
 - [ ] Stitch view (preview): decide after trying it whether to develop further (highlights,
       in print/PNG as an option) and whether it is a pro feature.
-- [ ] (moved to Phase B2) Print size for long, narrow charts (e.g. scarves). A canvas cannot split across
+- [x] (done in Phase B2) Print size for long, narrow charts (e.g. scarves). A canvas cannot split across
       pages, so print currently fits the chart on page 1 (`max-height: 75vh`): fine for
       e.g. 88 × 52, but scarf cells get too small to follow or mark with a pencil.
       - print option: fit to page (default) / mid-sized cells (more paper) / full width
