@@ -1,11 +1,11 @@
 import { APP_NAME } from './config.js'
 import { translate, formatNumber, getLanguage } from './i18n.js'
-import { drawChart, LABEL_MARGIN } from './chart.js'
+import { drawChart, fitCellSize, LABEL_MARGIN } from './chart.js'
 import { gaugeInterpreter } from '../core/gaugeInterpreter.js'
 import { planTiles } from '../core/printTiles.js'
 
 const CM_PER_INCH = 2.54
-// Print redraws the chart this many times sharper, so CSS can fit it to the page
+// Print draws a separate chart this many times sharper, so CSS can fit it to the page
 const MAX_PRINT_SCALE = 3
 // Stays under browser canvas limits (Safari ~16.7 M pixels)
 const MAX_PRINT_PIXELS = 16_000_000
@@ -35,12 +35,12 @@ const byId = id => document.getElementById(id)
 
 // Print / Save PDF, paper size and orientation, print in scale (split into page tiles),
 // print-only info block and PNG export.
-// getInfo() returns the current pattern settings (see infoLines); redraw(scale) redraws the chart;
+// getInfo() returns the current pattern settings (see infoLines);
 // chart() returns drawChart settings without cell size; ask(reasons, title) confirms.
 // Returns updatePaper(), to call when a pattern is rendered (the swatch unit picks the paper).
 // Normal print leaves paper and orientation to the print dialog; print in scale sets them,
 // since tiles are planned before the dialog opens and it does not report changes back.
-export function initPrint({ getInfo, redraw, chart, ask }) {
+export function initPrint({ getInfo, chart, ask }) {
   const pageRule = createPageRule()
   const updatePaper = () => {
     document.querySelectorAll('.scale-option').forEach(element => { element.hidden = !inScale() })
@@ -69,7 +69,7 @@ export function initPrint({ getInfo, redraw, chart, ask }) {
     if (inScale()) {
       moved = renderTiles(chart(), getInfo())
     } else {
-      redraw(printScale(byId('grid')))
+      drawPrintChart(chart(), getInfo())
     }
   })
   window.addEventListener('afterprint', () => {
@@ -78,7 +78,9 @@ export function initPrint({ getInfo, redraw, chart, ask }) {
     moved = []
     byId('print-tiles').replaceChildren()
     byId('result').classList.remove('tiled', 'side-layout')
-    redraw(1)
+    // Frees the large backing canvas
+    byId('print-chart').width = 0
+    byId('print-chart').height = 0
   })
 
   // Tile size depends on the gauge, so the estimate is computed when needed
@@ -314,10 +316,15 @@ function setPage(pageRule, size) {
   pageRule.rule = sheet.cssRules[index]
 }
 
-// Larger backing canvas; print CSS shrinks it to the page width or height, whichever is tighter
-function printScale(canvas) {
-  const pixels = canvas.width * canvas.height
-  return Math.max(1, Math.min(MAX_PRINT_SCALE, Math.sqrt(MAX_PRINT_PIXELS / pixels)))
+// Print-only copy of the chart with a larger backing canvas; the on-screen chart is left alone,
+// so nothing changes behind the print dialog. Print CSS shrinks it to the page width or height,
+// whichever is tighter.
+function drawPrintChart(settings, info) {
+  const cells = fitCellSize(settings.grid[0].length, gaugeInterpreter(info.swatch))
+  const pixels = (settings.grid[0].length * cells.cellWidth + 2 * LABEL_MARGIN) *
+    (settings.grid.length * cells.cellHeight + 2 * LABEL_MARGIN)
+  const scale = Math.max(1, Math.min(MAX_PRINT_SCALE, Math.sqrt(MAX_PRINT_PIXELS / pixels)))
+  drawChart(byId('print-chart'), { ...settings, ...cells, scale })
 }
 
 // Chart as shown; with lines, an info strip is added under it

@@ -177,7 +177,7 @@ previewFonts()
 settled = readSettings()
 initAbout()
 initBanner()
-const updatePaper = initPrint({ getInfo: printInfo, redraw: drawGrid, chart: chartSettings, ask })
+const updatePaper = initPrint({ getInfo: printInfo, chart: chartSettings, ask })
 
 async function loadPixels(file) {
   const bitmap = await createImageBitmap(file)
@@ -540,8 +540,7 @@ function renderInstructions() {
   }))
 }
 
-// scale > 1 draws a sharper backing canvas for print; layout stays in unscaled units
-function drawGrid(scale = 1) {
+function drawGrid() {
   const cells = fitCellSize(pattern.size.stitches, gaugeInterpreter(readSwatch()))
   // Too large, whether just switched on or the chart grew: switch off and say why
   if (byId('stitch-view').checked && cells.cellWidth < MIN_STITCH_CELL) {
@@ -549,7 +548,7 @@ function drawGrid(scale = 1) {
     stitchViewPaused = false
     notify('stitchViewTooLarge')
   }
-  layout = drawChart(byId('grid'), { ...chartSettings(), ...cells, scale })
+  layout = drawChart(byId('grid'), { ...chartSettings(), ...cells })
 }
 
 // Everything drawChart needs except cell size; print tiles reuse it
