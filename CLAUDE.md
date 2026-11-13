@@ -81,6 +81,7 @@ Grep for the function name before opening `index.js` (~770 lines); read only tha
 1. Explore (read only) → 2. Plan (wait for approval on non-trivial changes) → 3. Implement → 4. Test → 5. Commit.
 - Keep tests; add new ones for new behaviour. TDD only if it gives clear value.
 - Small diffs. One concern per commit. Conventional commit messages.
+- User-visible change (feat/fix in `frontend/`) → add a line to today's entry in `frontend/changes.js` (create it if missing; en + sv; plain words, no internals) in the same commit. Skip for refactors, tests, docs.
 - Never commit unless asked. Never touch files outside the task scope.
 
 ## Token discipline
