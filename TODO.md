@@ -84,6 +84,14 @@ Replaces backlog item "Print size for long, narrow charts".
       Storage the user asks for needs no cookie banner (ePrivacy "strictly necessary"); notice only.
 - [ ] Examples section on About (placeholder until pictures exist; hidden while empty).
 - [ ] en + sv for all text.
+- [ ] fix: print in scale, tile overview (A1 A2 / B1 B2 map on page 1) always looks landscape
+      (`.tile-overview td` padding 2px 8px in `style.css`, built by `tileOverview` in `print.js`).
+      Cells should have the page's proportions: as now for landscape, switched (taller than wide)
+      for portrait.
+- [ ] Discuss: "Changes" page (changelog), e.g. "2026-11-13 — add: …, fix: …, remove: …", thin line
+      between entries, newest first. Uses: portfolio, testers joining late, own record.
+      Open: how much detail to show (risk of revealing too much), curated text vs. from commits,
+      en + sv, linked from the banner's "Last update".
 
 ### Phase F — more yarns
 - [ ] Number of yarns: 2, 3, 4, "More…". "More…" shows a second select: 5–8 and "Crazy time…".
