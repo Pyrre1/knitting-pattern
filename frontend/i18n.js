@@ -53,7 +53,6 @@ const STRINGS = {
     cancel: 'Cancel',
     continue: 'Continue',
     close: 'Close',
-    aboutOpen: 'Prototype - feedback',
     aboutTitle: 'Prototype under test',
     aboutTest: 'This is a first prototype under test. If something does not work, anything is unclear or you miss a function, please mail me and I will see if I can solve it.',
     aboutMail: 'Feedback:',
@@ -62,6 +61,25 @@ const STRINGS = {
     bannerText: 'This is a prototype.',
     bannerMail: 'Please email feedback or suggestions to',
     bannerUpdate: 'Last update:',
+    menuLabel: 'Menu',
+    menuPattern: 'Pattern',
+    menuAbout: 'About',
+    menuChanges: 'Changes',
+    menuLiveView: 'Live view',
+    aboutPageTitle: 'About',
+    aboutDataTitle: 'Your data',
+    aboutNoAccount: 'There is no account and nothing is stored on a server. All calculations happen on your device, and images are never uploaded.',
+    aboutNoSave: 'The app does not save your work: if you reload the page, the pattern is lost. Print it or save a PDF or PNG to keep it.',
+    aboutStorageTitle: 'Saving in the browser',
+    aboutStorage: 'By saving a pattern or using live view you allow this site to store data in your browser (local storage). The pattern is not saved by us and may be lost if you clear your browser data.',
+    aboutStorageMore: 'Saved data stays on your device and is never sent to us. Clearing site data or cookies removes it; a plain cache clear may not.',
+    aboutPrototypeTitle: 'Under development',
+    aboutExamplesTitle: 'Examples',
+    changesTitle: 'Changes',
+    changesIntro: 'What has changed, newest first.',
+    changeAdd: 'Added',
+    changeFix: 'Fixed',
+    changeRemove: 'Removed',
     sizeInfo: 'Estimated size of finished fabric: {stitches} stitches × {rows} rows · {width} × {height} cm',
     paletteHint: 'These are the colours that best match your design. Click Change to pick another yarn colour, or click the colour next to it to restore the matched colour.',
     paintHint: 'To paint in missed stitches, pick a letter in the “Select to paint” section below (or press 1-4 or A-D, Esc to stop) and paint in the chart. Right-click (on touch: press and hold) restores the original stitch. Ctrl+Z undoes.',
@@ -172,7 +190,6 @@ const STRINGS = {
     cancel: 'Avbryt',
     continue: 'Fortsätt',
     close: 'Stäng',
-    aboutOpen: 'Prototyp - lämna synpunkter',
     aboutTitle: 'Prototyp under test',
     aboutTest: 'Det här är en första prototyp under test. Om något inte fungerar, är otydligt eller om du saknar en funktion - mejla mig så ser jag om jag kan lösa det.',
     aboutMail: 'Synpunkter:',
@@ -181,6 +198,25 @@ const STRINGS = {
     bannerText: 'Detta är en prototyp.',
     bannerMail: 'Mejla gärna synpunkter eller förslag till',
     bannerUpdate: 'Senast uppdaterad:',
+    menuLabel: 'Meny',
+    menuPattern: 'Mönster',
+    menuAbout: 'Om',
+    menuChanges: 'Ändringar',
+    menuLiveView: 'Liveläge',
+    aboutPageTitle: 'Om',
+    aboutDataTitle: 'Dina uppgifter',
+    aboutNoAccount: 'Det finns inget konto och inget sparas på någon server. Alla beräkningar görs på din enhet och bilder laddas aldrig upp.',
+    aboutNoSave: 'Appen sparar inte ditt arbete: laddar du om sidan försvinner mönstret. Skriv ut det eller spara som PDF eller PNG för att behålla det.',
+    aboutStorageTitle: 'Spara i webbläsaren',
+    aboutStorage: 'Genom att spara ett mönster eller använda liveläget tillåter du att den här sidan lagrar data i din webbläsare (local storage). Mönstret sparas inte av oss och kan försvinna om du rensar webbläsarens data.',
+    aboutStorageMore: 'Sparad data stannar på din enhet och skickas aldrig till oss. Rensar du webbplatsdata eller cookies försvinner den; en vanlig cache-rensning tar kanske inte bort den.',
+    aboutPrototypeTitle: 'Under utveckling',
+    aboutExamplesTitle: 'Exempel',
+    changesTitle: 'Ändringar',
+    changesIntro: 'Vad som har ändrats, nyast först.',
+    changeAdd: 'Nytt',
+    changeFix: 'Rättat',
+    changeRemove: 'Borttaget',
     sizeInfo: 'Beräknad storlek på färdigt projekt: {stitches} maskor × {rows} varv · {width} × {height} cm',
     paletteHint: 'Det här är färgerna som bäst matchar din design. Klicka på Byt för att välja en annan garnfärg, eller på färgen bredvid för att återställa den matchade färgen.',
     paintHint: 'Välj en bokstav i ”Välj färg att måla med”-sektionen nedan (eller tryck 1-4 eller A-D, Esc för att sluta) och måla i diagrammet för att fylla i missade maskor. Högerklicka (pekskärm: håll kvar) för att återställa ursprunglig maska. Ctrl+Z ångrar.',
@@ -297,6 +333,8 @@ export function setLanguage(code) {
   language = code
   try { localStorage.setItem(STORAGE_KEY, code) } catch { }
   translatePage()
+  // For text built in code (e.g. the changes list)
+  document.dispatchEvent(new Event('languageswitch'))
 }
 
 export function translate(key, values = {}) {
@@ -323,5 +361,6 @@ export function translatePage() {
   document.documentElement.lang = language
   document.querySelectorAll('[data-i18n]').forEach(element => { element.textContent = translate(element.dataset.i18n) })
   document.querySelectorAll('[data-i18n-title]').forEach(element => { element.title = translate(element.dataset.i18nTitle) })
+  document.querySelectorAll('[data-i18n-aria-label]').forEach(element => { element.setAttribute('aria-label', translate(element.dataset.i18nAriaLabel)) })
   document.querySelectorAll('[data-i18n-placeholder]').forEach(element => { element.placeholder = translate(element.dataset.i18nPlaceholder) })
 }

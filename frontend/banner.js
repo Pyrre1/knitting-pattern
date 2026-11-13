@@ -3,9 +3,10 @@ import { LAST_UPDATE } from './version.js'
 
 // Permanent prototype banner above the settings: feedback address and last update date
 export function initBanner() {
+  // Banner and About page share the feedback address
   document.getElementById('banner-mail').hidden = !FEEDBACK_EMAIL
-  if (FEEDBACK_EMAIL) {
-    const link = document.getElementById('banner-email')
+  document.getElementById('about-page-mail').hidden = !FEEDBACK_EMAIL
+  for (const link of document.querySelectorAll('.feedback-email')) {
     link.href = `mailto:${FEEDBACK_EMAIL}?subject=Knitting%20pattern%20feedback`
     link.textContent = FEEDBACK_EMAIL
   }

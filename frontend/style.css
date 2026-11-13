@@ -444,23 +444,42 @@ canvas { display: block; }
   font-size: 14px;
 }
 
-footer {
-  margin-top: 24px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
-  text-align: center;
-  font-size: 14px;
+/* Menu row under the header; the current view is marked */
+#menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: -16px -16px 16px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
 }
 
-.link-text {
-  padding: 0;
-  border: 0;
-  background: none;
-  font: inherit;
-  color: var(--muted);
-  text-decoration: underline;
-  cursor: pointer;
-}
+#menu a { color: var(--fg); text-decoration: none; padding: 2px 0; }
+
+#menu a:hover { text-decoration: underline; }
+
+#menu a[aria-current="page"] { font-weight: bold; border-bottom: 2px solid var(--info-accent); }
+
+/* About and Changes: plain reading text */
+.page { max-width: 640px; }
+
+.page h2 { margin: 0 0 8px; }
+
+.page h3 { margin: 20px 0 4px; font-size: 17px; }
+
+.page p { margin: 6px 0; }
+
+.page a { color: inherit; }
+
+#banner a { color: inherit; }
+
+.change { padding: 10px 0; border-top: 1px solid var(--border); }
+
+.change h3 { margin: 0 0 4px; font-size: 15px; }
+
+.change ul { margin: 0; padding-left: 20px; }
+
+.change-kind { font-weight: bold; }
 
 #about p { margin: 8px 0; }
 

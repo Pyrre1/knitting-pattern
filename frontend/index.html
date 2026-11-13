@@ -23,13 +23,22 @@
       </label>
     </header>
 
+    <nav id="menu" class="no-print" data-i18n-aria-label="menuLabel" aria-label="Menu">
+      <a href="#pattern" data-view="pattern" data-i18n="menuPattern">Pattern</a>
+      <a href="#about" data-view="about" data-i18n="menuAbout">About</a>
+      <a href="#changes" data-view="changes" data-i18n="menuChanges">Changes</a>
+      <!-- Live view: shown once Phase G is built (add 'live' to VIEWS in menu.js) -->
+      <a href="#live" data-view="live" data-i18n="menuLiveView" hidden>Live view</a>
+    </nav>
+
     <p id="banner" class="no-print">
       <span data-i18n="bannerText">This is a prototype.</span>
       <span id="banner-mail"><span data-i18n="bannerMail">Please email feedback or suggestions to</span> <a
-          id="banner-email"></a>.</span>
-      <span id="banner-update"><span data-i18n="bannerUpdate">Last update:</span> <time id="banner-date"></time></span>
+          id="banner-email" class="feedback-email"></a>.</span>
+      <span id="banner-update"><span data-i18n="bannerUpdate">Last update:</span> <a href="#changes"><time id="banner-date"></time></a></span>
     </p>
 
+    <div id="view-pattern">
     <div id="settings">
       <form id="inputs">
         <fieldset id="swatch">
@@ -248,10 +257,31 @@
       <ol id="instructions"></ol>
       <p id="print-footer" class="print-only"></p>
     </section>
+    </div>
 
-    <footer class="no-print">
-      <button type="button" id="about-open" class="link-text" data-i18n="aboutOpen">Prototype - feedback</button>
-    </footer>
+    <section id="view-about" class="page no-print" hidden>
+      <h2 data-i18n="aboutPageTitle">About</h2>
+      <h3 data-i18n="aboutDataTitle">Your data</h3>
+      <p data-i18n="aboutNoAccount"></p>
+      <p data-i18n="aboutNoSave"></p>
+      <h3 data-i18n="aboutStorageTitle">Saving in the browser</h3>
+      <p data-i18n="aboutStorage"></p>
+      <p data-i18n="aboutStorageMore"></p>
+      <h3 data-i18n="aboutPrototypeTitle">Under development</h3>
+      <p data-i18n="aboutTest"></p>
+      <p id="about-page-mail"><span data-i18n="aboutMail">Feedback:</span> <a class="feedback-email"></a></p>
+      <p data-i18n="aboutDev"></p>
+      <!-- Shown once there are example pictures -->
+      <section id="about-examples" hidden>
+        <h3 data-i18n="aboutExamplesTitle">Examples</h3>
+      </section>
+    </section>
+
+    <section id="view-changes" class="page no-print" hidden>
+      <h2 data-i18n="changesTitle">Changes</h2>
+      <p data-i18n="changesIntro"></p>
+      <div id="changes-list"></div>
+    </section>
   </main>
 
   <dialog id="about" class="no-print" aria-labelledby="about-title">

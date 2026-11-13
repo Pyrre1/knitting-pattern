@@ -8,6 +8,8 @@ import { rotateGrid, rotateGauge } from "../core/rotateGrid.js"
 import { translate, translatePage, getLanguage, setLanguage, instructionTerms, translateError, formatNumber } from "./i18n.js"
 import { initAbout } from "./about.js"
 import { initBanner } from "./banner.js"
+import { initMenu } from "./menu.js"
+import { initChanges } from "./changes.js"
 import { initPrint } from "./print.js"
 import { drawChart, drawCell, fitCellSize, rgbToHex, isLight, LABEL_MARGIN, MIN_STITCH_CELL } from "./chart.js"
 
@@ -132,7 +134,7 @@ byId('grid').addEventListener('contextmenu', event => event.preventDefault())
 // Keys pick a brush: 1-4 or A-D a yarn, S swap, Esc none; same key again deselects.
 // Ctrl+Z undoes a stroke. Fields keep their own keys.
 document.addEventListener('keydown', event => {
-  if (!pattern || byId('result').hidden || painting) return
+  if (!pattern || byId('result').hidden || byId('view-pattern').hidden || painting) return
   if (event.target.closest('input, select, textarea, dialog')) return
 
   const key = event.key.toLowerCase()
@@ -178,6 +180,8 @@ previewFonts()
 settled = readSettings()
 initAbout()
 initBanner()
+initMenu()
+initChanges()
 const updatePaper = initPrint({ getInfo: printInfo, chart: chartSettings, ask })
 
 async function loadPixels(file) {
