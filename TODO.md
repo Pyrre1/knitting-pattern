@@ -54,10 +54,10 @@ Replaces backlog item "Print size for long, narrow charts".
       Committed default is empty → no date locally. No email → no email sentence.
 
 ### Phase C2 — quick fixes
-- [ ] Gauge default 22 × 28 (now 22 × 30): `#swatch-rows` in `index.html`; check README/tests for 30.
-- [ ] Small note under "Choose image" inside the Image fieldset: "All processing on your device,
+- [x] Gauge default 22 × 28 (now 22 × 30): `#swatch-rows` in `index.html`; check README/tests for 30.
+- [x] Small note under "Choose image" inside the Image fieldset: "All processing on your device,
       no image is uploaded" (en + sv). Shown even if the About page is never read.
-- [ ] Normal print / Save PDF: stop the visible re-render. Now `beforeprint` calls
+- [x] Normal print / Save PDF: stop the visible re-render. Now `beforeprint` calls
       `redraw(printScale(…))` on the on-screen canvas and `afterprint` redraws at 1, so the page
       changes behind the print dialog (most visible with stitch view) and print opens slowly.
       Options: print the current canvas as is (print CSS already scales it down), or draw a
