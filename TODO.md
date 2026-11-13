@@ -64,12 +64,12 @@ Replaces backlog item "Print size for long, narrow charts".
       print-only canvas (hidden on screen) at a modest scale. Check sharpness in the PDF first;
       print in scale (tiles) already uses separate canvases and is not affected.
 
-### Phase D — deploy hygiene
+### Phase D — deploy hygiene ✔
 - [x] `robots.txt` (prototype: `Disallow: /`). Served from `/srv`: add `COPY` to `Dockerfile`.
 - [x] `<meta name="robots" content="noindex">`
-- [ ] Meta description, favicon.
-- [ ] Caddy: optional 404 page; security headers beyond CSP are at the edge (pi-infra).
-- [ ] Real site later: allow indexing, `sitemap.xml`, Open Graph image, redirect from prototype address.
+- [x] Meta description, favicon (`frontend/favicon.svg`; `/favicon.ico` redirects to it).
+- [x] Caddy: 404 page (`frontend/404.html`, en + sv, via `handle_errors`); security headers beyond CSP are at the edge (pi-infra).
+- [ ] (later, not part of Phase D) Real site: allow indexing, `sitemap.xml`, Open Graph image, redirect from prototype address.
 
 ### Phase E — menu + About page
 - [ ] Menu row at the top: Pattern (current landing page) | About | Live view (from Phase G (b);

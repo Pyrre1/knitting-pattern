@@ -65,7 +65,7 @@ Grep for the function name before opening `index.js` (~770 lines); read only tha
 - `version.js`: `LAST_UPDATE`, committed empty (no date locally); `Dockerfile` overwrites it with the build date. Do not set by hand.
 - `style.css`: `@media print` at the end; `.no-print`, `.print-only`, `#result.chart-only` (print without instructions).
 - Rule: new features go in their own module (e.g. `print.js`, `liveView.js`) imported by `index.js`; do not grow `index.js`.
-- Deploy: `Dockerfile` copies only `frontend/` and `core/`; `Caddyfile` sets CSP (`'self'` only, no inline scripts/styles) and `no-cache`.
+- Deploy: `Dockerfile` copies only `frontend/`, `core/`, `robots.txt`; `Caddyfile` sets CSP (`'self'` only, no inline scripts/styles) and `no-cache` (snippet `headers`, also imported in `handle_errors`), serves `frontend/404.html` on 404, redirects `/favicon.ico` to `frontend/favicon.svg`.
 
 ## Communication
 - Terse, aerospace style: state facts, actions, results. No preamble, no praise, no recap.
