@@ -516,7 +516,9 @@ footer {
   .tile-overview { margin: 0 0 8px; font-size: 10pt; }
   .tile-overview p { margin: 0 0 4px; }
   .tile-overview table { border-collapse: collapse; }
-  .tile-overview td { border: 1px solid #999; padding: 2px 8px; text-align: center; }
+  /* Cell sides about 1.4 : 1, like A4 and Letter */
+  .tile-overview td { width: 2.8em; height: 2em; padding: 0; border: 1px solid #999; text-align: center; }
+  .tile-overview.portrait td { width: 2em; height: 2.8em; }
 }
 
 /* Tiles are planned for this margin (print.js PAGE_MARGIN_MM) */

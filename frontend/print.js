@@ -221,7 +221,8 @@ function tileCaption(tile, { grid, options }) {
 // Map of tile names as they are taped together
 function tileOverview({ across, tiles }) {
   const section = document.createElement('div')
-  section.className = 'tile-overview'
+  // Cells shaped like the page: wider than tall for landscape, taller for portrait
+  section.className = byId('paper').value === 'landscape' ? 'tile-overview' : 'tile-overview portrait'
   const title = document.createElement('p')
   title.textContent = translate('tileOverview', { count: tiles.length })
   const table = document.createElement('table')
