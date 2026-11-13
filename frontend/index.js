@@ -116,6 +116,7 @@ byId('knit-method').addEventListener('change', () => {
 })
 byId('knit-start').addEventListener('change', () => { drawGrid(); renderInstructions() })
 byId('row-help').addEventListener('change', () => drawGrid())
+byId('stitch-view-info').addEventListener('click', () => notify('stitchViewInfo'))
 byId('stitch-view').addEventListener('change', () => {
   stitchViewPaused = false
   drawGrid()

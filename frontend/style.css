@@ -237,6 +237,22 @@ label.inline { justify-content: flex-start; }
   .file-row { flex-direction: column; align-items: flex-start; gap: 6px; }
 }
 
+/* Small round "i" next to an option; opens a notice */
+.with-info { display: inline-flex; align-items: center; gap: 4px; }
+.info-button {
+  width: 1.4em;
+  height: 1.4em;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--header);
+  font-size: 12px;
+  font-style: italic;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+}
+
 #confirm, #notice, #about {
   max-width: min(28em, calc(100vw - 32px));
   padding: 16px 20px;
