@@ -53,7 +53,60 @@ Replaces backlog item "Print size for long, narrow charts".
 - [x] Date written at build time: `Dockerfile` overwrites `frontend/version.js` (`LAST_UPDATE`, ISO date).
       Committed default is empty → no date locally. No email → no email sentence.
 
-### Phase D — live view
+### Phase C2 — quick fixes
+- [ ] Gauge default 22 × 28 (now 22 × 30): `#swatch-rows` in `index.html`; check README/tests for 30.
+- [ ] Small note under "Choose image" inside the Image fieldset: "All processing on your device,
+      no image is uploaded" (en + sv). Shown even if the About page is never read.
+- [ ] Normal print / Save PDF: stop the visible re-render. Now `beforeprint` calls
+      `redraw(printScale(…))` on the on-screen canvas and `afterprint` redraws at 1, so the page
+      changes behind the print dialog (most visible with stitch view) and print opens slowly.
+      Options: print the current canvas as is (print CSS already scales it down), or draw a
+      print-only canvas (hidden on screen) at a modest scale. Check sharpness in the PDF first;
+      print in scale (tiles) already uses separate canvases and is not affected.
+
+### Phase D — deploy hygiene
+- [x] `robots.txt` (prototype: `Disallow: /`). Served from `/srv`: add `COPY` to `Dockerfile`.
+- [x] `<meta name="robots" content="noindex">`
+- [ ] Meta description, favicon.
+- [ ] Caddy: optional 404 page; security headers beyond CSP are at the edge (pi-infra).
+- [ ] Real site later: allow indexing, `sitemap.xml`, Open Graph image, redirect from prototype address.
+
+### Phase E — menu + About page
+- [ ] Menu row at the top: Pattern (current landing page) | About | Live view (from Phase G (b);
+      hidden until D is done). New module (e.g. `frontend/menu.js`); no inline scripts (CSP).
+- [ ] About page: no account, nothing stored on a server, all calculations on the device, images
+      never uploaded. The app does **not** save your work: a refresh loses it.
+- [ ] Saving in the browser (live view patterns and progress, localStorage): stays on the user's
+      device only, never sent to us. Lost when site data/cookies are cleared (plain cache clear may
+      not remove it). Wording, on About and next to the save action: "By saving a pattern or using
+      live view you allow this site to store data in your browser (local storage). The pattern is
+      not saved by us and may be lost if you clear your browser data."
+      Storage the user asks for needs no cookie banner (ePrivacy "strictly necessary"); notice only.
+- [ ] Examples section on About (placeholder until pictures exist; hidden while empty).
+- [ ] en + sv for all text.
+
+### Phase F — more yarns
+- [ ] Number of yarns: 2, 3, 4, "More…". "More…" shows a second select: 5–8 and "Crazy time…".
+      First select keeps 2–4.
+- [ ] First: replace `pairYarns` brute force (n!) with the Hungarian algorithm (O(n³)). Same exact
+      optimum (no accuracy loss), tests unchanged. Brute force freezes from ~11 own yarns (11! ≈ 40 M).
+      After this, matching is never the bottleneck.
+- [ ] Real cost of more yarns is colour reduction (k-means on the full image), roughly linear.
+      Measured (600 × 600 px, 150 stitches, PC): 4 → 250 ms, 8 → 360 ms, 12 → 460 ms, 20 → 600 ms.
+      Chart drawing and painting cost per stitch, not per yarn. Phones maybe 3–5× slower. Re-measure
+      after the Hungarian change; adjust wording to the numbers.
+- [ ] Warning when "More…" is chosen (honest): "More yarns make each recalculation slower
+      (a second or more on phones). Many colours per row are also hard to knit."
+- [ ] "Crazy time…" unlocks 9–20: two confirms, the second "Are you **sure**? Recalculating may take
+      several seconds on slower devices."
+      Hint in that dialog: "Best suited for embroidery, e.g. duplicate stitch (Swiss darning) on
+      finished knitting, rather than knitting all colours in." No crash claim unless measurement shows a real risk.
+
+### Phase G — live view
+- [ ] Entry points: (a) "Live view" button in the Output box (beside Print / Save PDF) for the
+      rendered pattern; (b) "Live view" in the menu (Phase E) loading a pattern saved on the device.
+      localStorage is enough for (b) (grid + palette + options as compact JSON, well under the ~5 MB
+      limit), so build both. (b) needs a list of saved patterns (name, date, delete).
 - [ ] New `frontend/liveView.js`; "Live view" button opens a fullscreen view.
 - [ ] Full chart, current row highlighted; current `formatInstruction` text shown large.
 - [ ] Big Prev / Next buttons, arrow keys, tap.
@@ -63,20 +116,11 @@ Replaces backlog item "Print size for long, narrow charts".
 - [ ] Zoom: pinch on touch, Ctrl+scroll / buttons on PC; keep current row in view.
 - [ ] Map instruction ↔ displayed row via `rowInstructions` `displayRow`; core helper + test only if needed.
 
-### Phase E — deploy hygiene
-- [x] `robots.txt` (prototype: `Disallow: /`). Served from `/srv`: add `COPY` to `Dockerfile`.
-- [x] `<meta name="robots" content="noindex">`
-- [ ] Meta description, favicon.
-- [ ] Caddy: optional 404 page; security headers beyond CSP are at the edge (pi-infra).
-- [ ] Real site later: allow indexing, `sitemap.xml`, Open Graph image, redirect from prototype address.
-
 ## Backlog
 
 Deferred until after the local visual MVP.
 
-- [ ] Yarn limit: free tier max 4 yarns; more than 4 as a possible premium feature.
-      `pairYarns` brute-forces all assignments (n! growth) — replace with Hungarian
-      algorithm if the limit is raised much beyond ~8.
+- [x] (moved to Phase F) Yarn limit. No premium tier: no payments, accounts or stored user data.
 - [ ] Cache patterns per yarn count, so switching 3 → 2 → 4 → 3 yarns reuses results.
       Measured: full recount takes ~75 ms on a 600 px logo, so probably not needed.
 - [ ] Transparency handling option (`fromImageData` currently blends onto white):
@@ -87,14 +131,19 @@ Deferred until after the local visual MVP.
       colour per cell instead of averaging. May keep very thin lines more continuous.
 - [x] Layout polish: input fieldsets (Image, Swatch, Final size, Yarns) overlap at some widths;
       "Settings are locked" notice sits below the form, easy to miss.
-- [ ] Text tools (pro candidates):
+- [ ] Text tools:
       - colour one letter (or word) with its own yarn (per-letter palette index in `composeText`)
       - nudge single letters up/down/sideways (per-letter offset)
       - set height and width independently (stretch letters) instead of fixing two of three
+- [ ] Handwriting font for text (Swedish "skrivstil"), low priority. Needs a free-licence font
+      shipped with the app (self-hosted, CSP `'self'`). Joined letters break the "each letter drawn
+      once" model in `textGrid.js` (glyphs would need to connect).
+      - optional: load fonts from the device. Local Font Access API is Chromium-only; a font file
+        picker (.ttf/.otf/.woff via `FontFace`) works in all browsers and stays on the device.
 - [ ] Row help contrast: shade adapts to light/dark yarns; if still too faint on mid tones,
       offer a secondary marker (e.g. hatching or a row-edge marker).
 - [ ] Stitch view (preview): decide after trying it whether to develop further (highlights,
-      in print/PNG as an option) and whether it is a pro feature.
+      in print/PNG as an option).
 - [x] (done in Phase B2) Print size for long, narrow charts (e.g. scarves). A canvas cannot split across
       pages, so print currently fits the chart on page 1 (`max-height: 75vh`): fine for
       e.g. 88 × 52, but scarf cells get too small to follow or mark with a pencil.
