@@ -73,11 +73,14 @@
 
         <fieldset id="image-source">
           <legend data-i18n="image">Image</legend>
-          <label class="file-button">
-            <input type="file" id="image" accept="image/*">
-            <span data-i18n="chooseImage">Choose image</span>
-          </label>
-          <span id="image-name" class="hint"></span>
+          <div class="file-row">
+            <label class="file-button">
+              <input type="file" id="image" accept="image/*">
+              <span data-i18n="chooseImage">Choose image</span>
+            </label>
+            <span id="image-name" class="hint"></span>
+          </div>
+          <p class="hint" data-i18n="imageLocal">All processing happens on your device; no image is uploaded.</p>
         </fieldset>
 
         <fieldset id="text-source">
