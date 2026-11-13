@@ -722,6 +722,14 @@ function notify(key) {
   if (!dialog.open) dialog.showModal()
 }
 
+// A click on the backdrop (outside the dialog box) closes the notice
+byId('notice').addEventListener('click', event => {
+  const box = event.currentTarget.getBoundingClientRect()
+  const inside = event.clientX >= box.left && event.clientX <= box.right &&
+    event.clientY >= box.top && event.clientY <= box.bottom
+  if (!inside) event.currentTarget.close()
+})
+
 // Each reason is a string key or [key, values]
 function ask(reasons, title = 'confirmTitle') {
   const dialog = byId('confirm')
