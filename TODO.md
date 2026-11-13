@@ -71,27 +71,15 @@ Replaces backlog item "Print size for long, narrow charts".
 - [x] Caddy: 404 page (`frontend/404.html`, en + sv, via `handle_errors`); security headers beyond CSP are at the edge (pi-infra).
 - [ ] (later, not part of Phase D) Real site: allow indexing, `sitemap.xml`, Open Graph image, redirect from prototype address.
 
-### Phase E — menu + About page
-- [ ] Menu row at the top: Pattern (current landing page) | About | Live view (from Phase G (b);
-      hidden until D is done). New module (e.g. `frontend/menu.js`); no inline scripts (CSP).
-- [ ] About page: no account, nothing stored on a server, all calculations on the device, images
-      never uploaded. The app does **not** save your work: a refresh loses it.
-- [ ] Saving in the browser (live view patterns and progress, localStorage): stays on the user's
-      device only, never sent to us. Lost when site data/cookies are cleared (plain cache clear may
-      not remove it). Wording, on About and next to the save action: "By saving a pattern or using
-      live view you allow this site to store data in your browser (local storage). The pattern is
-      not saved by us and may be lost if you clear your browser data."
-      Storage the user asks for needs no cookie banner (ePrivacy "strictly necessary"); notice only.
-- [ ] Examples section on About (placeholder until pictures exist; hidden while empty).
-- [ ] en + sv for all text.
-- [ ] fix: print in scale, tile overview (A1 A2 / B1 B2 map on page 1) always looks landscape
-      (`.tile-overview td` padding 2px 8px in `style.css`, built by `tileOverview` in `print.js`).
-      Cells should have the page's proportions: as now for landscape, switched (taller than wide)
-      for portrait.
-- [ ] Discuss: "Changes" page (changelog), e.g. "2026-11-13 — add: …, fix: …, remove: …", thin line
-      between entries, newest first. Uses: portfolio, testers joining late, own record.
-      Open: how much detail to show (risk of revealing too much), curated text vs. from commits,
-      en + sv, linked from the banner's "Last update".
+### Phase E — menu + About page ✔
+- [x] Menu row (`frontend/menu.js`): Pattern | About | Changes; views in one page (`#pattern`, `#about`,
+      `#changes`), so switching keeps the pattern. Live view link in HTML, hidden until Phase G.
+- [x] About page: no account/server, local calculations, no upload, refresh loses work; saving-in-browser
+      notice; prototype + feedback (footer link removed, first-visit dialog kept); Examples hidden while empty.
+- [x] en + sv for all text.
+- [x] fix: print in scale tile overview cells follow page orientation.
+- [x] "Changes" page (`frontend/changes.js`): hand-written, en + sv, newest first; banner "Last update"
+      links to it. Add an entry with each user-visible change; keep it general (no internals).
 
 ### Phase F — more yarns
 - [ ] Number of yarns: 2, 3, 4, "More…". "More…" shows a second select: 5–8 and "Crazy time…".
@@ -123,6 +111,21 @@ Replaces backlog item "Print size for long, narrow charts".
 - [ ] Progress saved in localStorage keyed by a pattern hash (grid + options).
 - [ ] Zoom: pinch on touch, Ctrl+scroll / buttons on PC; keep current row in view.
 - [ ] Map instruction ↔ displayed row via `rowInstructions` `displayRow`; core helper + test only if needed.
+- [ ] Menu integration (built in Phase E): `index.html` has a hidden `#menu a[data-view="live"]`.
+      Unhide it, add `'live'` to `VIEWS` in `menu.js` and a `<section id="view-live" hidden>` for the
+      saved-pattern list (b). Fullscreen live view itself may stay an overlay opened from there or from Output.
+- [ ] Show the saving notice (`aboutStorage` in `i18n.js`) next to the save action, as decided in Phase E.
+- [ ] Changes entry in `changes.js`.
+
+### Phase H — more languages (Danish, Norwegian)
+- [ ] Add `da` and `nb` to `STRINGS`, `INSTRUCTION_TERMS` and `ERRORS` in `frontend/i18n.js`
+      (every key in every language). ~170 strings each; the code already handles any number of languages.
+- [ ] Knitting terms differ per language (e.g. right side / wrong side, row / round): have a Danish and
+      a Norwegian knitter check them before release.
+- [ ] Changes entries (`changes.js`) need the new languages too, or fall back to English.
+- [ ] Language picker: names in their own language (Dansk, Norsk, Svenska, English), no flags:
+      flags stand for countries, not languages (e.g. English), and add images for little gain.
+- [ ] Browser language detection: Norwegian may report `no`, `nb` or `nn`; map all to `nb`.
 
 ## Backlog
 
