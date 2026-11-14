@@ -55,6 +55,13 @@ Deferred until after the local visual MVP.
       - treat transparent as its own palette colour when yarn count exceeds the logo's colours
 - [ ] Majority-vote stitches: map each pixel to the palette, then take the most common
       colour per cell instead of averaging. May keep very thin lines more continuous.
+- [ ] Chart with letters: toggle to draw each stitch's yarn letter in the cell (instead of stitch view),
+      for many near-identical colours (cross stitch, embroidery, many-colour knitting).
+- [ ] Fill tool: "fill connected" brush paints every touching stitch of the clicked colour with the new
+      yarn (beside click / hold to paint). Recolours one letter at a time in text (2 → up to 20 yarns),
+      or a transparent background apart from white in the logo. Text needs more than 2 yarns for it.
+- [ ] Opposite yarn tip: "more yarns might give a better result, try N" (only up to ~6: many yarns are
+      hard work to knit). Same advice box and undo as "Use N yarns".
 - [ ] Text tools:
       - colour one letter (or word) with its own yarn (per-letter palette index in `composeText`)
       - nudge single letters up/down/sideways (per-letter offset)

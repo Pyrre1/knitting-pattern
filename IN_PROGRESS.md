@@ -30,5 +30,9 @@ Empty = no phase active: pick one from TODO.md. -->
       Risk (both): a colour in both areas (green grass and green leaves in the motif) gives two near-identical
       yarns. Fix: merge near-duplicates afterwards (`yarnAdvice` near check) and give the freed yarn back
       to the area that needs it.
+- [ ] Yarn advice redesign (replaces auto-drop of empty yarns, decided 2026-11-14): no automatic drop;
+      one advice box "X yarns is more than this image needs … Best fit: N" with "Use N yarns"; buttons
+      − yarn / + yarn / Undo yarn change under the palette (images). Remove `emptyYarns.js` and
+      `dropEmptyColours` (advice already counts empty yarns).
 - [ ] Own yarns: warn when two chosen yarns are almost the same colour.
 - [x] Paint hint still says "1-4 or A-D"; keys now go to 1–9 and A–T.
