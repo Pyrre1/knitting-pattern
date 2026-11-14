@@ -51,14 +51,14 @@ let letterInfo = null
 let errorMessage = null
 // Stitch view switched off by an edit; it comes back when editing stops
 let stitchViewPaused = false
-// Image patterns with 5+ yarns: true when fewer yarns seem enough
+// Image patterns with 3+ yarns: true when fewer yarns seem enough
 let advice = false
 // Yarn counts before each "Remove one yarn", newest last; a manual count change clears it
 let removedCounts = []
 // Own yarn colours ever chosen per picker, so fewer then more yarns keeps them
 let yarnMemory = []
 // Only shown on screen when there are enough colours to need it
-const ADVICE_FROM = 5
+const ADVICE_FROM = 3
 
 byId('image').addEventListener('change', async event => {
   const file = event.target.files[0]

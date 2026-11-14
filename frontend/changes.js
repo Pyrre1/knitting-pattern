@@ -11,7 +11,8 @@ const CHANGES = [
       ],
       fix: [
         'Painting help now says keys 1–9 and A–T pick a yarn (it said 1–4 and A–D).',
-        'The tip to remove yarns now finds soft edge colours in logos, so it shows more often when fewer yarns would do.'
+        'The tip to remove yarns now finds soft edge colours in logos, so it shows more often when fewer yarns would do.',
+        'The tip to remove yarns now also shows with 3 or 4 yarns (never with 2).'
       ]
     },
     sv: {
@@ -21,7 +22,8 @@ const CHANGES = [
       ],
       fix: [
         'Hjälptexten för målning säger nu att tangenterna 1–9 och A–T väljer garn (det stod 1–4 och A–D).',
-        'Tipset om att ta bort garn hittar nu mjuka kantfärger i logotyper, så det visas oftare när färre garner räcker.'
+        'Tipset om att ta bort garn hittar nu mjuka kantfärger i logotyper, så det visas oftare när färre garner räcker.',
+        'Tipset om att ta bort garn visas nu även med 3 eller 4 garner (aldrig med 2).'
       ]
     }
   },

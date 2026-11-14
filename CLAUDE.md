@@ -45,7 +45,7 @@ Text path (`textGrid.js`) skips colour reduction: each distinct letter is drawn 
 
 `rotateGrid(grid, 'none'|'right'|'left'|'180')` turns any grid 90° (right = clockwise) for sideways knitting, or 180° for a turned-up brim / folded-down cuff (text composed with normal gauge, then turned); frontend rotates image pixels before `createPattern`, and text is composed with `rotateGauge(gauge)` (stitches↔rows) then rotated. Chart is shown as knitted; final width = across the knitting.
 
-`yarnAdvice(pattern, { nearDistance, maxOffset, minTouch, minEdge }?)` → `{ suggested, extra }`: removes one colour at a time on a copy of the grid (fewest stitches first, recount between): empty, near-duplicate `source` of a bigger colour, or blend (thin colour near the RGB line between two bigger colours, mostly touching them or other blends on that line). Detection only, never edits the pattern. Tune with `node scripts/measureAdvice.js` on local `samples/`. Frontend (images, 5+ yarns) only uses `suggested < count` to offer "Remove one yarn" (+ restore stack).
+`yarnAdvice(pattern, { nearDistance, maxOffset, minTouch, minEdge }?)` → `{ suggested, extra }`: removes one colour at a time on a copy of the grid (fewest stitches first, recount between): empty, near-duplicate `source` of a bigger colour, or blend (thin colour near the RGB line between two bigger colours, mostly touching them or other blends on that line). Detection only, never edits the pattern. Tune with `node scripts/measureAdvice.js` on local `samples/`. Frontend (images, 3+ yarns) only uses `suggested < count` to offer "Remove one yarn" (+ restore stack).
 
 `fromImageData({ data, width, height })` adapts canvas `ImageData` (flat RGBA) to the `[y][x] = [r,g,b]` grid; transparency is blended onto white.
 
