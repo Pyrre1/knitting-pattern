@@ -1,4 +1,17 @@
 import { pairYarns } from '../pairYarns.js'
+import { colourDistance } from '../colourDistance.js'
+
+function bruteForce(sources, yarns, used = new Set(), i = 0) {
+  if (i === sources.length) return 0
+  let best = Infinity
+  for (let y = 0; y < yarns.length; y++) {
+    if (used.has(y)) continue
+    used.add(y)
+    best = Math.min(best, colourDistance(sources[i], yarns[y]) + bruteForce(sources, yarns, used, i + 1))
+    used.delete(y)
+  }
+  return best
+}
 
 const BLACK = [0, 0, 0]
 const WHITE = [255, 255, 255]
@@ -46,6 +59,30 @@ describe('Pair Yarns', () => {
     expect(pairYarns([ BLACK ], [ WHITE, [20, 20, 20] ])).toEqual([
       { source: BLACK, yarn: [20, 20, 20] }
     ])
+  })
+
+  test('pairs 20 shuffled yarns back to their own colours quickly', () => {
+    const sources = Array.from({ length: 20 }, (_, i) => [i * 12, 255 - i * 12, (i * 37) % 256])
+    const yarns = [...sources].reverse()
+
+    const start = Date.now()
+    const palette = pairYarns(sources, yarns)
+
+    expect(Date.now() - start).toBeLessThan(100)
+    expect(palette.map(e => e.yarn)).toEqual(sources)
+  })
+
+  test('matches brute force on random 6-colour sets', () => {
+    let seed = 1
+    const random = () => (seed = (seed * 16807) % 2147483647) % 256
+    const colour = () => [random(), random(), random()]
+    const total = palette => palette.reduce((sum, e) => sum + colourDistance(e.source, e.yarn), 0)
+
+    for (let round = 0; round < 20; round++) {
+      const sources = Array.from({ length: 5 }, colour)
+      const yarns = Array.from({ length: 6 }, colour)
+      expect(total(pairYarns(sources, yarns))).toBe(bruteForce(sources, yarns))
+    }
   })
 
   test('throws when there are fewer yarns than sources', () => {
