@@ -21,6 +21,15 @@ docker build -t knitting-pattern .
 docker run --rm -p 8080:8080 knitting-pattern   # open http://localhost:8080/
 ```
 
+## Measure yarn advice
+
+```sh
+node scripts/measureAdvice.js [stitches] [yarn counts]   # e.g. node scripts/measureAdvice.js 100 4,6,8,14,20
+```
+
+Runs the pattern pipeline and the yarn advice on every PNG in `samples/` (local only, gitignored)
+and prints colours, stitch counts and what the advice would remove. Width is capped to the image size.
+
 ## Deploy
 
 The `Dockerfile` copies `frontend/` and `core/` into a Caddy image and writes the build date
