@@ -8,12 +8,18 @@ const CHANGES = [
       add: [
         'Up to 20 yarns: choose "More…" for 5 to 8, or "Max" for up to 20.',
         'Tip when an image might not need all chosen yarns: remove one at a time, and restore if it looked better.'
+      ],
+      fix: [
+        'Painting help now says keys 1–9 and A–T pick a yarn (it said 1–4 and A–D).'
       ]
     },
     sv: {
       add: [
         'Upp till 20 garner: välj ”Fler…” för 5 till 8, eller ”Max” för upp till 20.',
         'Tips när en bild kanske inte behöver alla valda garner: ta bort ett i taget och återställ om det blev bättre förut.'
+      ],
+      fix: [
+        'Hjälptexten för målning säger nu att tangenterna 1–9 och A–T väljer garn (det stod 1–4 och A–D).'
       ]
     }
   },

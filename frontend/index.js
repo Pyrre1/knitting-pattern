@@ -145,7 +145,7 @@ byId('grid').addEventListener('pointercancel', endStroke)
 // Right-click and long press restore stitches; no context menu
 byId('grid').addEventListener('contextmenu', event => event.preventDefault())
 
-// Keys pick a brush: 1-4 or A-D a yarn, S swap, Esc none; same key again deselects.
+// Keys pick a brush: 1-9 or A-T a yarn, S swap, Esc none; same key again deselects.
 // Ctrl+Z undoes a stroke. Fields keep their own keys.
 document.addEventListener('keydown', event => {
   if (!pattern || byId('result').hidden || byId('view-pattern').hidden || painting) return
