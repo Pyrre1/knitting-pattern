@@ -81,6 +81,7 @@ Grep for the function name before opening `index.js` (~770 lines); read only tha
 - List unknowns/risks explicitly; never guess silently.
 
 ## Workflow
+- Planning files (kanban): `TODO.md` planned phases + backlog, `IN_PROGRESS.md` active phase, `DONE.md` finished (history). Each has an index comment at the top; read it first, then grep `### Phase X` and read only that section. Starting a phase: move its section to `IN_PROGRESS.md`; finished: move to `DONE.md`, mark ✔. Open `DONE.md` only when past work is relevant.
 1. Explore (read only) → 2. Plan (wait for approval on non-trivial changes) → 3. Implement → 4. Test → 5. Commit.
 - Keep tests; add new ones for new behaviour. TDD only if it gives clear value.
 - Small diffs. One concern per commit. Conventional commit messages.
