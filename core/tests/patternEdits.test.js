@@ -1,4 +1,4 @@
-import { buildPattern, setYarn, removeColour, addColour, paintCell } from '../patternEdits.js'
+import { buildPattern, setYarn, removeColour, addColour, paintCell, dropEmptyColours } from '../patternEdits.js'
 
 const BLACK = [0, 0, 0]
 const WHITE = [255, 255, 255]
@@ -144,6 +144,35 @@ describe('Pattern Edits', () => {
     test('throws when the stitch is outside the grid', () => {
       expect(() => paintCell(threeColours(), 2, 0, 0)).toThrow('no stitch at 2, 0')
       expect(() => paintCell(threeColours(), 0, -1, 0)).toThrow('no stitch at 0, -1')
+    })
+  })
+
+  describe('dropEmptyColours', () => {
+    const entry = colour => ({ source: colour, yarn: colour })
+    const withGrid = (palette, grid) => ({ pixels, palette: palette.map(entry), grid })
+
+    test('drops colours without stitches and renumbers the grid', () => {
+      const pattern = withGrid([BLACK, BLUE, GREY, DARK_GREY, WHITE], [[0, 2], [4, 4]])
+      const { pattern: result, dropped } = dropEmptyColours(pattern)
+
+      expect(dropped).toEqual([1, 3])
+      expect(result.palette.map(e => e.source)).toEqual([BLACK, GREY, WHITE])
+      expect(result.grid).toEqual([[0, 1], [2, 2]])
+      expect(result.pixels).toBe(pixels)
+    })
+
+    test('returns the same pattern when every colour is used', () => {
+      const pattern = threeColours()
+      expect(dropEmptyColours(pattern)).toEqual({ pattern, dropped: [] })
+    })
+
+    test('keeps at least 2 colours, the earliest ones', () => {
+      const pattern = withGrid([BLACK, GREY, WHITE, BLUE], [[0, 0], [0, 0]])
+      const { pattern: result, dropped } = dropEmptyColours(pattern)
+
+      expect(dropped).toEqual([2, 3])
+      expect(result.palette.map(e => e.source)).toEqual([BLACK, GREY])
+      expect(result.grid).toEqual([[0, 0], [0, 0]])
     })
   })
 })
