@@ -84,13 +84,15 @@ Replaces backlog item "Print size for long, narrow charts".
 ### Phase F — more yarns
 - [ ] Number of yarns: 2, 3, 4, "More…". "More…" shows a second select: 5–8 and "Crazy time…".
       First select keeps 2–4.
-- [ ] First: replace `pairYarns` brute force (n!) with the Hungarian algorithm (O(n³)). Same exact
+- [x] First: replace `pairYarns` brute force (n!) with the Hungarian algorithm (O(n³)). Same exact
       optimum (no accuracy loss), tests unchanged. Brute force freezes from ~11 own yarns (11! ≈ 40 M).
       After this, matching is never the bottleneck.
 - [ ] Real cost of more yarns is colour reduction (k-means on the full image), roughly linear.
       Measured (600 × 600 px, 150 stitches, PC): 4 → 250 ms, 8 → 360 ms, 12 → 460 ms, 20 → 600 ms.
-      Chart drawing and painting cost per stitch, not per yarn. Phones maybe 3–5× slower. Re-measure
-      after the Hungarian change; adjust wording to the numbers.
+      Chart drawing and painting cost per stitch, not per yarn. Phones maybe 3–5× slower.
+      Re-measured after Hungarian (synthetic 600 × 600 gradient, 150 stitches, no yarns / own yarns):
+      4 → 310 / 270 ms, 8 → 350 / 360 ms, 12 → 500 / 510 ms, 20 → 900 / 730 ms. Own yarns cost no more;
+      20 yarns ≈ 2–4 s on phones. Warning wording below holds.
 - [ ] Warning when "More…" is chosen (honest): "More yarns make each recalculation slower
       (a second or more on phones). Many colours per row are also hard to knit."
 - [ ] "Crazy time…" unlocks 9–20: two confirms, the second "Are you **sure**? Recalculating may take
@@ -131,6 +133,7 @@ Replaces backlog item "Print size for long, narrow charts".
 
 Deferred until after the local visual MVP.
 
+- [ ] Dark mode.
 - [x] (moved to Phase F) Yarn limit. No premium tier: no payments, accounts or stored user data.
 - [ ] Cache patterns per yarn count, so switching 3 → 2 → 4 → 3 yarns reuses results.
       Measured: full recount takes ~75 ms on a 600 px logo, so probably not needed.
