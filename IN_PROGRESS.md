@@ -3,7 +3,7 @@
 Empty = no phase active: pick one from TODO.md. -->
 
 ### Phase F2 — yarn advice tuning + clean-up tools (discuss first)
-- [ ] Tuning: on the samples (100 stitches) the current limits rarely trigger: logo edge blends get
+- [x] Tuning: on the samples (100 stitches) the current limits rarely trigger: logo edge blends get
       2–6 % of the stitches each, so the share limit misses them (20 yarns → suggests 11–16; 6–8 → almost
       never). Idea: a blend lies between two other colours in RGB (near the line A–B) and mostly next to
       both; test that instead of / besides share. Needs measuring on more real images (logos, photos).
@@ -31,4 +31,4 @@ Empty = no phase active: pick one from TODO.md. -->
       yarns. Fix: merge near-duplicates afterwards (`yarnAdvice` near check) and give the freed yarn back
       to the area that needs it.
 - [ ] Own yarns: warn when two chosen yarns are almost the same colour.
-- [ ] Paint hint still says "1-4 or A-D"; keys now go to 1–9 and A–T.
+- [x] Paint hint still says "1-4 or A-D"; keys now go to 1–9 and A–T.
