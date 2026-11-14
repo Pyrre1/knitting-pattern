@@ -12,7 +12,7 @@ Empty = no phase active: pick one from TODO.md. -->
 - [ ] "Remove islands smaller than N stitches" (single stray stitches), same visibility rule.
 - [ ] Plain, pedagogical help text for each tool: many users are not technical and only want to knit,
       embroider or crochet. Show only when it applies; no jargon.
-- [ ] Colours with 0 stitches: e.g. a 2-colour logo at 14 yarns gives E = 0 stitches, at 15 F = 0, and so on
+- [x] Colours with 0 stitches: e.g. a 2-colour logo at 14 yarns gives E = 0 stitches, at 15 F = 0, and so on
       (colours come from the full image, the grid from the scaled one, so thin details vanish). A colour
       without stitches is not a colour. Decided: drop unused colours automatically and say so:
       "You chose X yarns, but only Y were used, so the pattern uses Y." (20 → 14 in one go, not 19 → 18 → 17).
