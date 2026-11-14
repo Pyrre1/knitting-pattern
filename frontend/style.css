@@ -480,7 +480,12 @@ canvas { display: block; }
 
 .change { padding: 10px 0; border-top: 1px solid var(--border); }
 
-.change h3 { margin: 0 0 4px; font-size: 15px; }
+/* Release heading between published batches: a bit heavier than the day lines */
+.release { margin: 0; padding: 8px 0; border-top: 3px solid var(--border); text-align: center; font-size: 16px; }
+
+.release + .change { border-top-width: 3px; }
+
+.change h4 { margin: 0 0 4px; font-size: 15px; }
 
 .change ul { margin: 0; padding-left: 20px; }
 

@@ -1,4 +1,9 @@
 import { getLanguage, translate } from './i18n.js'
+import { LAST_UPDATE } from './version.js'
+
+// Dates the site was published (deployed), newest first. Add one at each deploy.
+// The live build date (version.js) counts too, so a missing newest date still shows.
+const PUBLISHED = ['2026-11-12', '2026-11-09']
 
 // Hand-written changelog, newest first. Each entry needs en and sv; kinds: add, fix, remove.
 const CHANGES = [
@@ -7,7 +12,8 @@ const CHANGES = [
     en: {
       add: [
         'Up to 20 yarns: choose "More…" for 5 to 8, or "Max" for up to 20.',
-        'Tip when an image might not need all chosen yarns: remove one at a time, and restore if it looked better.'
+        'Tip when an image might not need all chosen yarns: remove one at a time, and restore if it looked better.',
+        'Changes page shows when each update was published.'
       ],
       fix: [
         'Painting help now says keys 1–9 and A–T pick a yarn (it said 1–4 and A–D).',
@@ -18,7 +24,8 @@ const CHANGES = [
     sv: {
       add: [
         'Upp till 20 garner: välj ”Fler…” för 5 till 8, eller ”Max” för upp till 20.',
-        'Tips när en bild kanske inte behöver alla valda garner: ta bort ett i taget och återställ om det blev bättre förut.'
+        'Tips när en bild kanske inte behöver alla valda garner: ta bort ett i taget och återställ om det blev bättre förut.',
+        'Sidan Ändringar visar när varje uppdatering publicerades.'
       ],
       fix: [
         'Hjälptexten för målning säger nu att tangenterna 1–9 och A–T väljer garn (det stod 1–4 och A–D).',
@@ -108,28 +115,65 @@ export function initChanges() {
 }
 
 function renderChanges() {
-  const entries = CHANGES.map(change => {
-    const article = document.createElement('article')
-    article.className = 'change'
-    const heading = document.createElement('h3')
-    const time = document.createElement('time')
-    time.dateTime = change.date
-    time.textContent = change.date
-    heading.append(time)
-    const list = document.createElement('ul')
-    const text = change[getLanguage()] ?? change.en
-    for (const [kind, key] of Object.entries(KINDS)) {
-      for (const line of text[kind] ?? []) {
-        const item = document.createElement('li')
-        const label = document.createElement('span')
-        label.className = 'change-kind'
-        label.textContent = `${translate(key)}: `
-        item.append(label, line)
-        list.append(item)
-      }
+  const groups = groupByRelease(CHANGES, releases())
+  const nodes = groups.flatMap(({ release, changes }) => [
+    releaseHeading(release),
+    ...changes.map(renderChange)
+  ])
+  document.getElementById('changes-list').replaceChildren(...nodes)
+}
+
+// Newest first; the live build date is the newest release when it is not listed yet
+function releases() {
+  return LAST_UPDATE > PUBLISHED[0] ? [LAST_UPDATE, ...PUBLISHED] : PUBLISHED
+}
+
+// Each change belongs to the first release on or after its date; later ones are unpublished (release null)
+function groupByRelease(changes, dates) {
+  const groups = []
+  for (const change of changes) {
+    const release = dates.filter(date => date >= change.date).at(-1) ?? null
+    if (groups.at(-1)?.release !== release) groups.push({ release, changes: [] })
+    groups.at(-1).changes.push(change)
+  }
+  return groups
+}
+
+function releaseHeading(release) {
+  const heading = document.createElement('h3')
+  heading.className = 'release'
+  if (release === null) {
+    heading.textContent = translate('releaseNone')
+    return heading
+  }
+  const latest = release === releases()[0]
+  const time = document.createElement('time')
+  time.dateTime = release
+  time.textContent = release
+  heading.append(`${translate(latest ? 'releaseLatest' : 'releaseOlder')} `, time)
+  return heading
+}
+
+function renderChange(change) {
+  const article = document.createElement('article')
+  article.className = 'change'
+  const heading = document.createElement('h4')
+  const time = document.createElement('time')
+  time.dateTime = change.date
+  time.textContent = change.date
+  heading.append(time)
+  const list = document.createElement('ul')
+  const text = change[getLanguage()] ?? change.en
+  for (const [kind, key] of Object.entries(KINDS)) {
+    for (const line of text[kind] ?? []) {
+      const item = document.createElement('li')
+      const label = document.createElement('span')
+      label.className = 'change-kind'
+      label.textContent = `${translate(key)}: `
+      item.append(label, line)
+      list.append(item)
     }
-    article.append(heading, list)
-    return article
-  })
-  document.getElementById('changes-list').replaceChildren(...entries)
+  }
+  article.append(heading, list)
+  return article
 }

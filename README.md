@@ -36,7 +36,7 @@ The `Dockerfile` copies `frontend/` and `core/` into a Caddy image and writes th
 into `frontend/version.js`. The banner's "Last update" therefore updates on every image build;
 no manual edit is needed. Do not edit `version.js` by hand.
 
-1. Commit and push.
+1. Add today's date first in `PUBLISHED` in `frontend/changes.js` (groups the Changes page by release), then commit and push.
 2. Build the image on (or for) the Pi: `docker build -t knitting-pattern .`
 3. Restart the container with the new image (via the setup in pi-infra).
 
