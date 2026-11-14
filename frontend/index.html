@@ -182,16 +182,14 @@
       <p class="info no-print" data-i18n="paletteHint">These are the colours that best match your design. Click Change
         to pick another yarn colour, or click the colour next to it to restore the matched colour.</p>
       <ul id="palette"></ul>
-      <div id="empty-yarns" class="info no-print" hidden>
-        <p id="empty-yarns-text"></p>
-        <button type="button" id="empty-yarns-toggle"></button>
+      <div id="yarn-buttons" class="no-print" hidden>
+        <button type="button" id="yarn-less" data-i18n="yarnLess">− yarn</button>
+        <button type="button" id="yarn-more" data-i18n="yarnMoreButton">+ yarn</button>
+        <button type="button" id="yarn-undo" data-i18n="yarnUndo">Undo yarn change</button>
       </div>
       <div id="yarn-advice" class="info no-print" hidden>
-        <p id="yarn-advice-text" data-i18n="yarnAdvice">All yarns might not be needed for the best result. Test by
-          removing one. The check is not 100 % accurate: sometimes more yarns give the most detailed result, so
-          compare and restore if it looked better.</p>
-        <button type="button" id="yarn-advice-remove" data-i18n="yarnAdviceRemove">Remove one yarn</button>
-        <button type="button" id="yarn-advice-restore" data-i18n="yarnAdviceRestore">Restore last removed yarn</button>
+        <p id="yarn-advice-text"></p>
+        <button type="button" id="yarn-best"></button>
       </div>
 
       <p id="paint-hint" class="info no-print"><span data-i18n="paintHint">To paint in missed stitches, pick a letter in

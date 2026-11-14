@@ -58,6 +58,20 @@ export function initYarnCount({ ask }) {
     return true
   }
 
+  // Same warnings as the selects, for a count set by a button; false when cancelled
+  async function allow(count) {
+    if (count > FIRST_MAX && !warned) {
+      if (!await ask(['yarnMoreWarn'], 'yarnMoreTitle')) return false
+      warned = true
+    }
+    if (count > MORE_MAX && !unlocked) {
+      if (!await ask(['yarnMaxWarn'], 'yarnMaxTitle')) return false
+      if (!await ask(['yarnMaxSure', 'yarnMaxHint'], 'yarnMaxTitle')) return false
+      unlock()
+    }
+    return true
+  }
+
   function revert() {
     first.value = previous.first
     more.value = previous.more
@@ -66,5 +80,5 @@ export function initYarnCount({ ask }) {
   }
 
   sync()
-  return { read, set, sync, setDisabled, confirm }
+  return { read, set, sync, setDisabled, confirm, allow, max: MAX_YARNS }
 }

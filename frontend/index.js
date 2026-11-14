@@ -12,8 +12,7 @@ import { initMenu } from "./menu.js"
 import { initChanges } from "./changes.js"
 import { initPrint } from "./print.js"
 import { initYarnCount } from "./yarnCount.js"
-import { initEmptyYarns } from "./emptyYarns.js"
-import { yarnAdvice } from "../core/yarnAdvice.js"
+import { initYarnButtons } from "./yarnButtons.js"
 import { drawChart, drawCell, fitCellSize, rgbToHex, isLight, LABEL_MARGIN, MIN_STITCH_CELL } from "./chart.js"
 
 // Longest image side kept after load; caps both work and max stitch count
@@ -52,14 +51,8 @@ let letterInfo = null
 let errorMessage = null
 // Stitch view switched off by an edit; it comes back when editing stops
 let stitchViewPaused = false
-// Image patterns with 3+ yarns: true when fewer yarns seem enough
-let advice = false
-// Yarn counts before each "Remove one yarn", newest last; a manual count change clears it
-let removedCounts = []
 // Own yarn colours ever chosen per picker, so fewer then more yarns keeps them
 let yarnMemory = []
-// Only shown on screen when there are enough colours to need it
-const ADVICE_FROM = 3
 
 byId('image').addEventListener('change', async event => {
   const file = event.target.files[0]
@@ -69,8 +62,7 @@ byId('image').addEventListener('change', async event => {
     return
   }
 
-  removedCounts = []
-  emptyYarns.reset()
+  yarnButtons.clear()
   // One source at a time: an image replaces typed text
   byId('text').value = ''
   byId('image-name').textContent = file.name
@@ -117,10 +109,7 @@ byId('inputs').addEventListener('change', async event => {
   const isCount = id === 'yarn-count' || id === 'yarn-count-more'
   if (isCount && !await yarnCount.confirm(event.target)) return
   if (!await confirmChange(null)) return
-  if (isCount) {
-    removedCounts = []
-    emptyYarns.reset()
-  }
+  if (isCount) yarnButtons.clear()
 
   if (id === 'swatch-inch') convertSwatchUnit()
   if (id === 'use-yarns') byId('yarn-pickers').hidden = !byId('use-yarns').checked
@@ -203,31 +192,13 @@ initBanner()
 initMenu()
 initChanges()
 const updatePaper = initPrint({ getInfo: printInfo, chart: chartSettings, ask })
-const emptyYarns = initEmptyYarns({
-  onToggle: async toggle => {
-    if (!await confirmChange(null)) return
-    toggle()
-    generate()
-  }
-})
 
-// Advice: remove one yarn at a time, and undo that step by step
-// Empty yarns may already be dropped, so one less than the yarns in use
-byId('yarn-advice-remove').addEventListener('click', async () => {
-  const count = yarnCount.read()
-  removedCounts.push(count)
-  if (!await changeYarnCount(Math.min(count, pattern.palette.length) - 1)) removedCounts.pop()
-})
-byId('yarn-advice-restore').addEventListener('click', async () => {
-  const count = removedCounts.pop()
-  if (!await changeYarnCount(count)) removedCounts.push(count)
-})
+const yarnButtons = initYarnButtons({ yarnCount, changeCount: changeYarnCount })
 
 // Counts here were already confirmed (More… / Max), so only painted stitches are asked about
 async function changeYarnCount(count) {
-  yarnCount.set(count)
   if (!await confirmChange(null)) return false
-  emptyYarns.reset()
+  yarnCount.set(count)
   renderYarnPickers()
   generate()
   return true
@@ -470,8 +441,7 @@ function generate() {
   if (source === 'image' ? !pixels : !byId('text').value.trim()) {
     // Switching source can leave nothing to show; drop the old pattern
     pattern = null
-    advice = false
-    emptyYarns.reset()
+    yarnButtons.update(null)
     letterInfo = null
     renderLetterInfo()
     byId('result').hidden = true
@@ -480,16 +450,15 @@ function generate() {
   }
 
   try {
-    if (source === 'text') emptyYarns.reset()
-    pattern = source === 'text' ? createTextPattern() : emptyYarns.apply(createPattern({
+    pattern = source === 'text' ? createTextPattern() : createPattern({
       swatch: readSwatch(),
       pixels: rotateGrid(pixels, byId('rotate').value),
       yarnCount: yarnCount.read(),
       yarns: readYarns(),
       desiredWidth: { unit: byId('width-unit').value, value: Number(byId('width-value').value) }
-    }))
+    })
     generatedGrid = pattern.grid
-    advice = adviceFor(pattern)
+    yarnButtons.update(pattern, source === 'image')
     // Fewer yarns than before can leave the brush pointing at a missing colour
     if (brush === 'swap' ? pattern.palette.length !== 2 : brush !== null && brush >= pattern.palette.length) brush = null
     showError(null)
@@ -586,27 +555,12 @@ function render() {
     return li
   }))
 
-  renderAdvice()
+  yarnButtons.render()
   byId('grid').classList.toggle('painting', brush !== null)
   drawGrid()
   renderInstructions()
 }
 
-// Detection only: the pattern stays as calculated until the user removes a yarn
-function adviceFor(pattern) {
-  const inUse = pattern.palette.length
-  if (source !== 'image' || inUse < ADVICE_FROM) return false
-  return yarnAdvice(pattern).suggested < inUse
-}
-
-function renderAdvice() {
-  emptyYarns.render()
-  const restore = source === 'image' && removedCounts.length > 0
-  byId('yarn-advice').hidden = !advice && !restore
-  byId('yarn-advice-text').hidden = !advice
-  byId('yarn-advice-remove').hidden = !advice
-  byId('yarn-advice-restore').hidden = !restore
-}
 
 function renderInstructions() {
   const labels = pattern.palette.map((_, i) => yarnLabel(i))
