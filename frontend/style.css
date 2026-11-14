@@ -321,7 +321,7 @@ input[type="number"] { width: var(--number-width); }
   gap: 12px;
 }
 
-#yarn-advice p { margin: 0 0 8px; }
+#yarn-advice p, #empty-yarns p { margin: 0 0 8px; }
 #yarn-advice button + button { margin-left: 8px; }
 
 /* One framed card per yarn: label, yarn colour, image colour, stitch count */

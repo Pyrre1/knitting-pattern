@@ -13,7 +13,8 @@ const CHANGES = [
       add: [
         'Up to 20 yarns: choose "More…" for 5 to 8, or "Max" for up to 20.',
         'Tip when an image might not need all chosen yarns: remove one at a time, and restore if it looked better.',
-        'Changes page shows when each update was published.'
+        'Changes page shows when each update was published.',
+        'Yarns that get no stitches are left out, with a note; choose "Keep anyway" to paint them in by hand.'
       ],
       fix: [
         'Painting help now says keys 1–9 and A–T pick a yarn (it said 1–4 and A–D).',
@@ -25,7 +26,8 @@ const CHANGES = [
       add: [
         'Upp till 20 garner: välj ”Fler…” för 5 till 8, eller ”Max” för upp till 20.',
         'Tips när en bild kanske inte behöver alla valda garner: ta bort ett i taget och återställ om det blev bättre förut.',
-        'Sidan Ändringar visar när varje uppdatering publicerades.'
+        'Sidan Ändringar visar när varje uppdatering publicerades.',
+        'Garner som inte får några maskor tas bort, med en notis; välj ”Behåll ändå” för att måla in dem för hand.'
       ],
       fix: [
         'Hjälptexten för målning säger nu att tangenterna 1–9 och A–T väljer garn (det stod 1–4 och A–D).',
