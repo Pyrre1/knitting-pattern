@@ -33,7 +33,7 @@ Intended pipeline (core modules, all pure, tests in `core/tests/`):
 3. `imageScaler(imageData, {stitches, rows})` → downsamples to a `rows × stitches` grid by averaging RGB per block. `imageData` is a 2D array `[y][x] = [r, g, b]` (not a canvas `ImageData`).
 4. `medianCut(grid, count)` → up to `count` rough colours (`count` = number of yarns), then `refinePalette(grid, rough)` (k-means seeded by medianCut, deterministic) → final source colours. Both run on the full image, not the scaled grid: averaging into stitches blends thin lines (e.g. logo outlines) into wrong colours.
 5. `mapToPalette(grid, colours)` → grid of nearest-colour indexes. Takes plain colours; pass `palette.map(e => e.source)`, never yarns. Distance: `colourDistance` (weighted squared RGB, 2/4/3), shared by all matching.
-6. `pairYarns(sources, yarns?)` → `[{ source, yarn }]` in source order. No yarns → yarn = source. Otherwise brute-force min total `colourDistance`; needs `yarns.length >= sources.length`.
+6. `pairYarns(sources, yarns?)` → `[{ source, yarn }]` in source order. No yarns → yarn = source. Otherwise min total `colourDistance` (Hungarian algorithm, exact); needs `yarns.length >= sources.length`.
 7. `patternEdits`: `buildPattern(pixels, palette)` → `{ pixels, palette, grid }`; `setYarn` (grid unchanged), `removeColour` / `addColour` (remap), `paintCell(pattern, x, y, index)` (manual override of one stitch; lost on regenerate). All pure, return new patterns. Recount = rerun `createPattern` with current yarns.
 8. `createPattern({ swatch, pixels, yarnCount, yarns?, desiredWidth })` chains 1–6 (colours from full `pixels`, grid from scaled) → `{ pixels (scaled), palette, grid, size }`. `swatch` is raw `gaugeInterpreter` input.
 
@@ -44,6 +44,8 @@ Intended pipeline (core modules, all pure, tests in `core/tests/`):
 Text path (`textGrid.js`) skips colour reduction: each distinct letter is drawn once and downsampled with `toGlyph(pixels, rows, gauge)` (0/1, narrowed for gauge), so repeated letters are identical. `composeText(glyphs, text, { layout, spacing | width, lineSpacing })` places them (fixed spacing, or fill `width` spreading spare stitches; `layout: 'column'` stacks letters top to bottom, `spacing` in rows, lines side by side, no `width`); `fitRows` binary-searches letter height for a target width; `textPattern({ swatch, grid, yarns? })` → pattern with palette [background, text]. Frontend renders the glyph pixels (system fonts only).
 
 `rotateGrid(grid, 'none'|'right'|'left'|'180')` turns any grid 90° (right = clockwise) for sideways knitting, or 180° for a turned-up brim / folded-down cuff (text composed with normal gauge, then turned); frontend rotates image pixels before `createPattern`, and text is composed with `rotateGauge(gauge)` (stitches↔rows) then rotated. Chart is shown as knitted; final width = across the knitting.
+
+`yarnAdvice(pattern, { minShare, nearDistance }?)` → `{ suggested, extra }`: colours with too few stitches or nearly the same `source` as a more used colour; detection only, never edits the pattern. Frontend (images, 5+ yarns) only uses `suggested < count` to offer "Remove one yarn" (+ restore stack).
 
 `fromImageData({ data, width, height })` adapts canvas `ImageData` (flat RGBA) to the `[y][x] = [r,g,b]` grid; transparency is blended onto white.
 
@@ -62,6 +64,7 @@ Grep for the function name before opening `index.js` (~770 lines); read only tha
 - `print.js`: Print / Save PDF, print in scale % (tiles via `planTiles`, page estimate + confirm), tiles aligned to joining edges, page 1 side column (moves `#print-info`/`#palette` in, back after print); paper only in scale mode (cm → A4, inch → Letter/A4 select), normal print leaves it to the dialog; `initPrint` returns `updatePaper`, called by `render`, paper orientation (`@page` rule via CSSOM), print-only info block (`#print-info`, `#print-footer`), PNG with optional info strip. `index.js` passes `printInfo`, `chartSettings` (normal print draws a sharper print-only `#print-chart`, CSS fits it; on-screen `#grid` untouched) and `ask`.
 - `menu.js`: menu row; shows one view (`#view-pattern`, `#view-about`, `#view-changes`) by URL hash, others hidden (pattern kept). About text lives in `i18n.js` + `index.html` `#view-about`.
 - `changes.js`: hand-written changelog data (`CHANGES`, en + sv, newest first) rendered into `#changes-list`; re-renders on the `languageswitch` event from `setLanguage`. Add an entry for each user-visible change.
+- `yarnCount.js`: yarn count selects (`#yarn-count` 2–4 / More…, `#yarn-count-more` 5–8 / Max → 9–20), warnings via `ask` once per visit; `read`, `set`, `sync` (after restoring the form), `confirm`.
 - `config.js`: deploy-specific constants (feedback email, future URL, `APP_NAME`); empty = feature hidden.
 - `banner.js`: permanent prototype banner (`#banner`, under `#menu`): feedback mail from `config.js` (fills every `.feedback-email`, also on About), "Last update" from `version.js`, links to Changes.
 - `version.js`: `LAST_UPDATE`, committed empty (no date locally); `Dockerfile` overwrites it with the build date. Do not set by hand.

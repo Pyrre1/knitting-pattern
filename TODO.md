@@ -82,23 +82,54 @@ Replaces backlog item "Print size for long, narrow charts".
       links to it. Add an entry with each user-visible change; keep it general (no internals).
 
 ### Phase F — more yarns
-- [ ] Number of yarns: 2, 3, 4, "More…". "More…" shows a second select: 5–8 and "Crazy time…".
-      First select keeps 2–4.
+- [x] Number of yarns: 2, 3, 4, "More…". "More…" shows a second select: 5–8 and "Max (up to 20)…"
+      (renamed from "Crazy time…": calmer, more professional). First select keeps 2–4. `frontend/yarnCount.js`.
 - [x] First: replace `pairYarns` brute force (n!) with the Hungarian algorithm (O(n³)). Same exact
       optimum (no accuracy loss), tests unchanged. Brute force freezes from ~11 own yarns (11! ≈ 40 M).
       After this, matching is never the bottleneck.
-- [ ] Real cost of more yarns is colour reduction (k-means on the full image), roughly linear.
+- [x] Real cost of more yarns is colour reduction (k-means on the full image), roughly linear.
       Measured (600 × 600 px, 150 stitches, PC): 4 → 250 ms, 8 → 360 ms, 12 → 460 ms, 20 → 600 ms.
       Chart drawing and painting cost per stitch, not per yarn. Phones maybe 3–5× slower.
       Re-measured after Hungarian (synthetic 600 × 600 gradient, 150 stitches, no yarns / own yarns):
       4 → 310 / 270 ms, 8 → 350 / 360 ms, 12 → 500 / 510 ms, 20 → 900 / 730 ms. Own yarns cost no more;
       20 yarns ≈ 2–4 s on phones. Warning wording below holds.
-- [ ] Warning when "More…" is chosen (honest): "More yarns make each recalculation slower
+- [x] Warning when "More…" is chosen (once per visit): "More yarns make each recalculation slower
       (a second or more on phones). Many colours per row are also hard to knit."
-- [ ] "Crazy time…" unlocks 9–20: two confirms, the second "Are you **sure**? Recalculating may take
-      several seconds on slower devices."
-      Hint in that dialog: "Best suited for embroidery, e.g. duplicate stitch (Swiss darning) on
-      finished knitting, rather than knitting all colours in." No crash claim unless measurement shows a real risk.
+- [x] "Max (up to 20)…" unlocks 9–20 (until reload): two confirms, the second "Are you sure? Recalculating
+      may take several seconds on slower devices." plus the embroidery hint (duplicate stitch / Swiss darning).
+- [x] Yarn advice (last step): `core/yarnAdvice.js` flags colours with < 0.5 % of stitches or closer than
+      `colourDistance` 1200 to a more used colour → suggested count. Image only, 5+ yarns. Detection only:
+      a notice under the palette ("All yarns might not be needed …") with "Remove one yarn" (one step
+      at a time, repeat while it shows) and "Restore last removed yarn" (step back). The pattern is not changed
+      until a button is clicked.
+
+### Phase F2 — yarn advice tuning + clean-up tools (discuss first)
+- [ ] Tuning: on the samples (100 stitches) the current limits rarely trigger: logo edge blends get
+      2–6 % of the stitches each, so the share limit misses them (20 yarns → suggests 11–16; 6–8 → almost
+      never). Idea: a blend lies between two other colours in RGB (near the line A–B) and mostly next to
+      both; test that instead of / besides share. Needs measuring on more real images (logos, photos).
+- [ ] Detected blend colours as a list with include/exclude toggles (uses `removeColour`), shown only
+      when something is detected or under "Advanced settings".
+- [ ] "Remove islands smaller than N stitches" (single stray stitches), same visibility rule.
+- [ ] Plain, pedagogical help text for each tool: many users are not technical and only want to knit,
+      embroider or crochet. Show only when it applies; no jargon.
+- [ ] Colours with 0 stitches: e.g. a 2-colour logo at 14 yarns gives E = 0 stitches, at 15 F = 0, and so on
+      (colours come from the full image, the grid from the scaled one, so thin details vanish). A colour
+      without stitches is not a colour. Decided: drop unused colours automatically and say so:
+      "You chose X yarns, but only Y were used, so the pattern uses Y." (20 → 14 in one go, not 19 → 18 → 17).
+      After that notice, "Keep X anyway" keeps the empty yarns in the palette for painting in by hand.
+- [ ] Colour budget by importance, under an "Advanced settings" box. Removing yarns from a flower on grass
+      flattens the flower almost at once (flower ≈ 10 % of the image, grass and leaves hold most hues),
+      so e.g. 8 greens + 1 flower colour instead of 3 + 3. Both are realistic:
+      a) automatic: group colours (hue / area) and spread yarns across groups before removing (heuristic).
+      b) manual: paint a mask over the image, motif vs background, and set yarns per area (e.g. 3 + 3).
+         Colour reduction runs per area, so marking the background groups its colours automatically;
+         this is simpler and more predictable than a).
+      Risk (both): a colour in both areas (green grass and green leaves in the motif) gives two near-identical
+      yarns. Fix: merge near-duplicates afterwards (`yarnAdvice` near check) and give the freed yarn back
+      to the area that needs it.
+- [ ] Own yarns: warn when two chosen yarns are almost the same colour.
+- [ ] Paint hint still says "1-4 or A-D"; keys now go to 1–9 and A–T.
 
 ### Phase G — live view
 - [ ] Entry points: (a) "Live view" button in the Output box (beside Print / Save PDF) for the
@@ -128,6 +159,16 @@ Replaces backlog item "Print size for long, narrow charts".
 - [ ] Language picker: names in their own language (Dansk, Norsk, Svenska, English), no flags:
       flags stand for countries, not languages (e.g. English), and add images for little gain.
 - [ ] Browser language detection: Norwegian may report `no`, `nb` or `nn`; map all to `nb`.
+
+### Phase I — paper saver for print in scale
+- [ ] Core: estimate pages for portrait and landscape (`planTiles` for both) and pick the one with fewer pages.
+- [ ] Preselect that orientation; if the user changes it, inform: "Changing from portrait to landscape
+      prints about N pages instead of about M." Same check when paper size changes (Letter / A4).
+
+## Repo housekeeping
+- [ ] Kanban split: `TODO.md` = planned phases + backlog, `IN_PROGRESS.md` = the active phase,
+      `DONE.md` = finished phases (moved as they are). Saves tokens: each phase start reads only the
+      active scope; `DONE.md` is only opened when history is needed. Update `CLAUDE.md` with the rule.
 
 ## Backlog
 
