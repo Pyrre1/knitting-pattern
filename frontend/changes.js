@@ -3,6 +3,21 @@ import { getLanguage, translate } from './i18n.js'
 // Hand-written changelog, newest first. Each entry needs en and sv; kinds: add, fix, remove.
 const CHANGES = [
   {
+    date: '2026-11-14',
+    en: {
+      add: [
+        'Up to 20 yarns: choose "More…" for 5 to 8, or "Max" for up to 20.',
+        'Tip when an image might not need all chosen yarns: remove one at a time, and restore if it looked better.'
+      ]
+    },
+    sv: {
+      add: [
+        'Upp till 20 garner: välj ”Fler…” för 5 till 8, eller ”Max” för upp till 20.',
+        'Tips när en bild kanske inte behöver alla valda garner: ta bort ett i taget och återställ om det blev bättre förut.'
+      ]
+    }
+  },
+  {
     date: '2026-11-13',
     en: {
       add: [

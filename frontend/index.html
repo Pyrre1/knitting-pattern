@@ -75,6 +75,14 @@
               <option value="2">2</option>
               <option value="3">3</option>
               <option value="4">4</option>
+              <option value="more" data-i18n="yarnMore">More…</option>
+            </select>
+            <select id="yarn-count-more" data-i18n-title="yarnCountMore" title="More yarns" hidden>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="max" data-i18n="yarnMax">Max (up to 20)…</option>
             </select>
           </label>
           <label class="inline"><input type="checkbox" id="use-yarns"> <span data-i18n="useYarns">I know my yarn
@@ -174,6 +182,13 @@
       <p class="info no-print" data-i18n="paletteHint">These are the colours that best match your design. Click Change
         to pick another yarn colour, or click the colour next to it to restore the matched colour.</p>
       <ul id="palette"></ul>
+      <div id="yarn-advice" class="info no-print" hidden>
+        <p id="yarn-advice-text" data-i18n="yarnAdvice">All yarns might not be needed for the best result. Test by
+          removing one. The check is not 100 % accurate: sometimes more yarns give the most detailed result, so
+          compare and restore if it looked better.</p>
+        <button type="button" id="yarn-advice-remove" data-i18n="yarnAdviceRemove">Remove one yarn</button>
+        <button type="button" id="yarn-advice-restore" data-i18n="yarnAdviceRestore">Restore last removed yarn</button>
+      </div>
 
       <p id="paint-hint" class="info no-print"><span data-i18n="paintHint">To paint in missed stitches, pick a letter in
           the “Select to paint” section below (or press 1-4 or A-D, Esc to stop) and paint in the chart. Right-click (on

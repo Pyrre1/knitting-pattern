@@ -11,6 +11,8 @@ import { initBanner } from "./banner.js"
 import { initMenu } from "./menu.js"
 import { initChanges } from "./changes.js"
 import { initPrint } from "./print.js"
+import { initYarnCount } from "./yarnCount.js"
+import { yarnAdvice } from "../core/yarnAdvice.js"
 import { drawChart, drawCell, fitCellSize, rgbToHex, isLight, LABEL_MARGIN, MIN_STITCH_CELL } from "./chart.js"
 
 // Longest image side kept after load; caps both work and max stitch count
@@ -49,6 +51,14 @@ let letterInfo = null
 let errorMessage = null
 // Stitch view switched off by an edit; it comes back when editing stops
 let stitchViewPaused = false
+// Image patterns with 5+ yarns: true when fewer yarns seem enough
+let advice = false
+// Yarn counts before each "Remove one yarn", newest last; a manual count change clears it
+let removedCounts = []
+// Own yarn colours ever chosen per picker, so fewer then more yarns keeps them
+let yarnMemory = []
+// Only shown on screen when there are enough colours to need it
+const ADVICE_FROM = 5
 
 byId('image').addEventListener('change', async event => {
   const file = event.target.files[0]
@@ -58,6 +68,7 @@ byId('image').addEventListener('change', async event => {
     return
   }
 
+  removedCounts = []
   // One source at a time: an image replaces typed text
   byId('text').value = ''
   byId('image-name').textContent = file.name
@@ -101,11 +112,14 @@ byId('inputs').addEventListener('change', async event => {
     settled = readSettings()
     return
   }
+  const isCount = id === 'yarn-count' || id === 'yarn-count-more'
+  if (isCount && !await yarnCount.confirm(event.target)) return
   if (!await confirmChange(null)) return
+  if (isCount) removedCounts = []
 
   if (id === 'swatch-inch') convertSwatchUnit()
   if (id === 'use-yarns') byId('yarn-pickers').hidden = !byId('use-yarns').checked
-  if (id === 'use-yarns' || id === 'yarn-count') renderYarnPickers()
+  if (id === 'use-yarns' || id === 'yarn-count' || id === 'yarn-count-more') renderYarnPickers()
   generate()
 })
 
@@ -148,7 +162,7 @@ document.addEventListener('keydown', event => {
     if (brush !== null) selectBrush(brush)
     return
   }
-  const index = '1234'.includes(key) ? Number(key) - 1 : 'abcd'.indexOf(key)
+  const index = '123456789'.includes(key) ? Number(key) - 1 : 'abcdefghijklmnopqrst'.indexOf(key)
   if (key === 's' && pattern.palette.length === 2) selectBrush('swap')
   else if (key.length === 1 && index >= 0 && index < pattern.palette.length) selectBrush(index)
   else return
@@ -173,6 +187,7 @@ byId('language').addEventListener('change', () => {
 
 
 byId('language').value = getLanguage()
+const yarnCount = initYarnCount({ ask })
 translatePage()
 renderLinkTitle()
 renderYarnPickers()
@@ -183,6 +198,26 @@ initBanner()
 initMenu()
 initChanges()
 const updatePaper = initPrint({ getInfo: printInfo, chart: chartSettings, ask })
+
+// Advice: remove one yarn at a time, and undo that step by step
+byId('yarn-advice-remove').addEventListener('click', async () => {
+  const count = yarnCount.read()
+  removedCounts.push(count)
+  if (!await changeYarnCount(count - 1)) removedCounts.pop()
+})
+byId('yarn-advice-restore').addEventListener('click', async () => {
+  const count = removedCounts.pop()
+  if (!await changeYarnCount(count)) removedCounts.push(count)
+})
+
+// Counts here were already confirmed (More… / Max), so only painted stitches are asked about
+async function changeYarnCount(count) {
+  yarnCount.set(count)
+  if (!await confirmChange(null)) return false
+  renderYarnPickers()
+  generate()
+  return true
+}
 
 async function loadPixels(file) {
   const bitmap = await createImageBitmap(file)
@@ -318,15 +353,15 @@ function updateSourceInputs() {
   byId('text-size').hidden = !(isText && hasText)
 
   if (isText && imageYarnCount === null) {
-    imageYarnCount = byId('yarn-count').value
-    byId('yarn-count').value = '2'
+    imageYarnCount = yarnCount.read()
+    yarnCount.set(2)
     renderYarnPickers()
   } else if (!isText && imageYarnCount !== null) {
-    byId('yarn-count').value = imageYarnCount
+    yarnCount.set(imageYarnCount)
     imageYarnCount = null
     renderYarnPickers()
   }
-  byId('yarn-count').disabled = isText
+  yarnCount.setDisabled(isText)
 
   byId('letter-rows').disabled = isText && sizeMode === 'width'
   byId('letter-spacing').disabled = isText && sizeMode === 'fill'
@@ -397,16 +432,19 @@ function yarnLabel(index) {
 
 function renderYarnPickers() {
   const container = byId('yarn-pickers')
-  const count = Number(byId('yarn-count').value)
-  const defaults = ['#ffffff', '#000000', '#cc0000', '#0044cc']
+  const count = yarnCount.read()
+  const defaults = ['#ffffff', '#000000', '#cc0000', '#0044cc', '#ffcc00', '#008833', '#ff8800', '#8833aa',
+    '#66ccff', '#ff99cc', '#884400', '#888888', '#99cc33', '#003366', '#cc6666', '#ffffaa',
+    '#006666', '#cc99ff', '#444444', '#ffcc99']
 
   // Keep colours already chosen
   const current = [...container.querySelectorAll('input')].map(input => input.value)
+  yarnMemory = [...current, ...yarnMemory.slice(current.length)]
 
   container.replaceChildren(...Array.from({ length: count }, (_, i) => {
     const input = document.createElement('input')
     input.type = 'color'
-    input.value = current[i] ?? defaults[i]
+    input.value = yarnMemory[i] ?? defaults[i]
     input.title = translate('yarnN', { n: i + 1 })
     return input
   }))
@@ -418,6 +456,7 @@ function generate() {
   if (source === 'image' ? !pixels : !byId('text').value.trim()) {
     // Switching source can leave nothing to show; drop the old pattern
     pattern = null
+    advice = false
     letterInfo = null
     renderLetterInfo()
     byId('result').hidden = true
@@ -429,11 +468,12 @@ function generate() {
     pattern = source === 'text' ? createTextPattern() : createPattern({
       swatch: readSwatch(),
       pixels: rotateGrid(pixels, byId('rotate').value),
-      yarnCount: Number(byId('yarn-count').value),
+      yarnCount: yarnCount.read(),
       yarns: readYarns(),
       desiredWidth: { unit: byId('width-unit').value, value: Number(byId('width-value').value) }
     })
     generatedGrid = pattern.grid
+    advice = adviceFor(pattern)
     // Fewer yarns than before can leave the brush pointing at a missing colour
     if (brush === 'swap' ? pattern.palette.length !== 2 : brush !== null && brush >= pattern.palette.length) brush = null
     showError(null)
@@ -530,9 +570,25 @@ function render() {
     return li
   }))
 
+  renderAdvice()
   byId('grid').classList.toggle('painting', brush !== null)
   drawGrid()
   renderInstructions()
+}
+
+// Detection only: the pattern stays as calculated until the user removes a yarn
+function adviceFor(pattern) {
+  const requested = yarnCount.read()
+  if (source !== 'image' || requested < ADVICE_FROM) return false
+  return yarnAdvice(pattern).suggested < requested
+}
+
+function renderAdvice() {
+  const restore = source === 'image' && removedCounts.length > 0
+  byId('yarn-advice').hidden = !advice && !restore
+  byId('yarn-advice-text').hidden = !advice
+  byId('yarn-advice-remove').hidden = !advice
+  byId('yarn-advice-restore').hidden = !restore
 }
 
 function renderInstructions() {
@@ -769,6 +825,7 @@ function restoreSettings({ controls, yarns, linked }) {
   byId('swatch-link').setAttribute('aria-pressed', String(linked))
   renderLinkTitle()
   byId('yarn-pickers').hidden = !byId('use-yarns').checked
+  yarnCount.sync()
   renderYarnPickers()
   byId('yarn-pickers').querySelectorAll('input').forEach((input, i) => { if (yarns[i]) input.value = yarns[i] })
 }

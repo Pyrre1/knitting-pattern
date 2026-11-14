@@ -302,6 +302,7 @@ input[type="number"] { width: var(--number-width); }
 
 #yarn-pickers {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
 }
 
@@ -311,13 +312,17 @@ input[type="number"] { width: var(--number-width); }
 
 .hint { color: var(--muted); font-size: 14px; }
 
+/* Even columns, so one card with a short stitch count does not shift the rest */
 #palette {
   list-style: none;
   padding: 0;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15em, 1fr));
   gap: 12px;
 }
+
+#yarn-advice p { margin: 0 0 8px; }
+#yarn-advice button + button { margin-left: 8px; }
 
 /* One framed card per yarn: label, yarn colour, image colour, stitch count */
 #palette li {
@@ -514,7 +519,9 @@ canvas { display: block; }
   #print-info-list dt { font-weight: bold; }
   #print-info-list dd { margin: 0; }
   #print-footer { display: block; margin: 12px 0 0; font-size: 9pt; color: #666; }
-  #palette li { break-inside: avoid; }
+  /* Print: cards side by side as wide as needed, tight rows so the chart stays on page 1 */
+  #palette { display: flex; flex-wrap: wrap; gap: 2px 12px; margin: 4px 0; }
+  #palette li { break-inside: avoid; padding: 1px 8px; }
   .canvas-wrap { overflow: visible; }
   /* A canvas cannot split across pages: fit tall charts (e.g. rotated text) under the yarn list.
      print.js redraws it larger than the page, so this shrinks it to whichever of width or height is tighter. */
