@@ -15,33 +15,42 @@ export const MIN_EDGE = 0.9
 // - near: almost the same source colour as a colour with more stitches
 // - blend: a thin colour lying between two bigger colours, in colour and on the chart (a soft edge)
 // Removed stitches move to the nearest remaining colour, as removeColour would.
-// → { suggested, extra: [palette indexes] }. suggested is never below 2.
+// → { suggested, extra: [palette indexes], flags: [{ index, reason: 'empty'|'near'|'blend', with: [indexes] }] },
+// both by index; `with` = the similar colour (near) or the two colours around the edge (blend).
+// suggested is never below 2.
 export function yarnAdvice({ palette, grid }, {
   nearDistance = NEAR_DISTANCE, maxOffset = MAX_OFFSET, minTouch = MIN_TOUCH, minEdge = MIN_EDGE
 } = {}) {
   const sources = palette.map(entry => entry.source)
   const kept = palette.map((_, i) => i)
-  const extra = []
+  const flags = []
   let cells = grid
 
   while (kept.length > 2) {
     const counts = countStitches(cells, palette.length)
     const { touches, edges } = countTouches(cells, palette.length)
-    const candidates = kept.filter(i =>
-      counts[i] === 0 ||
-      kept.some(k => k !== i && bigger(k, i, counts) && colourDistance(sources[k], sources[i]) < nearDistance) ||
-      (edges[i] >= minEdge * counts[i] && isBlend(i, kept, sources, counts, touches, { maxOffset, minTouch }))
-    )
+
+    const flagFor = i => {
+      if (counts[i] === 0) return { index: i, reason: 'empty', with: [] }
+      const near = kept.filter(k => k !== i && bigger(k, i, counts) && colourDistance(sources[k], sources[i]) < nearDistance)
+      if (near.length > 0) return { index: i, reason: 'near', with: [nearest(sources[i], near, sources)] }
+      if (edges[i] < minEdge * counts[i]) return null
+      const pair = blendPair(i, kept, sources, counts, touches, { maxOffset, minTouch })
+      return pair && { index: i, reason: 'blend', with: pair }
+    }
+    const candidates = kept.map(flagFor).filter(Boolean)
     if (candidates.length === 0) break
 
-    const removed = candidates.reduce((a, b) => counts[b] < counts[a] ? b : a)
+    const flag = candidates.reduce((a, b) => counts[b.index] < counts[a.index] ? b : a)
+    const removed = flag.index
     kept.splice(kept.indexOf(removed), 1)
-    extra.push(removed)
+    flags.push(flag)
     const target = nearest(sources[removed], kept, sources)
     cells = cells.map(row => row.map(index => index === removed ? target : index))
   }
 
-  return { suggested: Math.max(2, kept.length), extra: extra.sort((a, b) => a - b) }
+  flags.sort((a, b) => a.index - b.index)
+  return { suggested: Math.max(2, kept.length), extra: flags.map(flag => flag.index), flags }
 }
 
 // Ties go to the lower index, so one of two equal colours is kept
@@ -75,9 +84,10 @@ function countTouches(grid, size) {
   return { touches, edges }
 }
 
-function isBlend(i, kept, sources, counts, touches, { maxOffset, minTouch }) {
+// The two colours a thin colour i blends between, or null
+function blendPair(i, kept, sources, counts, touches, { maxOffset, minTouch }) {
   const sides = touches[i].reduce((sum, n) => sum + n, 0)
-  if (sides === 0) return false
+  if (sides === 0) return null
   const big = kept.filter(k => k !== i && counts[k] > counts[i])
 
   for (const a of big) {
@@ -88,10 +98,10 @@ function isBlend(i, kept, sources, counts, touches, { maxOffset, minTouch }) {
       const along = kept.filter(k => k === a || k === b ||
         (k !== i && offsetFromLine(sources[k], sources[a], sources[b]) <= maxOffset))
       const touching = along.reduce((sum, k) => sum + touches[i][k], 0)
-      if (touching >= minTouch * sides) return true
+      if (touching >= minTouch * sides) return [a, b]
     }
   }
-  return false
+  return null
 }
 
 // Distance from c to the segment a–b, as a share of its length; Infinity outside the segment.

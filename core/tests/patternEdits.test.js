@@ -1,4 +1,4 @@
-import { buildPattern, setYarn, removeColour, addColour, paintCell } from '../patternEdits.js'
+import { buildPattern, setYarn, removeColour, removeColours, addColour, paintCell } from '../patternEdits.js'
 
 const BLACK = [0, 0, 0]
 const WHITE = [255, 255, 255]
@@ -144,6 +144,23 @@ describe('Pattern Edits', () => {
     test('throws when the stitch is outside the grid', () => {
       expect(() => paintCell(threeColours(), 2, 0, 0)).toThrow('no stitch at 2, 0')
       expect(() => paintCell(threeColours(), 0, -1, 0)).toThrow('no stitch at 0, -1')
+    })
+  })
+
+  describe('removeColours', () => {
+    test('removes several colours and remaps their stitches', () => {
+      const result = removeColours(threeColours(), [0, 1])
+      expect(result.palette.map(e => e.source)).toEqual([WHITE])
+      expect(result.grid).toEqual([[0, 0], [0, 0]])
+    })
+
+    test('no indexes returns the same pattern', () => {
+      const pattern = threeColours()
+      expect(removeColours(pattern, [])).toBe(pattern)
+    })
+
+    test('cannot remove every colour', () => {
+      expect(() => removeColours(threeColours(), [0, 1, 2])).toThrow('cannot remove the last colour')
     })
   })
 })

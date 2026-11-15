@@ -18,12 +18,12 @@ const chart = (...rows) => rows.map(row => [...row].map(Number))
 describe('Yarn advice', () => {
   test('keeps every colour that is used and distinct', () => {
     const palette = [WHITE, BLACK, RED, BLUE].map(entry)
-    expect(yarnAdvice({ palette, grid: gridOf([40, 30, 20, 10]) })).toEqual({ suggested: 4, extra: [] })
+    expect(yarnAdvice({ palette, grid: gridOf([40, 30, 20, 10]) })).toMatchObject({ suggested: 4, extra: [] })
   })
 
   test('flags colours without stitches', () => {
     const palette = [WHITE, BLACK, RED].map(entry)
-    expect(yarnAdvice({ palette, grid: gridOf([60, 40, 0]) })).toEqual({ suggested: 2, extra: [2] })
+    expect(yarnAdvice({ palette, grid: gridOf([60, 40, 0]) })).toMatchObject({ suggested: 2, extra: [2] })
   })
 
   test('keeps a small colour that is not a blend', () => {
@@ -33,7 +33,7 @@ describe('Yarn advice', () => {
 
   test('flags the smaller of two near-identical colours', () => {
     const palette = [WHITE, [250, 250, 250], BLACK, RED].map(entry)
-    expect(yarnAdvice({ palette, grid: gridOf([30, 40, 20, 10]) })).toEqual({ suggested: 3, extra: [0] })
+    expect(yarnAdvice({ palette, grid: gridOf([30, 40, 20, 10]) })).toMatchObject({ suggested: 3, extra: [0] })
   })
 
   test('flags a thin edge between two colours that lies between them in colour', () => {
@@ -44,7 +44,7 @@ describe('Yarn advice', () => {
       '0000211113',
       '0000211113'
     )
-    expect(yarnAdvice({ palette, grid })).toEqual({ suggested: 3, extra: [2] })
+    expect(yarnAdvice({ palette, grid })).toMatchObject({ suggested: 3, extra: [2] })
   })
 
   test('keeps a thin line whose colour is not between its neighbours', () => {
@@ -77,12 +77,12 @@ describe('Yarn advice', () => {
       '0000321114',
       '0000321114'
     )
-    expect(yarnAdvice({ palette, grid })).toEqual({ suggested: 3, extra: [2, 3] })
+    expect(yarnAdvice({ palette, grid })).toMatchObject({ suggested: 3, extra: [2, 3] })
   })
 
   test('compares source colours, not chosen yarns', () => {
     const palette = [{ source: WHITE, yarn: RED }, { source: BLACK, yarn: RED }]
-    expect(yarnAdvice({ palette, grid: gridOf([50, 50]) })).toEqual({ suggested: 2, extra: [] })
+    expect(yarnAdvice({ palette, grid: gridOf([50, 50]) })).toMatchObject({ suggested: 2, extra: [] })
   })
 
   test('never suggests fewer than 2 yarns', () => {
@@ -95,5 +95,21 @@ describe('Yarn advice', () => {
     const pattern = { palette, grid: gridOf([50, 30, 20]) }
     expect(yarnAdvice(pattern).extra).toEqual([])
     expect(yarnAdvice(pattern, { nearDistance: 3000 }).extra).toEqual([1])
+  })
+
+  test('says why each colour is flagged and which colours it is like', () => {
+    const palette = [WHITE, BLACK, GREY, [250, 250, 250], RED].map(entry)
+    const grid = chart(
+      '0000211114',
+      '0000211114',
+      '0000211114',
+      '3000211114'
+    )
+    const withEmpty = { palette: [...palette, entry(BLUE)], grid }
+    expect(yarnAdvice(withEmpty).flags).toEqual([
+      { index: 2, reason: 'blend', with: [0, 1] },
+      { index: 3, reason: 'near', with: [0] },
+      { index: 5, reason: 'empty', with: [] }
+    ])
   })
 })

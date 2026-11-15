@@ -28,6 +28,14 @@ export function removeColour(pattern, index) {
   return buildPattern(pattern.pixels, pattern.palette.filter((_, i) => i !== index))
 }
 
+// Removes several colours at once (palette indexes); stitches go to the nearest colour left
+export function removeColours(pattern, indexes) {
+  indexes.forEach(index => assertIndex(pattern, index))
+  const palette = pattern.palette.filter((_, i) => !indexes.includes(i))
+  if (palette.length === 0) throw new Error('cannot remove the last colour')
+  return indexes.length === 0 ? pattern : buildPattern(pattern.pixels, palette)
+}
+
 export function addColour(pattern, source, yarn = source) {
   return buildPattern(pattern.pixels, [...pattern.palette, { source, yarn }])
 }
