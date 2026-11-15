@@ -14,7 +14,8 @@ const CHANGES = [
         'Up to 20 yarns: choose "More…" for 5 to 8, or "Max" for up to 20.',
         'Buttons under the yarns: − yarn, + yarn and undo.',
         'Tip when an image needs fewer yarns than chosen (unused yarns, near-identical ones, soft edges): "Use N yarns" jumps to the best fit.',
-        'Changes page shows when each update was published.'
+        'Changes page shows when each update was published.',
+        'Advanced: a list of the yarns the tip found (unused, near-identical, soft edges); untick one to leave it out, tick to bring it back.'
       ],
       fix: [
         'Painting help now says keys 1–9 and A–T pick a yarn (it said 1–4 and A–D).'
@@ -25,7 +26,8 @@ const CHANGES = [
         'Upp till 20 garner: välj ”Fler…” för 5 till 8, eller ”Max” för upp till 20.',
         'Knappar under garnerna: − garn, + garn och ångra.',
         'Tips när en bild behöver färre garner än valt (oanvända, nästan likadana, mjuka kanter): ”Använd N garner” går direkt till bästa antalet.',
-        'Sidan Ändringar visar när varje uppdatering publicerades.'
+        'Sidan Ändringar visar när varje uppdatering publicerades.',
+        'Avancerat: en lista över garnerna som tipset hittade (oanvända, nästan likadana, mjuka kanter); bocka ur för att ta bort, bocka i för att ta tillbaka.'
       ],
       fix: [
         'Hjälptexten för målning säger nu att tangenterna 1–9 och A–T väljer garn (det stod 1–4 och A–D).'

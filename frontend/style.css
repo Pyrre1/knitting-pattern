@@ -324,6 +324,16 @@ input[type="number"] { width: var(--number-width); }
 #yarn-advice p { margin: 0 0 8px; }
 #yarn-buttons { margin: 8px 0; }
 
+.advanced { margin: 8px 0; }
+
+.advanced summary { cursor: pointer; }
+
+#yarn-flags-list { list-style: none; margin: 0; padding: 0; }
+
+#yarn-flags-list li { margin: 4px 0; }
+
+#yarn-flags-list label { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
 #yarn-buttons button + button { margin-left: 8px; }
 
 /* One framed card per yarn: label, yarn colour, image colour, stitch count */

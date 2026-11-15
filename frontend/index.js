@@ -13,6 +13,7 @@ import { initChanges } from "./changes.js"
 import { initPrint } from "./print.js"
 import { initYarnCount } from "./yarnCount.js"
 import { initYarnButtons } from "./yarnButtons.js"
+import { initYarnFlags } from "./yarnFlags.js"
 import { drawChart, drawCell, fitCellSize, rgbToHex, isLight, LABEL_MARGIN, MIN_STITCH_CELL } from "./chart.js"
 
 // Longest image side kept after load; caps both work and max stitch count
@@ -63,6 +64,7 @@ byId('image').addEventListener('change', async event => {
   }
 
   yarnButtons.clear()
+  yarnFlags.reset()
   // One source at a time: an image replaces typed text
   byId('text').value = ''
   byId('image-name').textContent = file.name
@@ -109,7 +111,10 @@ byId('inputs').addEventListener('change', async event => {
   const isCount = id === 'yarn-count' || id === 'yarn-count-more'
   if (isCount && !await yarnCount.confirm(event.target)) return
   if (!await confirmChange(null)) return
-  if (isCount) yarnButtons.clear()
+  if (isCount) {
+    yarnButtons.clear()
+    yarnFlags.reset()
+  }
 
   if (id === 'swatch-inch') convertSwatchUnit()
   if (id === 'use-yarns') byId('yarn-pickers').hidden = !byId('use-yarns').checked
@@ -194,11 +199,19 @@ initChanges()
 const updatePaper = initPrint({ getInfo: printInfo, chart: chartSettings, ask })
 
 const yarnButtons = initYarnButtons({ yarnCount, changeCount: changeYarnCount })
+const yarnFlags = initYarnFlags({
+  onToggle: async apply => {
+    if (!await confirmChange(null)) return yarnFlags.render()
+    apply()
+    generate()
+  }
+})
 
 // Counts here were already confirmed (More… / Max), so only painted stitches are asked about
 async function changeYarnCount(count) {
   if (!await confirmChange(null)) return false
   yarnCount.set(count)
+  yarnFlags.reset()
   renderYarnPickers()
   generate()
   return true
@@ -442,6 +455,7 @@ function generate() {
     // Switching source can leave nothing to show; drop the old pattern
     pattern = null
     yarnButtons.update(null)
+    yarnFlags.apply(null, false)
     letterInfo = null
     renderLetterInfo()
     byId('result').hidden = true
@@ -450,13 +464,14 @@ function generate() {
   }
 
   try {
-    pattern = source === 'text' ? createTextPattern() : createPattern({
+    const calculated = source === 'text' ? createTextPattern() : createPattern({
       swatch: readSwatch(),
       pixels: rotateGrid(pixels, byId('rotate').value),
       yarnCount: yarnCount.read(),
       yarns: readYarns(),
       desiredWidth: { unit: byId('width-unit').value, value: Number(byId('width-value').value) }
     })
+    pattern = yarnFlags.apply(calculated, source === 'image')
     generatedGrid = pattern.grid
     yarnButtons.update(pattern, source === 'image')
     // Fewer yarns than before can leave the brush pointing at a missing colour
@@ -556,6 +571,7 @@ function render() {
   }))
 
   yarnButtons.render()
+  yarnFlags.render()
   byId('grid').classList.toggle('painting', brush !== null)
   drawGrid()
   renderInstructions()

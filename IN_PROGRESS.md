@@ -7,7 +7,7 @@ Empty = no phase active: pick one from TODO.md. -->
       2–6 % of the stitches each, so the share limit misses them (20 yarns → suggests 11–16; 6–8 → almost
       never). Idea: a blend lies between two other colours in RGB (near the line A–B) and mostly next to
       both; test that instead of / besides share. Needs measuring on more real images (logos, photos).
-- [ ] Detected blend colours as a list with include/exclude toggles (uses `removeColour`), shown only
+- [x] Detected blend colours as a list with include/exclude toggles (uses `removeColour`), shown only
       when something is detected or under "Advanced settings".
 - [ ] "Remove islands smaller than N stitches" (single stray stitches), same visibility rule.
 - [ ] Plain, pedagogical help text for each tool: many users are not technical and only want to knit,
