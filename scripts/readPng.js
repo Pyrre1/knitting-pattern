@@ -2,8 +2,11 @@
 import { readFileSync } from "node:fs"
 import { inflateSync } from "node:zlib"
 
+const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+
 export function readPng(path) {
   const buf = readFileSync(path)
+  if (!buf.subarray(0, 8).equals(PNG_SIGNATURE)) throw new Error(`${path}: not a PNG file (e.g. a JPEG renamed to .png); save it as PNG`)
   let pos = 8, width, height, depth, type, palette, idat = []
   while (pos < buf.length) {
     const len = buf.readUInt32BE(pos)
