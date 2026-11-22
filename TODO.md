@@ -1,7 +1,7 @@
 # TODO
 <!-- Index. Kanban: TODO.md (planned) → IN_PROGRESS.md (active phase) → DONE.md (finished, history).
 Start a phase: move its section here → IN_PROGRESS.md. Finish: move it to DONE.md, mark ✔.
-Phases: G live view · H languages da/nb · I paper saver
+Phases: G live view · H languages da/nb · I paper saver + file names
 Similar past work: see the index at the top of DONE.md; grep -n "### Phase X" DONE.md, read only that section. -->
 
 ## Roadmap (test deploy)
@@ -39,10 +39,15 @@ One phase per chat. Start a chat with "Do Phase X"; decisions in each phase are 
       flags stand for countries, not languages (e.g. English), and add images for little gain.
 - [ ] Browser language detection: Norwegian may report `no`, `nb` or `nn`; map all to `nb`.
 
-### Phase I — paper saver for print in scale
+### Phase I — paper saver for print in scale, file names
 - [ ] Core: estimate pages for portrait and landscape (`planTiles` for both) and pick the one with fewer pages.
 - [ ] Preselect that orientation; if the user changes it, inform: "Changing from portrait to landscape
       prints about N pages instead of about M." Same check when paper size changes (Letter / A4).
+- [ ] File names (noted 2026-11-22): PNG is always `knitting-pattern.png` and PDF takes the page title
+      (`Stickmönster` / `Knitting pattern`), so every save clashes and tests are hard to tell apart.
+      Name = source + date and time, e.g. `knitting-pattern_logo_2026-11-22_14-05.png`: source = uploaded
+      image file name (without extension) or the typed text (shortened). Safe characters only (no / \ : * ? " < > |).
+      PDF: set `document.title` to the same name during print, restore after. Pure helper in core + test.
 
 ## Backlog
 
