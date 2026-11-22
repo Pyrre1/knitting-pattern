@@ -24,6 +24,9 @@ One phase per chat. Start a chat with "Do Phase X"; decisions in each phase are 
       Unhide it, add `'live'` to `VIEWS` in `menu.js` and a `<section id="view-live" hidden>` for the
       saved-pattern list (b). Fullscreen live view itself may stay an overlay opened from there or from Output.
 - [ ] Show the saving notice (`aboutStorage` in `i18n.js`) next to the save action, as decided in Phase E.
+      About page section "Saving in the browser" is commented out in `index.html` (2026-11-22); unhide it here.
+      Rephrase first (en + sv): PDF/PNG downloads are files on the user's device; only "save for live view"
+      uses browser storage (local storage).
 - [ ] Changes entry in `changes.js`.
 
 ### Phase H — more languages (Danish, Norwegian)
@@ -44,6 +47,11 @@ One phase per chat. Start a chat with "Do Phase X"; decisions in each phase are 
 ## Backlog
 
 Deferred until after the local visual MVP.
+
+- [ ] Bug (reported 2026-11-22): stitch view made the page very slow on a phone (Galaxy S23 Ultra), barely
+      scrollable; simple logo, 60 cm wide. Not reproduced yet. Suspects: canvas too large for the phone
+      (cell size × stitches), stitch drawing cost per redraw, a redraw loop, or touch/scroll on the canvas
+      (`canvas.painting` sets `touch-action: none`). Reproduce on desktop with mobile emulation first.
 
 - [ ] Real site: allow indexing, `sitemap.xml`, Open Graph image, redirect from prototype address.
 - [ ] Dark mode.

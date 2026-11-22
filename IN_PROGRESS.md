@@ -9,6 +9,36 @@ Empty = no phase active: pick one from TODO.md. -->
       both; test that instead of / besides share. Needs measuring on more real images (logos, photos).
 - [x] Detected blend colours as a list with include/exclude toggles (uses `removeColour`), shown only
       when something is detected or under "Advanced settings".
+- [ ] Next: small distinct colour loses its yarn to a blend (`samples/logo-with-text.png`, added 2026-11-21).
+      Logo: red thin lines, white thin lines, green fill, white background, black text. At 4 yarns wanted
+      red, white, green, black; got the text in pink/red. Likely cause: colours are picked by pixel share,
+      so the soft red/white edges (pink) outweigh the thin black text and take the 4th yarn.
+      Idea: after `refinePalette`, test each colour with the `yarnAdvice` blend check; swap a blend for the
+      image colour farthest from the rest (here black). Also weigh connected areas (islands), not only %.
+      Measured 2026-11-21 (100 stitches, 4 yarns): `logo-with-text-clear-background.png` (original PNG) is
+      right: green, black #282425 (2.8 %), red, white. `logo-with-text.png` (screenshot, softer edges) is
+      wrong: dark red #8d0c22 (red + black merged), green, pink blend #b69799 (10 %), white; advice then
+      says 3 yarns. Target: screenshot gives the same 4 as the original.
+      At 8 yarns the screenshot gives black, red, green, white + blends, and advice keeps exactly those 4.
+      **Plan (over-pick, then prune)** — opt-in, decided 2026-11-22: a "Fine-tune colours" action in the
+      Advanced toolbox (see below), not the default, since it takes longer. Default render stays as today.
+      1. `yarnAdvice` also returns `order` (flagged indexes in removal order); `flags` stay sorted by index. Test.
+      2. New `core/pickColours.js`: `pickColours(pixels, scaled, yarnCount)`:
+         a. trial = `refinePalette(pixels, medianCut(pixels, yarnCount × OVERPICK))` (OVERPICK = 2, cap 20).
+         b. `yarnAdvice` on the trial pattern (scaled grid); drop the first (trial − yarnCount) of `order`.
+         c. Not enough flagged (e.g. photos) → today's result (`medianCut(pixels, yarnCount)` + refine), unchanged.
+         d. Final = `refinePalette(pixels, kept sources)` (kept colours as seeds).
+         Tests: synthetic logo (red/white lines with wide pink edges, small black block) → 4 yarns include black;
+         photo-like gradient → same as today.
+      3. `createPattern` takes an option (e.g. `fineTune: true`) that uses `pickColours`; default unchanged.
+         Frontend: button in the Advanced toolbox; result kept until a new image / count change.
+      4. Measure all `samples/` before/after (`measureAdvice.js`); check generate time on the 20-colour photo.
+      5. `changes.js` fix entry (en + sv): "Small colours such as thin text keep their yarn instead of a soft edge colour."
+      Risks: slower generate (two colour reductions); fallback c. keeps photos as today. Unknown: right OVERPICK.
+- [ ] Advanced toolbox (decided 2026-11-22): after the first render, a line "Not happy with the result?
+      Fine-tune or edit more in Advanced settings" opens one Advanced box holding all clean-up tools:
+      fine-tune colours (above), flagged yarns list (built), remove islands, island size, "stitches needed
+      to be its own colour", motif/background focus (colour budget below). Each tool says it may take time.
 - [ ] "Remove islands smaller than N stitches" (single stray stitches), same visibility rule.
 - [ ] Plain, pedagogical help text for each tool: many users are not technical and only want to knit,
       embroider or crochet. Show only when it applies; no jargon.
@@ -22,7 +52,8 @@ Empty = no phase active: pick one from TODO.md. -->
       so e.g. 8 greens + 1 flower colour instead of 3 + 3. Decided: build b) first, a) later as a lazy backup.
       b) manual (first): paint a mask over the image, motif vs background, and set yarns per area (e.g. 3 + 3).
          Colour reduction runs per area, so marking the background groups its colours automatically;
-         simpler and more predictable than a).
+         simpler and more predictable than a). Split yarns with a motif ↔ background slider
+         (e.g. 5 yarns: background 1 or 2, motif 4 or 3).
       a) automatic (later, backup): group colours (hue / area) and spread yarns across groups. Faster and
          asks nothing of the user, but riskier: may help some logos and spoil others. Offer it as a trial:
          "Try automatic grouping" → result shown → "Revert" restores the previous pattern kept in memory
