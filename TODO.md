@@ -57,6 +57,11 @@ Deferred until after the local visual MVP.
       scrollable; simple logo, 60 cm wide. Not reproduced yet. Suspects: canvas too large for the phone
       (cell size × stitches), stitch drawing cost per redraw, a redraw loop, or touch/scroll on the canvas
       (`canvas.painting` sets `touch-action: none`). Reproduce on desktop with mobile emulation first.
+- [ ] Feedback hint for problem reports (About feedback section, maybe banner): "If something goes wrong
+      and you are willing, please include the device and browser you used and your settings (gauge,
+      size, yarn count, stitch view, print in scale …). It makes the problem easier to find and fix."
+      en + sv in `i18n.js`; Changes entry. Optional later: a "Copy settings" button that puts the
+      current form values on the clipboard for the mail.
 
 - [ ] Real site: allow indexing, `sitemap.xml`, Open Graph image, redirect from prototype address.
 - [ ] Dark mode.
