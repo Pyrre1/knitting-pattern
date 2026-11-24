@@ -7,6 +7,8 @@ Similar past work: see the index at the top of DONE.md; grep -n "### Phase X" DO
 ## Roadmap (test deploy)
 One phase per chat. Start a chat with "Do Phase X"; decisions in each phase are settled.
 
+**Ask when F2 is done, before starting G:** which small fix first? Suggestion: PNG/PDF file names (Phase I).
+
 ### Phase G — live view
 - [ ] Entry points: (a) "Live view" button in the Output box (beside Print / Save PDF) for the
       rendered pattern; (b) "Live view" in the menu (Phase E) loading a pattern saved on the device.
@@ -57,6 +59,8 @@ Deferred until after the local visual MVP.
       scrollable; simple logo, 60 cm wide. Not reproduced yet. Suspects: canvas too large for the phone
       (cell size × stitches), stitch drawing cost per redraw, a redraw loop, or touch/scroll on the canvas
       (`canvas.painting` sets `touch-action: none`). Reproduce on desktop with mobile emulation first.
+      Low priority: not reproduced on retest with the same settings on the same phone (2026-11-24);
+      maybe a one-off. Look again only if it comes back.
 - [ ] Feedback hint for problem reports (About feedback section, maybe banner): "If something goes wrong
       and you are willing, please include the device and browser you used and your settings (gauge,
       size, yarn count, stitch view, print in scale …). It makes the problem easier to find and fix."
