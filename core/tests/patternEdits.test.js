@@ -164,3 +164,20 @@ describe('Pattern Edits', () => {
     })
   })
 })
+
+describe('Pattern edits keep other pattern fields', () => {
+  const size = { stitches: 3, rows: 1 }
+  const colours = [[0, 0, 0], [255, 255, 255], [255, 0, 0]]
+  const pattern = {
+    ...buildPattern([colours], colours.map(source => ({ source, yarn: source }))),
+    size
+  }
+
+  test.each([
+    ['removeColour', () => removeColour(pattern, 2)],
+    ['removeColours', () => removeColours(pattern, [1, 2])],
+    ['addColour', () => addColour(pattern, [0, 0, 255])]
+  ])('%s keeps size', (_, edit) => {
+    expect(edit().size).toEqual(size)
+  })
+})
