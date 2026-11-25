@@ -14,6 +14,8 @@ import { initPrint } from "./print.js"
 import { initYarnCount } from "./yarnCount.js"
 import { initYarnButtons } from "./yarnButtons.js"
 import { initYarnFlags } from "./yarnFlags.js"
+import { initFineTune } from "./fineTune.js"
+import { initAdvanced } from "./advanced.js"
 import { drawChart, drawCell, fitCellSize, rgbToHex, isLight, LABEL_MARGIN, MIN_STITCH_CELL } from "./chart.js"
 
 // Longest image side kept after load; caps both work and max stitch count
@@ -65,6 +67,7 @@ byId('image').addEventListener('change', async event => {
 
   yarnButtons.clear()
   yarnFlags.reset()
+  fineTune.reset()
   // One source at a time: an image replaces typed text
   byId('text').value = ''
   byId('image-name').textContent = file.name
@@ -114,6 +117,8 @@ byId('inputs').addEventListener('change', async event => {
   if (isCount) {
     yarnButtons.clear()
     yarnFlags.reset()
+    // Fine-tuning stays on
+    fineTune.load(fineTune.save())
   }
 
   if (id === 'swatch-inch') convertSwatchUnit()
@@ -198,7 +203,18 @@ initMenu()
 initChanges()
 const updatePaper = initPrint({ getInfo: printInfo, chart: chartSettings, ask })
 
-const yarnButtons = initYarnButtons({ yarnCount, changeCount: changeYarnCount })
+const yarnButtons = initYarnButtons({
+  yarnCount, changeCount: changeYarnCount, saveColours, restoreColours
+})
+const advanced = initAdvanced()
+const fineTune = initFineTune({
+  onToggle: async apply => {
+    if (!await confirmChange(null)) return fineTune.render()
+    apply()
+    yarnFlags.reset()
+    generate()
+  }
+})
 const yarnFlags = initYarnFlags({
   onToggle: async apply => {
     if (!await confirmChange(null)) return yarnFlags.render()
@@ -209,9 +225,18 @@ const yarnFlags = initYarnFlags({
 
 // Counts here were already confirmed (More… / Max), so only painted stitches are asked about
 async function changeYarnCount(count) {
+  return restoreColours({ count, leftOut: [], fineTune: fineTune.save() })
+}
+
+function saveColours() {
+  return { count: yarnCount.read(), leftOut: yarnFlags.save(), fineTune: fineTune.save() }
+}
+
+async function restoreColours(saved) {
   if (!await confirmChange(null)) return false
-  yarnCount.set(count)
-  yarnFlags.reset()
+  yarnCount.set(saved.count)
+  yarnFlags.load(saved.leftOut)
+  fineTune.load(saved.fineTune)
   renderYarnPickers()
   generate()
   return true
@@ -456,6 +481,7 @@ function generate() {
     pattern = null
     yarnButtons.update(null)
     yarnFlags.apply(null, false)
+    advanced.update(false)
     letterInfo = null
     renderLetterInfo()
     byId('result').hidden = true
@@ -469,8 +495,11 @@ function generate() {
       pixels: rotateGrid(pixels, byId('rotate').value),
       yarnCount: yarnCount.read(),
       yarns: readYarns(),
-      desiredWidth: { unit: byId('width-unit').value, value: Number(byId('width-value').value) }
+      desiredWidth: { unit: byId('width-unit').value, value: Number(byId('width-value').value) },
+      fineTune: fineTune.isOn()
     })
+    fineTune.update(calculated)
+    advanced.update(source === 'image')
     pattern = yarnFlags.apply(calculated, source === 'image')
     generatedGrid = pattern.grid
     yarnButtons.update(pattern, source === 'image')
@@ -572,6 +601,8 @@ function render() {
 
   yarnButtons.render()
   yarnFlags.render()
+  fineTune.render()
+  advanced.render()
   byId('grid').classList.toggle('painting', brush !== null)
   drawGrid()
   renderInstructions()

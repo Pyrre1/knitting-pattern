@@ -7,16 +7,18 @@ const MIN_YARNS = 2
 
 const byId = id => document.getElementById(id)
 
-// Image patterns: − yarn / + yarn / undo under the palette, and "Use N yarns" when fewer seem enough.
+// Image patterns: − yarn / + yarn / Auto improve (best yarn count by yarnAdvice) under the palette,
+// and Undo, shown once there is a change to undo.
 // changeCount(count) recalculates with that count; false when the user cancelled.
-export function initYarnButtons({ yarnCount, changeCount }) {
-  // Yarn counts before each button change, newest last; a manual count change clears it
+// saveColours() → colour choices to go back to, restoreColours(saved) → goes back (false = cancelled).
+export function initYarnButtons({ yarnCount, changeCount, saveColours, restoreColours }) {
+  // Colour choices before each button change, newest last; a manual count change clears it
   let history = []
   // { count, suggested } for the shown pattern, or null when not an image pattern
   let state = null
 
   async function step(count) {
-    history.push(yarnCount.read())
+    history.push(saveColours())
     if (!await changeCount(count)) history.pop()
   }
 
@@ -25,10 +27,10 @@ export function initYarnButtons({ yarnCount, changeCount }) {
     const count = yarnCount.read() + 1
     if (await yarnCount.allow(count)) await step(count)
   })
-  byId('yarn-best').addEventListener('click', () => step(state.suggested))
+  byId('yarn-auto').addEventListener('click', () => step(state.suggested))
   byId('yarn-undo').addEventListener('click', async () => {
-    const count = history.pop()
-    if (!await changeCount(count)) history.push(count)
+    const saved = history.pop()
+    if (!await restoreColours(saved)) history.push(saved)
   })
 
   // Detection only: the pattern stays as calculated until a button is used
@@ -47,19 +49,17 @@ export function initYarnButtons({ yarnCount, changeCount }) {
 
   function render() {
     byId('yarn-buttons').hidden = !state
-    byId('yarn-advice').hidden = !state || state.suggested >= state.count
     if (!state) return
 
     const count = yarnCount.read()
     byId('yarn-less').disabled = count <= MIN_YARNS
     byId('yarn-more').disabled = count >= yarnCount.max
-    byId('yarn-undo').disabled = history.length === 0
+    byId('yarn-undo').hidden = history.length === 0
 
-    const { suggested } = state
-    byId('yarn-advice-text').textContent = translate('yarnAdvice', {
-      count: state.count, extra: state.count - suggested, best: suggested
-    })
-    byId('yarn-best').textContent = translate('yarnAdviceBest', { best: suggested })
+    const auto = byId('yarn-auto')
+    const canImprove = state.suggested < state.count
+    auto.disabled = !canImprove
+    auto.title = canImprove ? translate('yarnAutoTitle', { best: state.suggested }) : translate('yarnAutoNone')
   }
 
   return { update, clear, render }

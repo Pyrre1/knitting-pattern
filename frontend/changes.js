@@ -8,6 +8,25 @@ const PUBLISHED = ['2026-11-22', '2026-11-12', '2026-11-09']
 // Hand-written changelog, newest first. Each entry needs en and sv; kinds: add, fix, remove.
 const CHANGES = [
   {
+    date: '2026-11-25',
+    en: {
+      add: [
+        '"Auto improve" beside the yarn buttons goes straight to the best number of yarns; "Undo yarn change" goes back. It replaces the tip box.',
+        '"Advanced settings" opens a box with the clean-up tools, so the page is less crowded.',
+        'Advanced: "Fine-tune colours", so small colours such as thin text keep their yarn instead of a soft edge colour.'
+      ],
+      fix: ['Leaving out a yarn in the list showed an error instead of changing the pattern.']
+    },
+    sv: {
+      add: [
+        '”Förbättra automatiskt” bredvid garnknapparna går direkt till bästa antalet garner; ”Ångra garnändring” går tillbaka. Ersätter tipsrutan.',
+        '”Avancerade inställningar” öppnar en ruta med verktygen, så att sidan blir mindre rörig.',
+        'Avancerat: ”Finjustera färger”, så att små färger, t.ex. tunn text, behåller sitt garn i stället för en mjuk kantfärg.'
+      ],
+      fix: ['Att ta bort ett garn i listan visade ett fel i stället för att ändra mönstret.']
+    }
+  },
+  {
     date: '2026-11-14',
     en: {
       add: [

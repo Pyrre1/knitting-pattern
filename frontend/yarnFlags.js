@@ -35,6 +35,10 @@ export function initYarnFlags({ onToggle }) {
     return rgbToHex(base.palette[index].source)
   }
 
+  function load(saved) {
+    leftOut = new Set(saved)
+  }
+
   function render() {
     byId('yarn-flags').hidden = flags.length === 0
     if (flags.length === 0) return
@@ -76,5 +80,5 @@ export function initYarnFlags({ onToggle }) {
     return span
   }
 
-  return { apply, reset, render }
+  return { apply, reset, save: () => [...leftOut], load, render }
 }
