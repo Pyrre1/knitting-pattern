@@ -9,7 +9,7 @@ Empty = no phase active: pick one from TODO.md. -->
       both; test that instead of / besides share. Needs measuring on more real images (logos, photos).
 - [x] Detected blend colours as a list with include/exclude toggles (uses `removeColour`), shown only
       when something is detected or under "Advanced settings".
-- [ ] Next: small distinct colour loses its yarn to a blend (`samples/logo-with-text.png`, added 2026-11-21).
+- [x] Small distinct colour loses its yarn to a blend (`samples/logo-with-text.png`, added 2026-11-21).
       Logo: red thin lines, white thin lines, green fill, white background, black text. At 4 yarns wanted
       red, white, green, black; got the text in pink/red. Likely cause: colours are picked by pixel share,
       so the soft red/white edges (pink) outweigh the thin black text and take the 4th yarn.
@@ -31,13 +31,21 @@ Empty = no phase active: pick one from TODO.md. -->
          Tests: synthetic logo (red/white lines with wide pink edges, small black block) → 4 yarns include black;
          photo-like gradient → same as today.
       3. `createPattern` takes an option (e.g. `fineTune: true`) that uses `pickColours`; default unchanged.
-         Frontend: button in the Advanced toolbox; result kept until a new image / count change.
+         Frontend: button in the Advanced toolbox; result kept until a new image (2026-11-25: also kept on count changes).
       4. Measure all `samples/` before/after (`measureAdvice.js`); check generate time on the 20-colour photo.
       5. `changes.js` fix entry (en + sv): "Small colours such as thin text keep their yarn instead of a soft edge colour."
+      Done 2026-11-24: OVERPICK 2 measured (1.5 and 3 miss the target). Screenshot at 4 yarns = black, red, green, white;
+      photo unchanged. Photo 100 stitches, Node: 4 yarns 165 → 246 ms, 20 yarns 190 → 420 ms. UI not yet checked by hand.
       Risks: slower generate (two colour reductions); fallback c. keeps photos as today. Unknown: right OVERPICK.
-- [ ] Advanced toolbox (decided 2026-11-22): after the first render, a line "Not happy with the result?
-      Fine-tune or edit more in Advanced settings" opens one Advanced box holding all clean-up tools:
-      fine-tune colours (above), flagged yarns list (built), remove islands, island size, "stitches needed
+- [ ] Next: green stitches in black text (`logo-with-text.png`, 4 yarns, fine-tuned). Cause: a stitch is the average of its
+      pixels, black + white = grey, and the nearest of the 4 colours to that grey is green.
+      Idea, measured 2026-11-25: majority vote (map every pixel to its colour first, each stitch takes the most
+      common): no green left in the text, letters readable, slightly thinner strokes. Part of Fine-tune, no extra tick box.
+      To solve: `removeColours` / `addColour` remap from the averaged `pixels`, so leaving out a yarn would bring
+      green back (needs votes there too). Measure all samples first: thin lines may lose the vote.
+- [ ] Advanced toolbox (redesigned 2026-11-24: "Advanced settings" button opens a framed box; tip box replaced
+      by Auto improve + Undo; toolbox built, more tools to add): one Advanced box holding all clean-up tools:
+      fine-tune colours (built), flagged yarns list (built, both in `#advanced`), remove islands, island size, "stitches needed
       to be its own colour", motif/background focus (colour budget below). Each tool says it may take time.
 - [ ] "Remove islands smaller than N stitches" (single stray stitches), same visibility rule.
 - [ ] Plain, pedagogical help text for each tool: many users are not technical and only want to knit,
