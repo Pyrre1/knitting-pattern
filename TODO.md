@@ -82,8 +82,7 @@ Deferred until after the local visual MVP.
 - [ ] Fill tool: "fill connected" brush paints every touching stitch of the clicked colour with the new
       yarn (beside click / hold to paint). Recolours one letter at a time in text (2 → up to 20 yarns),
       or a transparent background apart from white in the logo. Text needs more than 2 yarns for it.
-- [ ] Opposite yarn tip: "more yarns might give a better result, try N" (only up to ~6: many yarns are
-      hard work to knit). Same advice box and undo as "Use N yarns".
+- [x] Opposite yarn tip: built 2026-11-25 as part of "Auto improve" (`bestYarnCount`, up to 8 trial colours).
 - [ ] Text tools:
       - colour one letter (or word) with its own yarn (per-letter palette index in `composeText`)
       - nudge single letters up/down/sideways (per-letter offset)

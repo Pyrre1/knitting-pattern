@@ -11,7 +11,7 @@ const CHANGES = [
     date: '2026-11-25',
     en: {
       add: [
-        '"Auto improve" beside the yarn buttons goes straight to the best number of yarns; "Undo yarn change" goes back. It replaces the tip box.',
+        '"Auto improve" beside the yarn buttons goes straight to the best number of yarns, fewer or more; "Undo yarn change" goes back. It replaces the tip box.',
         '"Advanced settings" opens a box with the clean-up tools, so the page is less crowded.',
         'Advanced: "Fine-tune colours", so small colours such as thin text keep their yarn instead of a soft edge colour.'
       ],
@@ -19,7 +19,7 @@ const CHANGES = [
     },
     sv: {
       add: [
-        '”Förbättra automatiskt” bredvid garnknapparna går direkt till bästa antalet garner; ”Ångra garnändring” går tillbaka. Ersätter tipsrutan.',
+        '”Förbättra automatiskt” bredvid garnknapparna går direkt till bästa antalet garner, färre eller fler; ”Ångra garnändring” går tillbaka. Ersätter tipsrutan.',
         '”Avancerade inställningar” öppnar en ruta med verktygen, så att sidan blir mindre rörig.',
         'Avancerat: ”Finjustera färger”, så att små färger, t.ex. tunn text, behåller sitt garn i stället för en mjuk kantfärg.'
       ],

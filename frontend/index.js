@@ -224,8 +224,8 @@ const yarnFlags = initYarnFlags({
 })
 
 // Counts here were already confirmed (More… / Max), so only painted stitches are asked about
-async function changeYarnCount(count) {
-  return restoreColours({ count, leftOut: [], fineTune: fineTune.save() })
+async function changeYarnCount(count, { fineTune: turnOn = false } = {}) {
+  return restoreColours({ count, leftOut: [], fineTune: turnOn ? { on: true } : fineTune.save() })
 }
 
 function saveColours() {
@@ -502,7 +502,7 @@ function generate() {
     advanced.update(source === 'image')
     pattern = yarnFlags.apply(calculated, source === 'image')
     generatedGrid = pattern.grid
-    yarnButtons.update(pattern, source === 'image')
+    yarnButtons.update(pattern, source === 'image' ? pixels : null)
     // Fewer yarns than before can leave the brush pointing at a missing colour
     if (brush === 'swap' ? pattern.palette.length !== 2 : brush !== null && brush >= pattern.palette.length) brush = null
     showError(null)
