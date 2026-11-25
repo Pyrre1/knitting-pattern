@@ -3,7 +3,7 @@ import { LAST_UPDATE } from './version.js'
 
 // Dates the site was published (deployed), newest first. Add one at each deploy.
 // The live build date (version.js) counts too, so a missing newest date still shows.
-const PUBLISHED = ['2026-11-22', '2026-11-12', '2026-11-09']
+const PUBLISHED = ['2026-11-25', '2026-11-22', '2026-11-12', '2026-11-09']
 
 // Hand-written changelog, newest first. Each entry needs en and sv; kinds: add, fix, remove.
 const CHANGES = [
