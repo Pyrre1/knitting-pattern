@@ -80,6 +80,13 @@ describe('Yarn advice', () => {
     expect(yarnAdvice({ palette, grid })).toMatchObject({ suggested: 3, extra: [2, 3] })
   })
 
+  test('lists flagged colours in removal order, fewest stitches first', () => {
+    const palette = [WHITE, [250, 250, 250], BLACK, RED, BLUE].map(entry)
+    const advice = yarnAdvice({ palette, grid: gridOf([40, 10, 30, 20, 0]) })
+    expect(advice.order).toEqual([4, 1])
+    expect(advice.extra).toEqual([1, 4])
+  })
+
   test('compares source colours, not chosen yarns', () => {
     const palette = [{ source: WHITE, yarn: RED }, { source: BLACK, yarn: RED }]
     expect(yarnAdvice({ palette, grid: gridOf([50, 50]) })).toMatchObject({ suggested: 2, extra: [] })

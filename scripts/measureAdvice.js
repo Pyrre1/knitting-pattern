@@ -1,5 +1,6 @@
 // Dev measurement: yarn advice on local sample images (samples/ is gitignored).
 // Usage: node scripts/measureAdvice.js [stitches=100] [yarnCounts=4,6,8,14,20]
+// FINETUNE=1 measures with fine-tuned colours.
 // Limits can be overridden: NEAR, OFFSET, TOUCH, EDGE (see core/yarnAdvice.js)
 import { readdirSync } from "node:fs"
 import { readPng } from "./readPng.js"
@@ -24,7 +25,8 @@ for (const file of readdirSync("samples").filter(f => f.endsWith(".png"))) {
   console.log(`\n== ${file} (${pixels[0].length}×${pixels.length}) at ${fit} stitches`)
 
   for (const yarnCount of counts) {
-    const pattern = createPattern({ swatch, pixels, yarnCount, desiredWidth: { value: fit, unit: "stitches" } })
+    const pattern = createPattern({ swatch, pixels, yarnCount, desiredWidth: { value: fit, unit: "stitches" },
+      fineTune: process.env.FINETUNE === "1" })
     const used = pattern.palette.map(() => 0)
     for (const row of pattern.grid) for (const i of row) used[i]++
     const total = used.reduce((a, b) => a + b, 0)

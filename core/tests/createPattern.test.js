@@ -88,6 +88,24 @@ describe('Create Pattern', () => {
       .toEqual(expect.arrayContaining([ GREEN, RED, WHITE ]))
   })
 
+  test('fine-tunes the colours only when asked', () => {
+    // Red stripes with soft pink edges, a green block and a small black block
+    const GREEN = [0, 140, 90]
+    const RED = [200, 0, 30]
+    const PINK = [[237, 171, 181], [219, 87, 107]]
+    const stripe = [...PINK, ...Array(8).fill(RED), ...[...PINK].reverse()]
+    const logo = Array.from({ length: 80 }, (_, y) => Array.from({ length: 80 }, (_, x) => {
+      if (y < 20) return x < 40 ? GREEN : WHITE
+      if (y >= 70 && x >= 70) return BLACK
+      return y >= 66 ? WHITE : stripe[x % 20] ?? WHITE
+    }))
+    const input = { swatch: squareSwatch, pixels: logo, yarnCount: 4, desiredWidth: { unit: 'stitches', value: 80 } }
+    const sources = pattern => pattern.palette.map(entry => entry.source)
+
+    expect(sources(createPattern(input))).not.toContainEqual(BLACK)
+    expect(sources(createPattern({ ...input, fineTune: true }))).toContainEqual(BLACK)
+  })
+
   test('keeps the scaled pixels for later edits', () => {
     const pattern = createPattern({
       swatch: squareSwatch,

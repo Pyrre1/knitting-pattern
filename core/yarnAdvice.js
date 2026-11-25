@@ -17,7 +17,7 @@ export const MIN_EDGE = 0.9
 // Removed stitches move to the nearest remaining colour, as removeColour would.
 // → { suggested, extra: [palette indexes], flags: [{ index, reason: 'empty'|'near'|'blend', with: [indexes] }] },
 // both by index; `with` = the similar colour (near) or the two colours around the edge (blend).
-// suggested is never below 2.
+// order = the same indexes as extra, in the order they were removed. suggested is never below 2.
 export function yarnAdvice({ palette, grid }, {
   nearDistance = NEAR_DISTANCE, maxOffset = MAX_OFFSET, minTouch = MIN_TOUCH, minEdge = MIN_EDGE
 } = {}) {
@@ -49,8 +49,9 @@ export function yarnAdvice({ palette, grid }, {
     cells = cells.map(row => row.map(index => index === removed ? target : index))
   }
 
+  const order = flags.map(flag => flag.index)
   flags.sort((a, b) => a.index - b.index)
-  return { suggested: Math.max(2, kept.length), extra: flags.map(flag => flag.index), flags }
+  return { suggested: Math.max(2, kept.length), extra: flags.map(flag => flag.index), order, flags }
 }
 
 // Ties go to the lower index, so one of two equal colours is kept

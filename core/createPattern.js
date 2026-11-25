@@ -1,12 +1,11 @@
 import { gaugeInterpreter } from "./gaugeInterpreter.js"
 import { sizeInterpreter } from "./sizeInterpreter.js"
 import { imageScaler } from "./imageScaler.js"
-import { medianCut } from "./medianCut.js"
-import { refinePalette } from "./refinePalette.js"
+import { basicColours, pickColours } from "./pickColours.js"
 import { pairYarns } from "./pairYarns.js"
 import { buildPattern } from "./patternEdits.js"
 
-export function createPattern({ swatch, pixels, yarnCount, yarns = [], desiredWidth }) {
+export function createPattern({ swatch, pixels, yarnCount, yarns = [], desiredWidth, fineTune = false }) {
   const gauge = gaugeInterpreter(swatch)
 
   const size = sizeInterpreter({
@@ -16,8 +15,8 @@ export function createPattern({ swatch, pixels, yarnCount, yarns = [], desiredWi
   })
 
   // Colours come from the full image: averaging into stitches blends thin lines away
-  const sources = refinePalette(pixels, medianCut(pixels, yarnCount))
   const scaled = imageScaler(pixels, size)
+  const sources = fineTune ? pickColours(pixels, scaled, yarnCount) : basicColours(pixels, yarnCount)
   const palette = pairYarns(sources, yarns)
 
   return { ...buildPattern(scaled, palette), size }
