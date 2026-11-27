@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "coverage": "npm test -- --coverage"
+    "coverage": "npm test -- --coverage",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "type": "module",
   "keywords": [],
@@ -16,6 +19,11 @@
     "transform": {}
   },
   "devDependencies": {
-    "jest": "^30.2.0"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.9",
+    "globals": "^17.14.0",
+    "jest": "^30.2.0",
+    "prettier": "^3.10.1"
   }
 }

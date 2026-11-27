@@ -142,3 +142,4 @@ vite.config.ts.timestamp-*
 data/
 # Local test images (third-party logos, not for a public repo)
 samples/
+.scratch/
