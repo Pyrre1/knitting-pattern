@@ -15,13 +15,17 @@ export function initAbout() {
   dialog.addEventListener("close", () => {
     try {
       localStorage.setItem(SEEN_KEY, "1")
-    } catch {}
+    } catch {
+      // storage blocked (e.g. private mode): the notice shows again next visit
+    }
   })
 
   let seen = false
   try {
     seen = localStorage.getItem(SEEN_KEY) === "1"
-  } catch {}
+  } catch {
+    // storage blocked (e.g. private mode): show the notice
+  }
   if (!seen) dialog.showModal()
 }
 

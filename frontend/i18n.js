@@ -414,7 +414,9 @@ function initialLanguage() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (STRINGS[saved]) return saved
-  } catch {}
+  } catch {
+    // storage blocked (e.g. private mode): use the browser language
+  }
   const preferred = (navigator.languages ?? [navigator.language])
     .map((tag) => tag.slice(0, 2).toLowerCase())
     .find((code) => STRINGS[code])
@@ -429,7 +431,9 @@ export function setLanguage(code) {
   language = code
   try {
     localStorage.setItem(STORAGE_KEY, code)
-  } catch {}
+  } catch {
+    // storage blocked (e.g. private mode): the choice lasts this visit only
+  }
   translatePage()
   // For text built in code (e.g. the changes list)
   document.dispatchEvent(new Event("languageswitch"))

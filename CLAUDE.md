@@ -22,7 +22,9 @@ Status: prototype ported from old repo. Goal: finish features + polish UI.
 - Single test by name: `npm test -- -t "averaging RGB"`
 - Coverage: `npm run coverage`
 - Dev (frontend): serve the repo root with `npx serve .` and open `/frontend/`. Frontend imports `../core/*.js` as ES modules, so `file://` and `npx serve frontend` do not work.
-- No build step, no linter configured yet
+- Lint: `npm run lint` (ESLint, recommended rules)
+- Format: `npm run format` (Prettier; `npm run format:check` to check only). `*.md` is not formatted.
+- No build step
 
 ## Architecture
 Current state: `core/` holds all logic; `frontend/` is a vanilla MVP (upload or typed text → inputs → canvas grid + yarn list) that imports core directly. Frontend has no tests; keep logic out of it.
