@@ -7,7 +7,8 @@ Similar past work: see the index at the top of DONE.md; grep -n "### Phase X" DO
 ## Roadmap (test deploy)
 One phase per chat. Start a chat with "Do Phase X"; decisions in each phase are settled.
 
-**Ask when F2 is done, before starting G:** which small fix first? Suggestion: PNG/PDF file names (Phase I).
+**Ask when F2 is done, before starting G:** which small fix first? Suggestion: PNG/PDF file names (Phase I)
+or default top down (Backlog, first item).
 
 ### Phase G — live view
 - [ ] Entry points: (a) "Live view" button in the Output box (beside Print / Save PDF) for the
@@ -55,6 +56,9 @@ One phase per chat. Start a chat with "Do Phase X"; decisions in each phase are 
 
 Deferred until after the local visual MVP.
 
+- [ ] Small fix (reported 2026-11-27): default "Start from" should be top down, not bottom up (`#knit-start` in
+      `frontend/index.html`: first option is `bottom`; "Knit" stays back and forth). Check that a restored form
+      still keeps the user's choice. Changes entry (en + sv).
 - [ ] Bug (reported 2026-11-22): stitch view made the page very slow on a phone (Galaxy S23 Ultra), barely
       scrollable; simple logo, 60 cm wide. Not reproduced yet. Suspects: canvas too large for the phone
       (cell size × stitches), stitch drawing cost per redraw, a redraw loop, or touch/scroll on the canvas

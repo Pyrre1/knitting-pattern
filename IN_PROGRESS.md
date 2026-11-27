@@ -27,7 +27,7 @@ Part 1 (tuning, fine-tune, vote, yarn advice redesign) done → DONE.md "Phase F
          Precise and a bit heavy beats light and unadjustable. Minimal fallback if too heavy: "select a yarn"
          (all its stitches) + eraser.
          Steps (one chat each, `/clear` between):
-         1. core: colours picked per area from a mask (pixels + mask + yarns per area → pattern) + tests;
+         1. ✔ (2026-11-27, `core/areaColours.js`) core: colours picked per area from a mask (pixels + mask + yarns per area → pattern) + tests;
             near-duplicate merge across areas (risk below).
          2. core: quick select (8-connected flood fill on the grid) + mask ↔ stitch mapping + tests;
             frontend: "Mark motif" mode, quick select, dimmed view.
