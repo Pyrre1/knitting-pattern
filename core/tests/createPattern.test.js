@@ -139,4 +139,23 @@ describe('Create Pattern', () => {
       [ BLACK, WHITE ]
     ])
   })
+
+  test('with a motif mask, picks colours per area, background first', () => {
+    // Left half (black) is the motif
+    const mask = pixels.map(row => row.map((_, x) => x < 2))
+
+    const pattern = createPattern({
+      swatch: squareSwatch,
+      pixels,
+      yarnCount: 2,
+      desiredWidth: { unit: 'stitches', value: 2 },
+      motif: { mask, yarns: 1 }
+    })
+
+    expect(pattern.palette.map(entry => entry.source)).toEqual([WHITE, BLACK])
+    expect(pattern.grid).toEqual([
+      [ 1, 0 ],
+      [ 1, 0 ]
+    ])
+  })
 })
