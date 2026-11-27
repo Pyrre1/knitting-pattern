@@ -37,12 +37,17 @@ Empty = no phase active: pick one from TODO.md. -->
       Done 2026-11-24: OVERPICK 2 measured (1.5 and 3 miss the target). Screenshot at 4 yarns = black, red, green, white;
       photo unchanged. Photo 100 stitches, Node: 4 yarns 165 → 246 ms, 20 yarns 190 → 420 ms. UI not yet checked by hand.
       Risks: slower generate (two colour reductions); fallback c. keeps photos as today. Unknown: right OVERPICK.
-- [ ] Next: green stitches in black text (`logo-with-text.png`, 4 yarns, fine-tuned). Cause: a stitch is the average of its
+- [x] Green stitches in black text (`logo-with-text.png`, 4 yarns, fine-tuned). Cause: a stitch is the average of its
       pixels, black + white = grey, and the nearest of the 4 colours to that grey is green.
       Idea, measured 2026-11-25: majority vote (map every pixel to its colour first, each stitch takes the most
       common): no green left in the text, letters readable, slightly thinner strokes. Part of Fine-tune, no extra tick box.
       To solve: `removeColours` / `addColour` remap from the averaged `pixels`, so leaving out a yarn would bring
       green back (needs votes there too). Measure all samples first: thin lines may lose the vote.
+      Done 2026-11-27: `voteGrid.js`; pattern keeps `image` (fine-tune only), so `removeColours` / `addColour` vote too.
+      Measured: thin lines keep their share (red 10.1 → 10.1 %, black text 2.8 → 4.1 %), blends drop to 0 %
+      (8 yarns on `logo-with-text.png` → advice suggests exactly the 4 real colours), photo < 0.3 % change, vote 2–9 ms.
+      UI checked 2026-11-27: no green in text, Fine-tune off unchanged, 8 yarns → Auto improve → 4. Untick check n/a:
+      fine-tuned at 4 yarns nothing is flagged, so the yarn list only shows with Fine-tune off (averaging, green expected).
 - [ ] Advanced toolbox (redesigned 2026-11-24: "Advanced settings" button opens a framed box; tip box replaced
       by Auto improve + Undo; toolbox built, more tools to add): one Advanced box holding all clean-up tools:
       fine-tune colours (built), flagged yarns list (built, both in `#advanced`), remove islands, island size, "stitches needed

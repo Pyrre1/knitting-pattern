@@ -1,17 +1,21 @@
 import { mapToPalette } from "./mapToPalette.js"
+import { voteGrid } from "./voteGrid.js"
 
-// Stitches always map by source colour; yarn is only what gets knitted/displayed
-export function buildPattern(pixels, palette) {
-  return {
-    pixels,
-    palette,
-    grid: mapToPalette(pixels, palette.map(entry => entry.source))
-  }
+// Stitches always map by source colour; yarn is only what gets knitted/displayed.
+// With `image` (the full-size pixels, kept by reference) each stitch is a majority vote of its
+// image pixels (voteGrid), also on every later remap; without it, the nearest colour to `pixels`.
+export function buildPattern(pixels, palette, image) {
+  const sources = palette.map(entry => entry.source)
+  const averaged = mapToPalette(pixels, sources)
+  if (!image) return { pixels, palette, grid: averaged }
+
+  const size = { stitches: pixels[0].length, rows: pixels.length }
+  return { pixels, palette, image, grid: voteGrid(image, size, sources, averaged) }
 }
 
 // Remaps the stitches, keeps other fields (e.g. size)
 function withPalette(pattern, palette) {
-  return { ...pattern, ...buildPattern(pattern.pixels, palette) }
+  return { ...pattern, ...buildPattern(pattern.pixels, palette, pattern.image) }
 }
 
 export function setYarn(pattern, index, yarn) {

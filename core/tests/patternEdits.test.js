@@ -17,6 +17,13 @@ const threeColours = () => buildPattern(pixels, [
   { source: WHITE, yarn: WHITE }
 ])
 
+// Full image for votes: one row, two stitches of 3 pixels (mostly black, mostly white).
+// Averaged, both stitches are grey and nearest to GREEN.
+const GREEN = [100, 160, 100]
+const image = [[ BLACK, WHITE, BLACK, WHITE, WHITE, BLACK ]]
+const scaledImage = [[ [85, 85, 85], [170, 170, 170] ]]
+const voted = () => buildPattern(scaledImage, [BLACK, WHITE, GREEN, BLUE].map(c => ({ source: c, yarn: c })), image)
+
 describe('Pattern Edits', () => {
   describe('buildPattern', () => {
     test('maps pixels to palette indexes by source colour', () => {
@@ -144,6 +151,20 @@ describe('Pattern Edits', () => {
     test('throws when the stitch is outside the grid', () => {
       expect(() => paintCell(threeColours(), 2, 0, 0)).toThrow('no stitch at 2, 0')
       expect(() => paintCell(threeColours(), 0, -1, 0)).toThrow('no stitch at 0, -1')
+    })
+  })
+
+  describe('with the full image', () => {
+    test('buildPattern votes per stitch and keeps the image', () => {
+      expect(buildPattern(scaledImage, voted().palette).grid).toEqual([[ 2, 2 ]])
+      expect(voted().grid).toEqual([[ 0, 1 ]])
+      expect(voted().image).toBe(image)
+    })
+
+    test('removing a colour remaps by vote too', () => {
+      const result = removeColours(voted(), [3])
+      expect(result.grid).toEqual([[ 0, 1 ]])
+      expect(result.image).toBe(image)
     })
   })
 

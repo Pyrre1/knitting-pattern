@@ -19,5 +19,7 @@ export function createPattern({ swatch, pixels, yarnCount, yarns = [], desiredWi
   const sources = fineTune ? pickColours(pixels, scaled, yarnCount) : basicColours(pixels, yarnCount)
   const palette = pairYarns(sources, yarns)
 
-  return { ...buildPattern(scaled, palette), size }
+  // Fine-tune also votes per stitch, so black text on white does not average into a grey stitch
+  // that is nearest to another colour
+  return { ...buildPattern(scaled, palette, fineTune ? pixels : undefined), size }
 }

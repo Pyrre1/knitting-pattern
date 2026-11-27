@@ -106,6 +106,26 @@ describe('Create Pattern', () => {
     expect(sources(createPattern({ ...input, fineTune: true }))).toContainEqual(BLACK)
   })
 
+  test('fine-tune votes per stitch, so thin black text gets no stitch of a third colour', () => {
+    // Green band on top; below, a black/white checkerboard: each 3×3 stitch averages to a grey
+    // that is nearest to green
+    const GREEN = [100, 160, 100]
+    const image = Array.from({ length: 12 }, (_, y) => Array.from({ length: 12 }, (_, x) =>
+      y < 3 ? GREEN : ((x + y) % 2 === 0 ? BLACK : WHITE)))
+    const input = { swatch: squareSwatch, pixels: image, yarnCount: 3, desiredWidth: { unit: 'stitches', value: 4 } }
+    const greenStitches = pattern => {
+      const green = pattern.palette.findIndex(entry => entry.source.join() === GREEN.join())
+      return pattern.grid.slice(1).flat().filter(index => index === green).length
+    }
+
+    const fineTuned = createPattern({ ...input, fineTune: true })
+    expect(fineTuned.image).toBe(image)
+    expect(greenStitches(fineTuned)).toBe(0)
+    const averaged = createPattern(input)
+    expect(averaged.image).toBeUndefined()
+    expect(greenStitches(averaged)).toBeGreaterThan(0)
+  })
+
   test('keeps the scaled pixels for later edits', () => {
     const pattern = createPattern({
       swatch: squareSwatch,

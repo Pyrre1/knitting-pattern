@@ -8,6 +8,15 @@ const PUBLISHED = ['2026-11-25', '2026-11-22', '2026-11-12', '2026-11-09']
 // Hand-written changelog, newest first. Each entry needs en and sv; kinds: add, fix, remove.
 const CHANGES = [
   {
+    date: '2026-11-27',
+    en: {
+      fix: ['Fine-tune colours: thin text no longer gets stray stitches in another colour, also after leaving out a yarn.']
+    },
+    sv: {
+      fix: ['Finjustera färger: tunn text får inte längre lösa maskor i en annan färg, inte heller när ett garn tas bort.']
+    }
+  },
+  {
     date: '2026-11-25',
     en: {
       add: [
