@@ -1,4 +1,4 @@
-export function gaugeInterpreter({ unit, width, height, stitches, rows} ) {
+export function gaugeInterpreter({ unit, width, height, stitches, rows }) {
   const CM_PER_INCH = 2.54
 
   if (unit !== "cm" && unit !== "inch") {
@@ -14,20 +14,20 @@ export function gaugeInterpreter({ unit, width, height, stitches, rows} ) {
   let stitchesPerCm, rowsPerCm, stitchesPerInch, rowsPerInch
 
   if (unit === "cm") {
-    stitchesPerCm = stitches / width,
-      rowsPerCm = rows / height,
-      stitchesPerInch =stitchesPerCm * CM_PER_INCH,
-      rowsPerInch =rowsPerCm * CM_PER_INCH
+    ;((stitchesPerCm = stitches / width),
+      (rowsPerCm = rows / height),
+      (stitchesPerInch = stitchesPerCm * CM_PER_INCH),
+      (rowsPerInch = rowsPerCm * CM_PER_INCH))
   } else {
-      stitchesPerInch =stitches / width,
-      rowsPerInch =rows / height,
-      stitchesPerCm =stitchesPerInch / CM_PER_INCH,
-      rowsPerCm =rowsPerInch / CM_PER_INCH
+    ;((stitchesPerInch = stitches / width),
+      (rowsPerInch = rows / height),
+      (stitchesPerCm = stitchesPerInch / CM_PER_INCH),
+      (rowsPerCm = rowsPerInch / CM_PER_INCH))
   }
   return {
-      stitchesPerCm,
-      rowsPerCm,
-      stitchesPerInch,
-      rowsPerInch
+    stitchesPerCm,
+    rowsPerCm,
+    stitchesPerInch,
+    rowsPerInch,
   }
 }

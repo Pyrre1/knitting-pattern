@@ -22,11 +22,14 @@ export function pickColours(pixels, scaled, yarnCount) {
   if (surplus <= 0) return basicColours(pixels, yarnCount)
 
   const { order } = yarnAdvice({
-    palette: trial.map(source => ({ source })),
-    grid: mapToPalette(scaled, trial)
+    palette: trial.map((source) => ({ source })),
+    grid: mapToPalette(scaled, trial),
   })
   if (order.length < surplus) return basicColours(pixels, yarnCount)
 
   const dropped = new Set(order.slice(0, surplus))
-  return refinePalette(pixels, trial.filter((_, i) => !dropped.has(i)))
+  return refinePalette(
+    pixels,
+    trial.filter((_, i) => !dropped.has(i)),
+  )
 }

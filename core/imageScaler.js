@@ -22,7 +22,9 @@ export function imageScaler(imageData, { stitches, rows }) {
     for (let stitch = 0; stitch < stitches; stitch++) {
       const xEnd = xStart + cellWidths[stitch]
 
-      let sumR = 0, sumG = 0, sumB = 0
+      let sumR = 0,
+        sumG = 0,
+        sumB = 0
       let count = 0
 
       for (let y = yStart; y < yEnd; y++) {
@@ -37,11 +39,7 @@ export function imageScaler(imageData, { stitches, rows }) {
         }
       }
 
-      scaledRow.push([
-        sumR / count,
-        sumG / count,
-        sumB / count
-      ])
+      scaledRow.push([sumR / count, sumG / count, sumB / count])
 
       xStart = xEnd
     }

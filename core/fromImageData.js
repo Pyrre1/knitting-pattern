@@ -13,7 +13,7 @@ export function fromImageData({ data, width, height }) {
       row.push([
         Math.round(data[i] * alpha + 255 * (1 - alpha)),
         Math.round(data[i + 1] * alpha + 255 * (1 - alpha)),
-        Math.round(data[i + 2] * alpha + 255 * (1 - alpha))
+        Math.round(data[i + 2] * alpha + 255 * (1 - alpha)),
       ])
     }
 

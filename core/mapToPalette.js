@@ -2,10 +2,10 @@ import { colourDistance } from "./colourDistance.js"
 
 export function mapToPalette(grid, palette) {
   if (palette.length === 0) {
-    throw new Error('palette must contain at least one colour')
+    throw new Error("palette must contain at least one colour")
   }
 
-  return grid.map(row => row.map(px => nearestIndex(px, palette)))
+  return grid.map((row) => row.map((px) => nearestIndex(px, palette)))
 }
 
 export function nearestIndex(px, palette) {

@@ -4,28 +4,28 @@ const FIRST_MAX = 4
 const MORE_MAX = 8
 const MAX_YARNS = 20
 
-const byId = id => document.getElementById(id)
+const byId = (id) => document.getElementById(id)
 
 export function initYarnCount({ ask }) {
-  const first = byId('yarn-count')
-  const more = byId('yarn-count-more')
+  const first = byId("yarn-count")
+  const more = byId("yarn-count-more")
   let warned = false
   let unlocked = false
   let previous = { first: first.value, more: more.value }
 
   function read() {
-    return Number(first.value === 'more' ? more.value : first.value)
+    return Number(first.value === "more" ? more.value : first.value)
   }
 
   // Shows the second select when "More…" is chosen and remembers the values for a cancel
   function sync() {
-    more.hidden = first.value !== 'more'
+    more.hidden = first.value !== "more"
     previous = { first: first.value, more: more.value }
   }
 
   function set(count) {
     if (count > MORE_MAX) unlock()
-    first.value = count > FIRST_MAX ? 'more' : String(count)
+    first.value = count > FIRST_MAX ? "more" : String(count)
     if (count > FIRST_MAX) more.value = String(count)
     sync()
   }
@@ -44,13 +44,13 @@ export function initYarnCount({ ask }) {
 
   // Asks before many yarns; false (form put back) when cancelled
   async function confirm(target) {
-    if (target === first && first.value === 'more' && !warned) {
-      if (!await ask(['yarnMoreWarn'], 'yarnMoreTitle')) return revert()
+    if (target === first && first.value === "more" && !warned) {
+      if (!(await ask(["yarnMoreWarn"], "yarnMoreTitle"))) return revert()
       warned = true
     }
-    if (target === more && more.value === 'max') {
-      if (!await ask(['yarnMaxWarn'], 'yarnMaxTitle')) return revert()
-      if (!await ask(['yarnMaxSure', 'yarnMaxHint'], 'yarnMaxTitle')) return revert()
+    if (target === more && more.value === "max") {
+      if (!(await ask(["yarnMaxWarn"], "yarnMaxTitle"))) return revert()
+      if (!(await ask(["yarnMaxSure", "yarnMaxHint"], "yarnMaxTitle"))) return revert()
       unlock()
       more.value = String(MORE_MAX + 1)
     }
@@ -61,12 +61,12 @@ export function initYarnCount({ ask }) {
   // Same warnings as the selects, for a count set by a button; false when cancelled
   async function allow(count) {
     if (count > FIRST_MAX && !warned) {
-      if (!await ask(['yarnMoreWarn'], 'yarnMoreTitle')) return false
+      if (!(await ask(["yarnMoreWarn"], "yarnMoreTitle"))) return false
       warned = true
     }
     if (count > MORE_MAX && !unlocked) {
-      if (!await ask(['yarnMaxWarn'], 'yarnMaxTitle')) return false
-      if (!await ask(['yarnMaxSure', 'yarnMaxHint'], 'yarnMaxTitle')) return false
+      if (!(await ask(["yarnMaxWarn"], "yarnMaxTitle"))) return false
+      if (!(await ask(["yarnMaxSure", "yarnMaxHint"], "yarnMaxTitle"))) return false
       unlock()
     }
     return true

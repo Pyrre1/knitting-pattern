@@ -21,20 +21,28 @@
   --notice-border: #e8c46a;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 /* Space for the scrollbar on both sides, always: the page stays centred and does not jump
    when a long chart or instructions add the scrollbar */
-html { scrollbar-gutter: stable both-edges; }
+html {
+  scrollbar-gutter: stable both-edges;
+}
 
 /* Flex/grid display rules would otherwise override the hidden attribute */
-[hidden] { display: none !important; }
+[hidden] {
+  display: none !important;
+}
 
 body {
   margin: 0;
   background: var(--page);
   color: var(--fg);
-  font: 16px/1.4 system-ui, sans-serif;
+  font:
+    16px/1.4 system-ui,
+    sans-serif;
 }
 
 main {
@@ -57,7 +65,9 @@ header {
   background: var(--header);
 }
 
-h1 { margin: 0; }
+h1 {
+  margin: 0;
+}
 
 #banner {
   margin: 0 0 12px;
@@ -69,7 +79,9 @@ h1 { margin: 0; }
   text-align: center;
 }
 
-#settings { position: relative; }
+#settings {
+  position: relative;
+}
 
 #inputs {
   display: grid;
@@ -81,14 +93,28 @@ h1 { margin: 0; }
   gap: 12px;
 }
 
-#swatch { grid-area: swatch; }
-#yarns { grid-area: yarns; }
-#image-source { grid-area: image; }
-#text-source { grid-area: text; }
-#text-size { grid-area: text-size; }
-#final-size { grid-area: final-size; }
+#swatch {
+  grid-area: swatch;
+}
+#yarns {
+  grid-area: yarns;
+}
+#image-source {
+  grid-area: image;
+}
+#text-source {
+  grid-area: text;
+}
+#text-size {
+  grid-area: text-size;
+}
+#final-size {
+  grid-area: final-size;
+}
 /* No text size for images: final size takes the first column */
-#text-size[hidden] + #final-size { grid-column: 1; }
+#text-size[hidden] + #final-size {
+  grid-column: 1;
+}
 
 @media (max-width: 600px) {
   #inputs {
@@ -112,7 +138,9 @@ label {
   gap: 8px;
 }
 
-label.inline { justify-content: flex-start; }
+label.inline {
+  justify-content: flex-start;
+}
 
 .row {
   display: flex;
@@ -122,8 +150,13 @@ label.inline { justify-content: flex-start; }
 }
 
 /* Every swatch row leaves room for the link button, so all inputs line up */
-#swatch { --link-gutter: 36px; }
-#swatch > label, #swatch > .row { padding-right: var(--link-gutter); }
+#swatch {
+  --link-gutter: 36px;
+}
+#swatch > label,
+#swatch > .row {
+  padding-right: var(--link-gutter);
+}
 
 /* cm/inch toggle: track with a sliding knob, centred over the inputs below */
 .switch {
@@ -134,8 +167,12 @@ label.inline { justify-content: flex-start; }
   cursor: pointer;
 }
 
-.switch > span:first-child { justify-self: end; }
-.switch > span:last-child { justify-self: start; }
+.switch > span:first-child {
+  justify-self: end;
+}
+.switch > span:last-child {
+  justify-self: start;
+}
 
 .switch input {
   appearance: none;
@@ -161,9 +198,14 @@ label.inline { justify-content: flex-start; }
   transition: transform 0.15s;
 }
 
-.switch input:checked::after { transform: translateX(16px); }
+.switch input:checked::after {
+  transform: translateX(16px);
+}
 
-.switch input:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+.switch input:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+}
 
 /* Width and height with a link button joined to both by a bracket */
 .linked {
@@ -203,17 +245,32 @@ label.inline { justify-content: flex-start; }
   border-left: none;
 }
 
-.link-button svg { margin-left: 6px; }
+.link-button svg {
+  margin-left: 6px;
+}
 
-.link-button .link-break { display: none; }
+.link-button .link-break {
+  display: none;
+}
 
-.link-button[aria-pressed="false"] { color: var(--muted); }
-.link-button[aria-pressed="false"]::before { border-style: dashed; }
-.link-button[aria-pressed="false"] .link-break { display: inline; }
+.link-button[aria-pressed="false"] {
+  color: var(--muted);
+}
+.link-button[aria-pressed="false"]::before {
+  border-style: dashed;
+}
+.link-button[aria-pressed="false"] .link-break {
+  display: inline;
+}
 
-#image-source { align-items: flex-start; }
+#image-source {
+  align-items: flex-start;
+}
 
-#text { width: 100%; resize: vertical; }
+#text {
+  width: 100%;
+  resize: vertical;
+}
 
 /* Native file input text follows the browser language; show our own button */
 .file-button {
@@ -232,17 +289,35 @@ label.inline { justify-content: flex-start; }
   opacity: 0;
 }
 
-.file-button:focus-within { outline: 2px solid var(--fg); }
+.file-button:focus-within {
+  outline: 2px solid var(--fg);
+}
 
 /* File name beside the button; under it in the single-column layout */
-.file-row { display: flex; align-items: center; gap: 8px; min-width: 0; max-width: 100%; }
-#image-name { overflow-wrap: anywhere; }
+.file-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+#image-name {
+  overflow-wrap: anywhere;
+}
 @media (max-width: 600px) {
-  .file-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .file-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
 }
 
 /* Small round "i" next to an option; opens a notice */
-.with-info { display: inline-flex; align-items: center; gap: 4px; }
+.with-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
 .info-button {
   width: 1.4em;
   height: 1.4em;
@@ -257,7 +332,9 @@ label.inline { justify-content: flex-start; }
   cursor: pointer;
 }
 
-#confirm, #notice, #about {
+#confirm,
+#notice,
+#about {
   max-width: min(28em, calc(100vw - 32px));
   padding: 16px 20px;
   border: 1px solid var(--border);
@@ -267,13 +344,26 @@ label.inline { justify-content: flex-start; }
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-#confirm::backdrop, #notice::backdrop, #about::backdrop { background: var(--overlay); }
+#confirm::backdrop,
+#notice::backdrop,
+#about::backdrop {
+  background: var(--overlay);
+}
 
-#confirm h2, #about h2 { margin: 0 0 8px; font-size: 18px; }
+#confirm h2,
+#about h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
 
-#about h2 { text-align: center; }
+#about h2 {
+  text-align: center;
+}
 
-#confirm-reasons p, #notice-text { margin: 4px 0; }
+#confirm-reasons p,
+#notice-text {
+  margin: 4px 0;
+}
 
 .dialog-buttons {
   display: flex;
@@ -298,7 +388,9 @@ label.inline { justify-content: flex-start; }
   color: var(--bg);
 }
 
-input[type="number"] { width: var(--number-width); }
+input[type="number"] {
+  width: var(--number-width);
+}
 
 #yarn-pickers {
   display: flex;
@@ -306,11 +398,18 @@ input[type="number"] { width: var(--number-width); }
   gap: 6px;
 }
 
-#error { color: var(--error); }
+#error {
+  color: var(--error);
+}
 
-#size-info { color: var(--muted); }
+#size-info {
+  color: var(--muted);
+}
 
-.hint { color: var(--muted); font-size: 14px; }
+.hint {
+  color: var(--muted);
+  font-size: 14px;
+}
 
 /* Even columns, so one card with a short stitch count does not shift the rest */
 #palette {
@@ -321,16 +420,37 @@ input[type="number"] { width: var(--number-width); }
   gap: 12px;
 }
 
-#yarn-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
-#advanced-toggle { margin-left: auto; }
+#yarn-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+#advanced-toggle {
+  margin-left: auto;
+}
 
-#advanced { margin: 12px 0; gap: 16px; }
+#advanced {
+  margin: 12px 0;
+  gap: 16px;
+}
 
-#yarn-flags-list { list-style: none; margin: 0; padding: 0; }
+#yarn-flags-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
 
-#yarn-flags-list li { margin: 4px 0; }
+#yarn-flags-list li {
+  margin: 4px 0;
+}
 
-#yarn-flags-list label { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+#yarn-flags-list label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
 
 /* One framed card per yarn: label, yarn colour, image colour, stitch count */
 #palette li {
@@ -342,7 +462,10 @@ input[type="number"] { width: var(--number-width); }
   border-radius: 6px;
 }
 
-#palette button.swatch { padding: 0; cursor: pointer; }
+#palette button.swatch {
+  padding: 0;
+  cursor: pointer;
+}
 
 .colour-button {
   position: relative;
@@ -363,7 +486,10 @@ input[type="number"] { width: var(--number-width); }
   cursor: pointer;
 }
 
-.colour-button:focus-within { outline: 2px solid var(--fg); outline-offset: 2px; }
+.colour-button:focus-within {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+}
 
 .swatch {
   display: inline-block;
@@ -415,7 +541,9 @@ canvas {
   user-select: none;
 }
 
-.print-only { display: none; }
+.print-only {
+  display: none;
+}
 
 #toolbar {
   display: flex;
@@ -435,20 +563,31 @@ canvas {
   border-radius: 6px;
 }
 
-.canvas-wrap { overflow-x: auto; }
+.canvas-wrap {
+  overflow-x: auto;
+}
 
-#output, #png-output {
+#output,
+#png-output {
   width: fit-content;
   max-width: 100%;
   margin-top: 12px;
 }
 
-#png-output .info { flex-basis: 100%; margin: 0; }
+#png-output .info {
+  flex-basis: 100%;
+  margin: 0;
+}
 
-canvas { display: block; }
+canvas {
+  display: block;
+}
 
 /* Left out of print: dimmed on screen to show it */
-.chart-only #instructions-title, .chart-only #instructions { opacity: 0.4; }
+.chart-only #instructions-title,
+.chart-only #instructions {
+  opacity: 0.4;
+}
 
 #instructions {
   list-style: none;
@@ -467,43 +606,90 @@ canvas { display: block; }
   border-bottom: 1px solid var(--border);
 }
 
-#menu a { color: var(--fg); text-decoration: none; padding: 2px 0; }
+#menu a {
+  color: var(--fg);
+  text-decoration: none;
+  padding: 2px 0;
+}
 
-#menu a:hover { text-decoration: underline; }
+#menu a:hover {
+  text-decoration: underline;
+}
 
-#menu a[aria-current="page"] { font-weight: bold; border-bottom: 2px solid var(--info-accent); }
+#menu a[aria-current="page"] {
+  font-weight: bold;
+  border-bottom: 2px solid var(--info-accent);
+}
 
 /* About and Changes: plain reading text */
-.page { max-width: 640px; }
+.page {
+  max-width: 640px;
+}
 
-.page h2 { margin: 0 0 8px; }
+.page h2 {
+  margin: 0 0 8px;
+}
 
-.page h3 { margin: 20px 0 4px; font-size: 17px; }
+.page h3 {
+  margin: 20px 0 4px;
+  font-size: 17px;
+}
 
-.page p { margin: 6px 0; }
+.page p {
+  margin: 6px 0;
+}
 
-.page a { color: inherit; }
+.page a {
+  color: inherit;
+}
 
-#banner a { color: inherit; }
+#banner a {
+  color: inherit;
+}
 
-.change { padding: 10px 0; border-top: 1px solid var(--border); }
+.change {
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
 
 /* Release heading between published batches: a bit heavier than the day lines */
-.release { margin: 0; padding: 8px 0; border-top: 3px solid var(--border); text-align: center; font-size: 16px; }
+.release {
+  margin: 0;
+  padding: 8px 0;
+  border-top: 3px solid var(--border);
+  text-align: center;
+  font-size: 16px;
+}
 
-.release + .change { border-top-width: 3px; }
+.release + .change {
+  border-top-width: 3px;
+}
 
-.change h4 { margin: 0 0 4px; font-size: 15px; }
+.change h4 {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
 
-.change ul { margin: 0; padding-left: 20px; }
+.change ul {
+  margin: 0;
+  padding-left: 20px;
+}
 
-.change-kind { font-weight: bold; }
+.change-kind {
+  font-weight: bold;
+}
 
-#about p { margin: 8px 0; }
+#about p {
+  margin: 8px 0;
+}
 
-#about a { color: inherit; }
+#about a {
+  color: inherit;
+}
 
-#about .contact { text-align: center; }
+#about .contact {
+  text-align: center;
+}
 
 /* Separates the feedback part from the development note */
 #about p[data-i18n="aboutDev"] {
@@ -513,56 +699,162 @@ canvas { display: block; }
 }
 
 @media print {
-  body, main { background: #fff; box-shadow: none; }
+  body,
+  main {
+    background: #fff;
+    box-shadow: none;
+  }
   /* 100vh plus trailing margins spill onto a blank extra page */
-  main { min-height: 0; padding-bottom: 0; }
-  #instructions { margin-bottom: 0; }
-  header, #settings, #error, #palette input { display: none; }
+  main {
+    min-height: 0;
+    padding-bottom: 0;
+  }
+  #instructions {
+    margin-bottom: 0;
+  }
+  header,
+  #settings,
+  #error,
+  #palette input {
+    display: none;
+  }
   /* !important: ID rules like #toolbar { display: flex } would win over the class */
-  .no-print { display: none !important; }
-  .print-only { display: inline-block; }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: inline-block;
+  }
   /* Compact two-column info so the chart keeps most of page 1 */
-  #print-info { display: block; margin-bottom: 8px; font-size: 10pt; }
+  #print-info {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 10pt;
+  }
   #print-info-list {
     display: grid;
     grid-template-columns: max-content 1fr;
     gap: 1px 12px;
     margin: 0;
   }
-  #print-info-list dt { font-weight: bold; }
-  #print-info-list dd { margin: 0; }
-  #print-footer { display: block; margin: 12px 0 0; font-size: 9pt; color: #666; }
+  #print-info-list dt {
+    font-weight: bold;
+  }
+  #print-info-list dd {
+    margin: 0;
+  }
+  #print-footer {
+    display: block;
+    margin: 12px 0 0;
+    font-size: 9pt;
+    color: #666;
+  }
   /* Print: cards side by side as wide as needed, tight rows so the chart stays on page 1 */
-  #palette { display: flex; flex-wrap: wrap; gap: 2px 12px; margin: 4px 0; }
-  #palette li { break-inside: avoid; padding: 1px 8px; }
-  .canvas-wrap { overflow: visible; }
+  #palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 12px;
+    margin: 4px 0;
+  }
+  #palette li {
+    break-inside: avoid;
+    padding: 1px 8px;
+  }
+  .canvas-wrap {
+    overflow: visible;
+  }
   /* A canvas cannot split across pages: fit tall charts (e.g. rotated text) under the yarn list.
      print.js redraws it larger than the page, so this shrinks it to whichever of width or height is tighter. */
-  canvas { width: auto; height: auto; max-width: 100%; max-height: 70vh; }
-  #instructions li { break-inside: avoid; }
-  .chart-only #instructions-title, .chart-only #instructions { display: none; }
+  canvas {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 70vh;
+  }
+  #instructions li {
+    break-inside: avoid;
+  }
+  .chart-only #instructions-title,
+  .chart-only #instructions {
+    display: none;
+  }
   /* Print in scale: real-size page tiles replace the fitted chart */
-  main { max-width: none; padding-left: 0; padding-right: 0; }
-  .tiled .canvas-wrap { display: none; }
-  .tiled #print-tiles { display: block; }
-  #print-tiles canvas { max-width: none; max-height: none; }
+  main {
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .tiled .canvas-wrap {
+    display: none;
+  }
+  .tiled #print-tiles {
+    display: block;
+  }
+  #print-tiles canvas {
+    max-width: none;
+    max-height: none;
+  }
   /* Each tile page is sized and aligned by print.js (flex, against the joining edges) */
-  .print-tile { display: flex; flex-direction: column; margin: 0; break-inside: avoid; }
-  #print-tiles > * + * { break-before: page; }
+  .print-tile {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    break-inside: avoid;
+  }
+  #print-tiles > * + * {
+    break-before: page;
+  }
   /* Page 1: info, yarns and tile map in a column, A1 beside it at full page height */
-  .first-page { display: flex; align-items: flex-start; break-inside: avoid; }
-  .print-sidebar { flex: 1; min-width: 0; padding-right: 4mm; }
-  .side-layout hr.divider { display: none; }
-  .print-sidebar #palette { flex-direction: column; gap: 4px; margin: 0 0 8px; }
-  .print-sidebar #palette li { padding: 2px 8px; }
-  .print-tile figcaption { font-size: 10pt; font-weight: bold; }
-  .tile-overview { margin: 0 0 8px; font-size: 10pt; }
-  .tile-overview p { margin: 0 0 4px; }
-  .tile-overview table { border-collapse: collapse; }
+  .first-page {
+    display: flex;
+    align-items: flex-start;
+    break-inside: avoid;
+  }
+  .print-sidebar {
+    flex: 1;
+    min-width: 0;
+    padding-right: 4mm;
+  }
+  .side-layout hr.divider {
+    display: none;
+  }
+  .print-sidebar #palette {
+    flex-direction: column;
+    gap: 4px;
+    margin: 0 0 8px;
+  }
+  .print-sidebar #palette li {
+    padding: 2px 8px;
+  }
+  .print-tile figcaption {
+    font-size: 10pt;
+    font-weight: bold;
+  }
+  .tile-overview {
+    margin: 0 0 8px;
+    font-size: 10pt;
+  }
+  .tile-overview p {
+    margin: 0 0 4px;
+  }
+  .tile-overview table {
+    border-collapse: collapse;
+  }
   /* Cell sides about 1.4 : 1, like A4 and Letter */
-  .tile-overview td { width: 2.8em; height: 2em; padding: 0; border: 1px solid #999; text-align: center; }
-  .tile-overview.portrait td { width: 2em; height: 2.8em; }
+  .tile-overview td {
+    width: 2.8em;
+    height: 2em;
+    padding: 0;
+    border: 1px solid #999;
+    text-align: center;
+  }
+  .tile-overview.portrait td {
+    width: 2em;
+    height: 2.8em;
+  }
 }
 
 /* Tiles are planned for this margin (print.js PAGE_MARGIN_MM) */
-@page { margin: 10mm; }
+@page {
+  margin: 10mm;
+}

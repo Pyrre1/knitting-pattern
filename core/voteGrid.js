@@ -15,7 +15,14 @@ export function voteGrid(image, { stitches, rows }, colours, averagedGrid) {
     const gridRow = []
     let xStart = 0
     for (let stitch = 0; stitch < stitches; stitch++) {
-      const votes = countVotes(image, colours, xStart, xStart + cellWidths[stitch], yStart, yStart + cellHeights[row])
+      const votes = countVotes(
+        image,
+        colours,
+        xStart,
+        xStart + cellWidths[stitch],
+        yStart,
+        yStart + cellHeights[row],
+      )
       gridRow.push(winner(votes, averagedGrid[row][stitch]))
       xStart += cellWidths[stitch]
     }
@@ -35,6 +42,8 @@ function countVotes(image, colours, xStart, xEnd, yStart, yEnd) {
 
 function winner(votes, tieBreak) {
   let best = tieBreak
-  votes.forEach((count, index) => { if (count > votes[best]) best = index })
+  votes.forEach((count, index) => {
+    if (count > votes[best]) best = index
+  })
   return best
 }

@@ -1,11 +1,19 @@
-import { computeCellSizes } from './accumulator.js'
+import { computeCellSizes } from "./accumulator.js"
 
 // Splits a chart into page tiles for printing in scale. Units are free, but
 // cellWidth/cellHeight and areaWidth/areaHeight must share them.
 // Tiles are as even as possible and never cut a cell. Tile rows are named
 // A, B … from the top, columns 1, 2 … from the left: A1, A2, B1 …
 // firstAreaWidth (default areaWidth) narrows the first column, leaving room beside A1 on page 1.
-export function planTiles({ stitches, rows, cellWidth, cellHeight, areaWidth, areaHeight, firstAreaWidth = areaWidth }) {
+export function planTiles({
+  stitches,
+  rows,
+  cellWidth,
+  cellHeight,
+  areaWidth,
+  areaHeight,
+  firstAreaWidth = areaWidth,
+}) {
   const perTileStitches = Math.max(1, Math.floor(areaWidth / cellWidth))
   const perTileRows = Math.max(1, Math.floor(areaHeight / cellHeight))
   const widths = columnWidths(stitches, perTileStitches, Math.max(1, Math.floor(firstAreaWidth / cellWidth)))
@@ -35,9 +43,9 @@ function columnWidths(stitches, max, firstMax) {
 
 // A … Z, then AA, AB …
 function tileName(down, across) {
-  let letters = ''
+  let letters = ""
   for (let n = down + 1; n > 0; n = Math.floor((n - 1) / 26)) {
-    letters = String.fromCharCode(65 + (n - 1) % 26) + letters
+    letters = String.fromCharCode(65 + ((n - 1) % 26)) + letters
   }
   return `${letters}${across + 1}`
 }

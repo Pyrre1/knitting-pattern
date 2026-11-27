@@ -15,8 +15,8 @@ export function trialColours(pixels) {
 // answer (e.g. photos: every trial colour is distinct, so more would be too)
 export function bestYarnCount(trial, scaled) {
   const { suggested, extra } = yarnAdvice({
-    palette: trial.map(source => ({ source })),
-    grid: mapToPalette(scaled, trial)
+    palette: trial.map((source) => ({ source })),
+    grid: mapToPalette(scaled, trial),
   })
   return trial.length === TRIAL_COLOURS && extra.length === 0 ? null : suggested
 }

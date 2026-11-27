@@ -1,6 +1,6 @@
 export function computeCellSizes(totalPixels, cellCount) {
   if (cellCount <= 0) {
-    throw new Error('cellCount must be greater than 0')
+    throw new Error("cellCount must be greater than 0")
   }
 
   const base = Math.floor(totalPixels / cellCount)
@@ -10,7 +10,7 @@ export function computeCellSizes(totalPixels, cellCount) {
 
   // Distribute the remainder evenly across the cells
   for (let i = 0; i < remainder; i++) {
-    const index = Math.floor(i * cellCount / remainder)
+    const index = Math.floor((i * cellCount) / remainder)
     result[index] += 1
   }
 

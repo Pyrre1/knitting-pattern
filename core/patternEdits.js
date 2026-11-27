@@ -5,7 +5,7 @@ import { voteGrid } from "./voteGrid.js"
 // With `image` (the full-size pixels, kept by reference) each stitch is a majority vote of its
 // image pixels (voteGrid), also on every later remap; without it, the nearest colour to `pixels`.
 export function buildPattern(pixels, palette, image) {
-  const sources = palette.map(entry => entry.source)
+  const sources = palette.map((entry) => entry.source)
   const averaged = mapToPalette(pixels, sources)
   if (!image) return { pixels, palette, grid: averaged }
 
@@ -21,9 +21,7 @@ function withPalette(pattern, palette) {
 export function setYarn(pattern, index, yarn) {
   assertIndex(pattern, index)
 
-  const palette = pattern.palette.map((entry, i) =>
-    i === index ? { ...entry, yarn } : entry
-  )
+  const palette = pattern.palette.map((entry, i) => (i === index ? { ...entry, yarn } : entry))
 
   return { ...pattern, palette }
 }
@@ -31,17 +29,20 @@ export function setYarn(pattern, index, yarn) {
 export function removeColour(pattern, index) {
   assertIndex(pattern, index)
   if (pattern.palette.length === 1) {
-    throw new Error('cannot remove the last colour')
+    throw new Error("cannot remove the last colour")
   }
 
-  return withPalette(pattern, pattern.palette.filter((_, i) => i !== index))
+  return withPalette(
+    pattern,
+    pattern.palette.filter((_, i) => i !== index),
+  )
 }
 
 // Removes several colours at once (palette indexes); stitches go to the nearest colour left
 export function removeColours(pattern, indexes) {
-  indexes.forEach(index => assertIndex(pattern, index))
+  indexes.forEach((index) => assertIndex(pattern, index))
   const palette = pattern.palette.filter((_, i) => !indexes.includes(i))
-  if (palette.length === 0) throw new Error('cannot remove the last colour')
+  if (palette.length === 0) throw new Error("cannot remove the last colour")
   return indexes.length === 0 ? pattern : withPalette(pattern, palette)
 }
 
@@ -52,14 +53,20 @@ export function addColour(pattern, source, yarn = source) {
 // Manual override of one stitch; copies only the changed row
 export function paintCell(pattern, x, y, index) {
   assertIndex(pattern, index)
-  if (!Number.isInteger(y) || y < 0 || y >= pattern.grid.length ||
-      !Number.isInteger(x) || x < 0 || x >= pattern.grid[y].length) {
+  if (
+    !Number.isInteger(y) ||
+    y < 0 ||
+    y >= pattern.grid.length ||
+    !Number.isInteger(x) ||
+    x < 0 ||
+    x >= pattern.grid[y].length
+  ) {
     throw new Error(`no stitch at ${x}, ${y}`)
   }
   if (pattern.grid[y][x] === index) return pattern
 
   const grid = pattern.grid.map((row, rowIndex) =>
-    rowIndex === y ? row.map((cell, cellIndex) => cellIndex === x ? index : cell) : row
+    rowIndex === y ? row.map((cell, cellIndex) => (cellIndex === x ? index : cell)) : row,
   )
 
   return { ...pattern, grid }

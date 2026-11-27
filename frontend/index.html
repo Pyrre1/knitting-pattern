@@ -1,359 +1,468 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <meta
+      name="description"
+      content="Turn an image, logo or text into a colourwork knitting chart with row-by-row instructions, sized to your gauge."
+    />
+    <title data-i18n="title">Knitting Pattern</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="robots" content="noindex">
-  <meta name="description" content="Turn an image, logo or text into a colourwork knitting chart with row-by-row instructions, sized to your gauge.">
-  <title data-i18n="title">Knitting Pattern</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="style.css">
-</head>
+  <body>
+    <main>
+      <header>
+        <h1 data-i18n="title">Knitting Pattern</h1>
+        <label class="no-print"
+          ><span data-i18n="language">Language</span>
+          <select id="language">
+            <option value="sv">Svenska</option>
+            <option value="en">English</option>
+          </select>
+        </label>
+      </header>
 
-<body>
-  <main>
-    <header>
-      <h1 data-i18n="title">Knitting Pattern</h1>
-      <label class="no-print"><span data-i18n="language">Language</span>
-        <select id="language">
-          <option value="sv">Svenska</option>
-          <option value="en">English</option>
-        </select>
-      </label>
-    </header>
+      <nav id="menu" class="no-print" data-i18n-aria-label="menuLabel" aria-label="Menu">
+        <a href="#pattern" data-view="pattern" data-i18n="menuPattern">Pattern</a>
+        <a href="#about" data-view="about" data-i18n="menuAbout">About</a>
+        <a href="#changes" data-view="changes" data-i18n="menuChanges">Changes</a>
+        <!-- Live view: shown once Phase G is built (add 'live' to VIEWS in menu.js) -->
+        <a href="#live" data-view="live" data-i18n="menuLiveView" hidden>Live view</a>
+      </nav>
 
-    <nav id="menu" class="no-print" data-i18n-aria-label="menuLabel" aria-label="Menu">
-      <a href="#pattern" data-view="pattern" data-i18n="menuPattern">Pattern</a>
-      <a href="#about" data-view="about" data-i18n="menuAbout">About</a>
-      <a href="#changes" data-view="changes" data-i18n="menuChanges">Changes</a>
-      <!-- Live view: shown once Phase G is built (add 'live' to VIEWS in menu.js) -->
-      <a href="#live" data-view="live" data-i18n="menuLiveView" hidden>Live view</a>
-    </nav>
+      <p id="banner" class="no-print">
+        <span data-i18n="bannerText">This is a prototype.</span>
+        <span id="banner-mail"
+          ><span data-i18n="bannerMail">Please email feedback or suggestions to</span>
+          <a id="banner-email" class="feedback-email"></a>.</span
+        >
+        <span id="banner-update"
+          ><span data-i18n="bannerUpdate">Last update:</span>
+          <a href="#changes"><time id="banner-date"></time></a
+        ></span>
+      </p>
 
-    <p id="banner" class="no-print">
-      <span data-i18n="bannerText">This is a prototype.</span>
-      <span id="banner-mail"><span data-i18n="bannerMail">Please email feedback or suggestions to</span> <a
-          id="banner-email" class="feedback-email"></a>.</span>
-      <span id="banner-update"><span data-i18n="bannerUpdate">Last update:</span> <a href="#changes"><time id="banner-date"></time></a></span>
-    </p>
+      <div id="view-pattern">
+        <div id="settings">
+          <form id="inputs">
+            <fieldset id="swatch">
+              <legend data-i18n="swatch">Swatch (gauge)</legend>
+              <div class="row">
+                <span data-i18n="unit">Unit</span>
+                <label class="switch"
+                  ><span>cm</span> <input type="checkbox" id="swatch-inch" role="switch" />
+                  <span data-i18n="unitInch">inch</span></label
+                >
+              </div>
+              <div class="linked">
+                <div class="linked-inputs">
+                  <label
+                    ><span data-i18n="width">Width</span>
+                    <input type="number" id="swatch-width" value="10" min="0.1" step="any"
+                  /></label>
+                  <label
+                    ><span data-i18n="height">Height</span>
+                    <input type="number" id="swatch-height" value="10" min="0.1" step="any"
+                  /></label>
+                </div>
+                <button
+                  type="button"
+                  id="swatch-link"
+                  class="link-button"
+                  aria-pressed="true"
+                  data-i18n-title="linkSize"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    aria-hidden="true"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  >
+                    <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" />
+                    <path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />
+                    <path class="link-break" d="M4 4l16 16" />
+                  </svg>
+                </button>
+              </div>
+              <label
+                ><span data-i18n="stitches">Stitches</span>
+                <input type="number" id="swatch-stitches" value="22" min="1"
+              /></label>
+              <label
+                ><span data-i18n="rows">Rows</span> <input type="number" id="swatch-rows" value="28" min="1"
+              /></label>
+            </fieldset>
 
-    <div id="view-pattern">
-    <div id="settings">
-      <form id="inputs">
-        <fieldset id="swatch">
-          <legend data-i18n="swatch">Swatch (gauge)</legend>
-          <div class="row"><span data-i18n="unit">Unit</span>
-            <label class="switch"><span>cm</span> <input type="checkbox" id="swatch-inch" role="switch"> <span
-                data-i18n="unitInch">inch</span></label>
+            <fieldset id="yarns">
+              <legend data-i18n="yarns">Yarns</legend>
+              <label
+                ><span data-i18n="yarnCount">Number of yarns</span>
+                <select id="yarn-count">
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="more" data-i18n="yarnMore">More…</option>
+                </select>
+                <select id="yarn-count-more" data-i18n-title="yarnCountMore" title="More yarns" hidden>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="max" data-i18n="yarnMax">Max (up to 20)…</option>
+                </select>
+              </label>
+              <label class="inline"
+                ><input type="checkbox" id="use-yarns" />
+                <span data-i18n="useYarns">I know my yarn colours</span></label
+              >
+              <div id="yarn-pickers" hidden></div>
+            </fieldset>
+
+            <fieldset id="image-source">
+              <legend data-i18n="image">Image</legend>
+              <div class="file-row">
+                <label class="file-button">
+                  <input type="file" id="image" accept="image/*" />
+                  <span data-i18n="chooseImage">Choose image</span>
+                </label>
+                <span id="image-name" class="hint"></span>
+              </div>
+              <p class="hint" data-i18n="imageLocal">
+                All processing happens on your device; no image is uploaded.
+              </p>
+            </fieldset>
+
+            <fieldset id="text-source">
+              <legend data-i18n="text">Text</legend>
+              <textarea
+                id="text"
+                rows="2"
+                data-i18n-placeholder="textPlaceholder"
+                placeholder="Type text"
+              ></textarea>
+              <label
+                ><span data-i18n="font">Font</span>
+                <select id="font">
+                  <option value="sans-serif">Sans-serif</option>
+                  <option value="serif">Serif</option>
+                  <option value="monospace">Monospace</option>
+                  <option value="Arial">Arial</option>
+                  <option value="Verdana">Verdana</option>
+                  <option value="Georgia">Georgia</option>
+                  <option value="'Times New Roman'">Times New Roman</option>
+                  <option value="'Courier New'">Courier New</option>
+                  <option value="Impact">Impact</option>
+                </select>
+              </label>
+              <label class="inline"
+                ><input type="checkbox" id="bold" checked /> <span data-i18n="bold">Bold</span></label
+              >
+            </fieldset>
+
+            <fieldset id="text-size" hidden>
+              <legend data-i18n="textSize">Text size</legend>
+              <label
+                ><span data-i18n="textLayout">Letters</span>
+                <select id="text-layout">
+                  <option value="row" data-i18n="layoutRow">side by side</option>
+                  <option value="column" data-i18n="layoutColumn">on top of each other</option>
+                </select>
+              </label>
+              <label
+                ><span data-i18n="textFix">Set</span>
+                <select id="text-fix">
+                  <option value="height" data-i18n="fixHeight">height + spacing</option>
+                  <option value="width" data-i18n="fixWidth">width + spacing</option>
+                  <option value="fill" data-i18n="fixFill">height + width (fill)</option>
+                </select>
+              </label>
+              <label
+                ><span id="letter-rows-label" data-i18n="letterRows">Letter height (rows)</span>
+                <input type="number" id="letter-rows" value="12" min="1" max="200"
+              /></label>
+              <span id="letter-cm" class="hint"></span>
+              <label
+                ><span id="letter-spacing-label" data-i18n="letterSpacing">Spacing (stitches)</span>
+                <input type="number" id="letter-spacing" value="1" min="0"
+              /></label>
+            </fieldset>
+
+            <fieldset id="final-size">
+              <legend data-i18n="finalSize">Goal size</legend>
+              <label
+                ><span data-i18n="width">Width</span>
+                <input type="number" id="width-value" value="40" min="1" step="any"
+              /></label>
+              <label
+                ><span data-i18n="unit">Unit</span>
+                <select id="width-unit">
+                  <option value="stitches" data-i18n="unitStitches">stitches</option>
+                  <option value="cm" selected>cm</option>
+                  <option value="inch" data-i18n="unitInch">inch</option>
+                </select>
+              </label>
+              <label
+                ><span data-i18n="rotate">Rotate</span>
+                <select id="rotate">
+                  <option value="none" data-i18n="rotateNone">no</option>
+                  <option value="right" data-i18n="rotateRight">90° right</option>
+                  <option value="left" data-i18n="rotateLeft">90° left</option>
+                  <option value="180" data-i18n="rotateFlip">upside down (180°)</option>
+                </select>
+              </label>
+              <span id="rotate-hint" class="hint" data-i18n="rotateHint" hidden
+                >Rotated: the chart is shown as knitted, e.g. text along a scarf. Width is across the
+                knitting.</span
+              >
+              <span id="flip-hint" class="hint" data-i18n="flipHint" hidden
+                >Upside down: for a turned-up brim or folded-down cuff. Knit this part with the motif's right
+                side facing the inside (e.g. turn the work inside out), so it reads right once folded.</span
+              >
+            </fieldset>
+          </form>
+        </div>
+
+        <p id="error" role="alert" hidden></p>
+
+        <section id="result" hidden>
+          <p id="size-info" class="no-print"></p>
+          <div id="print-info" class="print-only">
+            <dl id="print-info-list"></dl>
           </div>
-          <div class="linked">
-            <div class="linked-inputs">
-              <label><span data-i18n="width">Width</span> <input type="number" id="swatch-width" value="10" min="0.1"
-                  step="any"></label>
-              <label><span data-i18n="height">Height</span> <input type="number" id="swatch-height" value="10" min="0.1"
-                  step="any"></label>
-            </div>
-            <button type="button" id="swatch-link" class="link-button" aria-pressed="true" data-i18n-title="linkSize">
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round">
-                <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" />
-                <path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />
-                <path class="link-break" d="M4 4l16 16" />
-              </svg>
+          <hr class="divider" />
+          <p class="info no-print" data-i18n="paletteHint">
+            These are the colours that best match your design. Click Change to pick another yarn colour, or
+            click the colour next to it to restore the matched colour.
+          </p>
+          <ul id="palette"></ul>
+          <div id="yarn-buttons" class="no-print" hidden>
+            <button type="button" id="yarn-less" data-i18n="yarnLess">− yarn</button>
+            <button type="button" id="yarn-more" data-i18n="yarnMoreButton">+ yarn</button>
+            <button type="button" id="yarn-auto" data-i18n="yarnAuto">Auto improve</button>
+            <button type="button" id="yarn-undo" hidden data-i18n="yarnUndo">Undo yarn change</button>
+            <button type="button" id="advanced-toggle" aria-expanded="false" aria-controls="advanced">
+              Advanced settings
             </button>
           </div>
-          <label><span data-i18n="stitches">Stitches</span> <input type="number" id="swatch-stitches" value="22"
-              min="1"></label>
-          <label><span data-i18n="rows">Rows</span> <input type="number" id="swatch-rows" value="28" min="1"></label>
-        </fieldset>
+          <fieldset id="advanced" class="no-print" hidden>
+            <legend data-i18n="advancedTitle">Advanced settings</legend>
+            <section>
+              <label class="inline"
+                ><input type="checkbox" id="fine-tune" autocomplete="off" />
+                <span data-i18n="fineTune">Fine-tune colours</span></label
+              >
+              <span class="hint" data-i18n="fineTuneHelp"
+                >For when a small part, such as thin text, got the wrong colour. May take a few seconds.</span
+              >
+              <strong id="fine-tune-unchanged" class="hint" role="status" data-i18n="fineTuneUnchanged" hidden
+                >No difference for this image.</strong
+              >
+            </section>
+            <section id="yarn-flags" hidden>
+              <strong data-i18n="yarnFlagsTitle">Choose which yarns to leave out</strong>
+              <div class="hint" data-i18n="yarnFlagsHelp">
+                Untick a yarn this image may not need: its stitches get the closest yarn that is left.
+              </div>
+              <ul id="yarn-flags-list"></ul>
+            </section>
+          </fieldset>
 
-        <fieldset id="yarns">
-          <legend data-i18n="yarns">Yarns</legend>
-          <label><span data-i18n="yarnCount">Number of yarns</span>
-            <select id="yarn-count">
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="more" data-i18n="yarnMore">More…</option>
-            </select>
-            <select id="yarn-count-more" data-i18n-title="yarnCountMore" title="More yarns" hidden>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="max" data-i18n="yarnMax">Max (up to 20)…</option>
-            </select>
-          </label>
-          <label class="inline"><input type="checkbox" id="use-yarns"> <span data-i18n="useYarns">I know my yarn
-              colours</span></label>
-          <div id="yarn-pickers" hidden></div>
-        </fieldset>
+          <p id="paint-hint" class="info no-print">
+            <span data-i18n="paintHint"
+              >To paint in missed stitches, pick a letter in the “Select to paint” section below (or press 1–9
+              or A–T, Esc to stop) and paint in the chart. Right-click (on touch: press and hold) restores the
+              original stitch. Ctrl+Z undoes.</span
+            >
+            <span id="swap-hint" data-i18n="swapHint">⇄ (S) flips stitches to the other yarn.</span>
+          </p>
 
-        <fieldset id="image-source">
-          <legend data-i18n="image">Image</legend>
-          <div class="file-row">
-            <label class="file-button">
-              <input type="file" id="image" accept="image/*">
-              <span data-i18n="chooseImage">Choose image</span>
-            </label>
-            <span id="image-name" class="hint"></span>
+          <div id="toolbar" class="no-print">
+            <div class="tool-group">
+              <label
+                ><span data-i18n="knit">Knit</span>
+                <select id="knit-method">
+                  <option value="flat" data-i18n="flat">back and forth</option>
+                  <option value="round" data-i18n="round">in the round</option>
+                </select>
+              </label>
+              <label
+                ><span data-i18n="startFrom">Start from</span>
+                <select id="knit-start">
+                  <option value="bottom" data-i18n="bottomUp">bottom up</option>
+                  <option value="top" data-i18n="topDown">top down</option>
+                </select>
+              </label>
+              <label
+                class="inline"
+                id="row-help-option"
+                data-i18n-title="rowHelpTitle"
+                title="Shade wrong-side rows"
+              >
+                <input type="checkbox" id="row-help" /> <span data-i18n="rowHelp">Row help</span>
+              </label>
+              <span class="with-info">
+                <label
+                  class="inline"
+                  data-i18n-title="stitchViewTitle"
+                  title="Draws each stitch as a V. Paused while you paint or change a colour."
+                >
+                  <input type="checkbox" id="stitch-view" />
+                  <span data-i18n="stitchView">Stitch view (preview)</span>
+                </label>
+                <button
+                  type="button"
+                  id="stitch-view-info"
+                  class="info-button"
+                  data-i18n-title="stitchViewInfo"
+                  title="With stitches shown, print preview and changes take longer."
+                >
+                  i
+                </button>
+              </span>
+            </div>
+            <div class="tool-group">
+              <span data-i18n="selectToPaint">Select to paint:</span>
+              <span id="brushes"></span>
+              <button type="button" id="undo" disabled data-i18n="undo">Undo</button>
+            </div>
           </div>
-          <p class="hint" data-i18n="imageLocal">All processing happens on your device; no image is uploaded.</p>
-        </fieldset>
 
-        <fieldset id="text-source">
-          <legend data-i18n="text">Text</legend>
-          <textarea id="text" rows="2" data-i18n-placeholder="textPlaceholder" placeholder="Type text"></textarea>
-          <label><span data-i18n="font">Font</span>
-            <select id="font">
-              <option value="sans-serif">Sans-serif</option>
-              <option value="serif">Serif</option>
-              <option value="monospace">Monospace</option>
-              <option value="Arial">Arial</option>
-              <option value="Verdana">Verdana</option>
-              <option value="Georgia">Georgia</option>
-              <option value="'Times New Roman'">Times New Roman</option>
-              <option value="'Courier New'">Courier New</option>
-              <option value="Impact">Impact</option>
-            </select>
-          </label>
-          <label class="inline"><input type="checkbox" id="bold" checked> <span data-i18n="bold">Bold</span></label>
-        </fieldset>
+          <div class="canvas-wrap">
+            <canvas id="grid" class="no-print"></canvas>
+            <canvas id="print-chart" class="print-only"></canvas>
+          </div>
+          <div id="print-tiles" class="print-only"></div>
 
-        <fieldset id="text-size" hidden>
-          <legend data-i18n="textSize">Text size</legend>
-          <label><span data-i18n="textLayout">Letters</span>
-            <select id="text-layout">
-              <option value="row" data-i18n="layoutRow">side by side</option>
-              <option value="column" data-i18n="layoutColumn">on top of each other</option>
-            </select>
-          </label>
-          <label><span data-i18n="textFix">Set</span>
-            <select id="text-fix">
-              <option value="height" data-i18n="fixHeight">height + spacing</option>
-              <option value="width" data-i18n="fixWidth">width + spacing</option>
-              <option value="fill" data-i18n="fixFill">height + width (fill)</option>
-            </select>
-          </label>
-          <label><span id="letter-rows-label" data-i18n="letterRows">Letter height (rows)</span> <input type="number"
-              id="letter-rows" value="12" min="1" max="200"></label>
-          <span id="letter-cm" class="hint"></span>
-          <label><span id="letter-spacing-label" data-i18n="letterSpacing">Spacing (stitches)</span> <input
-              type="number" id="letter-spacing" value="1" min="0"></label>
-        </fieldset>
-
-        <fieldset id="final-size">
-          <legend data-i18n="finalSize">Goal size</legend>
-          <label><span data-i18n="width">Width</span> <input type="number" id="width-value" value="40" min="1"
-              step="any"></label>
-          <label><span data-i18n="unit">Unit</span>
-            <select id="width-unit">
-              <option value="stitches" data-i18n="unitStitches">stitches</option>
-              <option value="cm" selected>cm</option>
-              <option value="inch" data-i18n="unitInch">inch</option>
-            </select>
-          </label>
-          <label><span data-i18n="rotate">Rotate</span>
-            <select id="rotate">
-              <option value="none" data-i18n="rotateNone">no</option>
-              <option value="right" data-i18n="rotateRight">90° right</option>
-              <option value="left" data-i18n="rotateLeft">90° left</option>
-              <option value="180" data-i18n="rotateFlip">upside down (180°)</option>
-            </select>
-          </label>
-          <span id="rotate-hint" class="hint" data-i18n="rotateHint" hidden>Rotated: the chart is shown as knitted, e.g.
-            text along a scarf. Width is across the knitting.</span>
-          <span id="flip-hint" class="hint" data-i18n="flipHint" hidden>Upside down: for a turned-up brim or
-            folded-down cuff. Knit this part with the motif's right side facing the inside (e.g. turn the work inside
-            out), so it reads right once folded.</span>
-        </fieldset>
-      </form>
-    </div>
-
-    <p id="error" role="alert" hidden></p>
-
-    <section id="result" hidden>
-      <p id="size-info" class="no-print"></p>
-      <div id="print-info" class="print-only">
-        <dl id="print-info-list"></dl>
-      </div>
-      <hr class="divider">
-      <p class="info no-print" data-i18n="paletteHint">These are the colours that best match your design. Click Change
-        to pick another yarn colour, or click the colour next to it to restore the matched colour.</p>
-      <ul id="palette"></ul>
-      <div id="yarn-buttons" class="no-print" hidden>
-        <button type="button" id="yarn-less" data-i18n="yarnLess">− yarn</button>
-        <button type="button" id="yarn-more" data-i18n="yarnMoreButton">+ yarn</button>
-        <button type="button" id="yarn-auto" data-i18n="yarnAuto">Auto improve</button>
-        <button type="button" id="yarn-undo" hidden data-i18n="yarnUndo">Undo yarn change</button>
-        <button type="button" id="advanced-toggle" aria-expanded="false" aria-controls="advanced">Advanced settings</button>
-      </div>
-      <fieldset id="advanced" class="no-print" hidden>
-        <legend data-i18n="advancedTitle">Advanced settings</legend>
-        <section>
-          <label class="inline"><input type="checkbox" id="fine-tune" autocomplete="off">
-            <span data-i18n="fineTune">Fine-tune colours</span></label>
-          <span class="hint" data-i18n="fineTuneHelp">For when a small part, such as thin text, got the wrong colour. May
-            take a few seconds.</span>
-          <strong id="fine-tune-unchanged" class="hint" role="status" data-i18n="fineTuneUnchanged" hidden>No difference for
-            this image.</strong>
-        </section>
-        <section id="yarn-flags" hidden>
-          <strong data-i18n="yarnFlagsTitle">Choose which yarns to leave out</strong>
-          <div class="hint" data-i18n="yarnFlagsHelp">Untick a yarn this image may not need: its stitches get the closest
-            yarn that is left.</div>
-          <ul id="yarn-flags-list"></ul>
-        </section>
-      </fieldset>
-
-      <p id="paint-hint" class="info no-print"><span data-i18n="paintHint">To paint in missed stitches, pick a letter in
-          the “Select to paint” section below (or press 1–9 or A–T, Esc to stop) and paint in the chart. Right-click (on
-          touch: press and hold) restores the original stitch. Ctrl+Z undoes.</span> <span id="swap-hint"
-          data-i18n="swapHint">⇄ (S) flips stitches to the other yarn.</span></p>
-
-      <div id="toolbar" class="no-print">
-        <div class="tool-group">
-          <label><span data-i18n="knit">Knit</span>
-            <select id="knit-method">
-              <option value="flat" data-i18n="flat">back and forth</option>
-              <option value="round" data-i18n="round">in the round</option>
-            </select>
-          </label>
-          <label><span data-i18n="startFrom">Start from</span>
-            <select id="knit-start">
-              <option value="bottom" data-i18n="bottomUp">bottom up</option>
-              <option value="top" data-i18n="topDown">top down</option>
-            </select>
-          </label>
-          <label class="inline" id="row-help-option" data-i18n-title="rowHelpTitle" title="Shade wrong-side rows">
-            <input type="checkbox" id="row-help"> <span data-i18n="rowHelp">Row help</span>
-          </label>
-          <span class="with-info">
-            <label class="inline" data-i18n-title="stitchViewTitle"
-              title="Draws each stitch as a V. Paused while you paint or change a colour.">
-              <input type="checkbox" id="stitch-view"> <span data-i18n="stitchView">Stitch view (preview)</span>
+          <div id="output" class="tool-group no-print">
+            <button type="button" id="print" data-i18n="print">Print / Save PDF</button>
+            <label class="inline"
+              ><input type="checkbox" id="print-in-scale" />
+              <span data-i18n="printInScale">Print in scale</span></label
+            >
+            <!-- Shown with Print in scale: tiles are planned for this paper; a normal print uses the print dialog -->
+            <label
+              id="print-scale-option"
+              class="scale-option"
+              hidden
+              data-i18n-title="printScaleTitle"
+              title="100 % = each square is the size of a real stitch. Larger charts are split over several pages to tape together."
+            >
+              <span data-i18n="printScale">Scale %</span>
+              <input type="number" id="print-scale" min="25" max="400" step="5" value="100" />
             </label>
-            <button type="button" id="stitch-view-info" class="info-button" data-i18n-title="stitchViewInfo"
-              title="With stitches shown, print preview and changes take longer.">i</button>
-          </span>
-        </div>
-        <div class="tool-group">
-          <span data-i18n="selectToPaint">Select to paint:</span>
-          <span id="brushes"></span>
-          <button type="button" id="undo" disabled data-i18n="undo">Undo</button>
-        </div>
+            <label class="scale-option" hidden
+              ><span data-i18n="paper">Paper</span>
+              <select id="paper">
+                <option value="portrait" data-i18n="portrait">portrait</option>
+                <option value="landscape" data-i18n="landscape">landscape</option>
+              </select>
+            </label>
+            <label id="paper-size-option" hidden
+              ><span data-i18n="paperSize">Paper size</span>
+              <select id="paper-size">
+                <option value="letter">Letter</option>
+                <option value="a4">A4</option>
+              </select>
+            </label>
+            <label class="inline"
+              ><input type="checkbox" id="print-instructions" checked />
+              <span data-i18n="printInstructions">Include instructions in print</span></label
+            >
+          </div>
+
+          <div id="png-output" class="tool-group no-print">
+            <button type="button" id="save-png" data-i18n="savePng">Save PNG</button>
+            <label class="inline"
+              ><input type="checkbox" id="png-info" checked />
+              <span data-i18n="pngInfo">Include info in PNG</span></label
+            >
+            <p class="info" data-i18n="pngHint">
+              To print, use Print / Save PDF: it prints faster and sharper, since printers do not treat it as
+              a photo. PNG suits viewing on a phone or iPad.
+            </p>
+          </div>
+
+          <h2 id="instructions-title" data-i18n="instructions">Instructions</h2>
+          <ol id="instructions"></ol>
+          <p id="print-footer" class="print-only"></p>
+        </section>
       </div>
 
-      <div class="canvas-wrap">
-        <canvas id="grid" class="no-print"></canvas>
-        <canvas id="print-chart" class="print-only"></canvas>
-      </div>
-      <div id="print-tiles" class="print-only"></div>
-
-      <div id="output" class="tool-group no-print">
-        <button type="button" id="print" data-i18n="print">Print / Save PDF</button>
-        <label class="inline"><input type="checkbox" id="print-in-scale"> <span data-i18n="printInScale">Print in
-            scale</span></label>
-        <!-- Shown with Print in scale: tiles are planned for this paper; a normal print uses the print dialog -->
-        <label id="print-scale-option" class="scale-option" hidden data-i18n-title="printScaleTitle"
-          title="100 % = each square is the size of a real stitch. Larger charts are split over several pages to tape together.">
-          <span data-i18n="printScale">Scale %</span>
-          <input type="number" id="print-scale" min="25" max="400" step="5" value="100">
-        </label>
-        <label class="scale-option" hidden><span data-i18n="paper">Paper</span>
-          <select id="paper">
-            <option value="portrait" data-i18n="portrait">portrait</option>
-            <option value="landscape" data-i18n="landscape">landscape</option>
-          </select>
-        </label>
-        <label id="paper-size-option" hidden><span data-i18n="paperSize">Paper size</span>
-          <select id="paper-size">
-            <option value="letter">Letter</option>
-            <option value="a4">A4</option>
-          </select>
-        </label>
-        <label class="inline"><input type="checkbox" id="print-instructions" checked> <span
-            data-i18n="printInstructions">Include instructions in print</span></label>
-      </div>
-
-      <div id="png-output" class="tool-group no-print">
-        <button type="button" id="save-png" data-i18n="savePng">Save PNG</button>
-        <label class="inline"><input type="checkbox" id="png-info" checked> <span data-i18n="pngInfo">Include info in
-            PNG</span></label>
-        <p class="info" data-i18n="pngHint">To print, use Print / Save PDF: it prints faster and sharper, since printers
-          do not treat it as a photo. PNG suits viewing on a phone or iPad.</p>
-      </div>
-
-      <h2 id="instructions-title" data-i18n="instructions">Instructions</h2>
-      <ol id="instructions"></ol>
-      <p id="print-footer" class="print-only"></p>
-    </section>
-    </div>
-
-    <section id="view-about" class="page no-print" hidden>
-      <h2 data-i18n="aboutPageTitle">About</h2>
-      <h3 data-i18n="aboutDataTitle">Your data</h3>
-      <p data-i18n="aboutNoAccount"></p>
-      <p data-i18n="aboutNoSave"></p>
-      <!-- Hidden until Phase G (live view) saves in the browser; rephrase first (see TODO.md)
+      <section id="view-about" class="page no-print" hidden>
+        <h2 data-i18n="aboutPageTitle">About</h2>
+        <h3 data-i18n="aboutDataTitle">Your data</h3>
+        <p data-i18n="aboutNoAccount"></p>
+        <p data-i18n="aboutNoSave"></p>
+        <!-- Hidden until Phase G (live view) saves in the browser; rephrase first (see TODO.md)
       <h3 data-i18n="aboutStorageTitle">Saving in the browser</h3>
       <p data-i18n="aboutStorage"></p>
       <p data-i18n="aboutStorageMore"></p>
       -->
-      <h3 data-i18n="aboutPrototypeTitle">Under development</h3>
-      <p data-i18n="aboutTest"></p>
-      <p id="about-page-mail"><span data-i18n="aboutMail">Feedback:</span> <a class="feedback-email"></a></p>
-      <p data-i18n="aboutDev"></p>
-      <!-- Shown once there are example pictures -->
-      <section id="about-examples" hidden>
-        <h3 data-i18n="aboutExamplesTitle">Examples</h3>
+        <h3 data-i18n="aboutPrototypeTitle">Under development</h3>
+        <p data-i18n="aboutTest"></p>
+        <p id="about-page-mail">
+          <span data-i18n="aboutMail">Feedback:</span> <a class="feedback-email"></a>
+        </p>
+        <p data-i18n="aboutDev"></p>
+        <!-- Shown once there are example pictures -->
+        <section id="about-examples" hidden>
+          <h3 data-i18n="aboutExamplesTitle">Examples</h3>
+        </section>
       </section>
-    </section>
 
-    <section id="view-changes" class="page no-print" hidden>
-      <h2 data-i18n="changesTitle">Changes</h2>
-      <p data-i18n="changesIntro"></p>
-      <div id="changes-list"></div>
-    </section>
-  </main>
+      <section id="view-changes" class="page no-print" hidden>
+        <h2 data-i18n="changesTitle">Changes</h2>
+        <p data-i18n="changesIntro"></p>
+        <div id="changes-list"></div>
+      </section>
+    </main>
 
-  <dialog id="about" class="no-print" aria-labelledby="about-title">
-    <form method="dialog">
-      <h2 id="about-title" data-i18n="aboutTitle">Prototype under test</h2>
-      <p data-i18n="aboutTest">This is a first prototype under test. If something does not work, anything is unclear or
-        you miss a function, please mail me and I will see if I can solve it.</p>
-      <p class="contact"><span data-i18n="aboutMail">Feedback:</span> <a id="about-email"></a></p>
-      <p data-i18n="aboutDev">The site is under development and will later be replaced by the real one at another
-        address.</p>
-      <p class="contact"><span data-i18n="aboutFuture">New address:</span> <a id="about-future"></a></p>
-      <div class="dialog-buttons">
-        <button value="ok" class="primary" data-i18n="close" autofocus>Close</button>
-      </div>
-    </form>
-  </dialog>
+    <dialog id="about" class="no-print" aria-labelledby="about-title">
+      <form method="dialog">
+        <h2 id="about-title" data-i18n="aboutTitle">Prototype under test</h2>
+        <p data-i18n="aboutTest">
+          This is a first prototype under test. If something does not work, anything is unclear or you miss a
+          function, please mail me and I will see if I can solve it.
+        </p>
+        <p class="contact"><span data-i18n="aboutMail">Feedback:</span> <a id="about-email"></a></p>
+        <p data-i18n="aboutDev">
+          The site is under development and will later be replaced by the real one at another address.
+        </p>
+        <p class="contact"><span data-i18n="aboutFuture">New address:</span> <a id="about-future"></a></p>
+        <div class="dialog-buttons">
+          <button value="ok" class="primary" data-i18n="close" autofocus>Close</button>
+        </div>
+      </form>
+    </dialog>
 
-  <dialog id="confirm" class="no-print" aria-labelledby="confirm-title">
-    <form method="dialog">
-      <h2 id="confirm-title" data-i18n="confirmTitle">Recalculate the pattern?</h2>
-      <div id="confirm-reasons"></div>
-      <div class="dialog-buttons">
-        <button value="cancel" data-i18n="cancel" autofocus>Cancel</button>
-        <button value="ok" class="primary" data-i18n="continue">Continue</button>
-      </div>
-    </form>
-  </dialog>
+    <dialog id="confirm" class="no-print" aria-labelledby="confirm-title">
+      <form method="dialog">
+        <h2 id="confirm-title" data-i18n="confirmTitle">Recalculate the pattern?</h2>
+        <div id="confirm-reasons"></div>
+        <div class="dialog-buttons">
+          <button value="cancel" data-i18n="cancel" autofocus>Cancel</button>
+          <button value="ok" class="primary" data-i18n="continue">Continue</button>
+        </div>
+      </form>
+    </dialog>
 
-  <dialog id="notice" class="no-print" aria-labelledby="notice-text">
-    <form method="dialog">
-      <p id="notice-text"></p>
-      <div class="dialog-buttons">
-        <button value="ok" class="primary" autofocus>OK</button>
-      </div>
-    </form>
-  </dialog>
+    <dialog id="notice" class="no-print" aria-labelledby="notice-text">
+      <form method="dialog">
+        <p id="notice-text"></p>
+        <div class="dialog-buttons">
+          <button value="ok" class="primary" autofocus>OK</button>
+        </div>
+      </form>
+    </dialog>
 
-  <script type="module" src="index.js"></script>
-</body>
-
+    <script type="module" src="index.js"></script>
+  </body>
 </html>

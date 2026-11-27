@@ -18,10 +18,11 @@ export const MIN_EDGE = 0.9
 // → { suggested, extra: [palette indexes], flags: [{ index, reason: 'empty'|'near'|'blend', with: [indexes] }] },
 // both by index; `with` = the similar colour (near) or the two colours around the edge (blend).
 // order = the same indexes as extra, in the order they were removed. suggested is never below 2.
-export function yarnAdvice({ palette, grid }, {
-  nearDistance = NEAR_DISTANCE, maxOffset = MAX_OFFSET, minTouch = MIN_TOUCH, minEdge = MIN_EDGE
-} = {}) {
-  const sources = palette.map(entry => entry.source)
+export function yarnAdvice(
+  { palette, grid },
+  { nearDistance = NEAR_DISTANCE, maxOffset = MAX_OFFSET, minTouch = MIN_TOUCH, minEdge = MIN_EDGE } = {},
+) {
+  const sources = palette.map((entry) => entry.source)
   const kept = palette.map((_, i) => i)
   const flags = []
   let cells = grid
@@ -30,28 +31,30 @@ export function yarnAdvice({ palette, grid }, {
     const counts = countStitches(cells, palette.length)
     const { touches, edges } = countTouches(cells, palette.length)
 
-    const flagFor = i => {
-      if (counts[i] === 0) return { index: i, reason: 'empty', with: [] }
-      const near = kept.filter(k => k !== i && bigger(k, i, counts) && colourDistance(sources[k], sources[i]) < nearDistance)
-      if (near.length > 0) return { index: i, reason: 'near', with: [nearest(sources[i], near, sources)] }
+    const flagFor = (i) => {
+      if (counts[i] === 0) return { index: i, reason: "empty", with: [] }
+      const near = kept.filter(
+        (k) => k !== i && bigger(k, i, counts) && colourDistance(sources[k], sources[i]) < nearDistance,
+      )
+      if (near.length > 0) return { index: i, reason: "near", with: [nearest(sources[i], near, sources)] }
       if (edges[i] < minEdge * counts[i]) return null
       const pair = blendPair(i, kept, sources, counts, touches, { maxOffset, minTouch })
-      return pair && { index: i, reason: 'blend', with: pair }
+      return pair && { index: i, reason: "blend", with: pair }
     }
     const candidates = kept.map(flagFor).filter(Boolean)
     if (candidates.length === 0) break
 
-    const flag = candidates.reduce((a, b) => counts[b.index] < counts[a.index] ? b : a)
+    const flag = candidates.reduce((a, b) => (counts[b.index] < counts[a.index] ? b : a))
     const removed = flag.index
     kept.splice(kept.indexOf(removed), 1)
     flags.push(flag)
     const target = nearest(sources[removed], kept, sources)
-    cells = cells.map(row => row.map(index => index === removed ? target : index))
+    cells = cells.map((row) => row.map((index) => (index === removed ? target : index)))
   }
 
-  const order = flags.map(flag => flag.index)
+  const order = flags.map((flag) => flag.index)
   flags.sort((a, b) => a.index - b.index)
-  return { suggested: Math.max(2, kept.length), extra: flags.map(flag => flag.index), order, flags }
+  return { suggested: Math.max(2, kept.length), extra: flags.map((flag) => flag.index), order, flags }
 }
 
 // Ties go to the lower index, so one of two equal colours is kept
@@ -89,15 +92,17 @@ function countTouches(grid, size) {
 function blendPair(i, kept, sources, counts, touches, { maxOffset, minTouch }) {
   const sides = touches[i].reduce((sum, n) => sum + n, 0)
   if (sides === 0) return null
-  const big = kept.filter(k => k !== i && counts[k] > counts[i])
+  const big = kept.filter((k) => k !== i && counts[k] > counts[i])
 
   for (const a of big) {
     for (const b of big) {
       if (b <= a || touches[i][a] + touches[i][b] === 0) continue
       if (offsetFromLine(sources[i], sources[a], sources[b]) > maxOffset) continue
       // A soft edge is often several blends wide: neighbours on the same line count too
-      const along = kept.filter(k => k === a || k === b ||
-        (k !== i && offsetFromLine(sources[k], sources[a], sources[b]) <= maxOffset))
+      const along = kept.filter(
+        (k) =>
+          k === a || k === b || (k !== i && offsetFromLine(sources[k], sources[a], sources[b]) <= maxOffset),
+      )
       const touching = along.reduce((sum, k) => sum + touches[i][k], 0)
       if (touching >= minTouch * sides) return [a, b]
     }
@@ -121,5 +126,6 @@ function offsetFromLine(c, a, b) {
 
 function nearest(colour, indexes, sources) {
   return indexes.reduce((best, k) =>
-    colourDistance(sources[k], colour) < colourDistance(sources[best], colour) ? k : best)
+    colourDistance(sources[k], colour) < colourDistance(sources[best], colour) ? k : best,
+  )
 }

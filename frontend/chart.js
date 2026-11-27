@@ -1,16 +1,16 @@
-import { rowInstructions } from '../core/rowInstructions.js'
+import { rowInstructions } from "../core/rowInstructions.js"
 
 const MAX_CANVAS_WIDTH = 900
 const MAX_CELL_WIDTH = 24
 // Margin on every side for row and stitch numbers
 export const LABEL_MARGIN = 32
-const LABEL_FONT = '11px system-ui, sans-serif'
+const LABEL_FONT = "11px system-ui, sans-serif"
 // Stitch view needs room for a visible V; smaller cells fall back to flat colour
 export const MIN_STITCH_CELL = 6
 // Guide lines: every 5th between the plain grid line (0.15) and the every 10th
 const GUIDES = [
-  { step: 5, colour: 'rgba(0, 0, 0, 0.25)', width: 1 },
-  { step: 10, colour: 'rgba(0, 0, 0, 0.38)', width: 1.5 }
+  { step: 5, colour: "rgba(0, 0, 0, 0.25)", width: 1 },
+  { step: 10, colour: "rgba(0, 0, 0, 0.38)", width: 1.5 },
 ]
 
 // Screen cell size: fits the chart in the page width.
@@ -23,24 +23,28 @@ export function fitCellSize(stitches, gauge) {
 // Draws the chart, or only region { x, y, stitches, rows } of it (a print tile), with numbers
 // and guide lines counted on the whole chart. Sizes are in CSS px; scale > 1 draws a sharper
 // backing canvas. Returns the layout used, in unscaled units, for drawCell.
-export function drawChart(canvas, { grid, palette, options, cellWidth, cellHeight, rowHelp, stitchView, scale = 1, region }) {
+export function drawChart(
+  canvas,
+  { grid, palette, options, cellWidth, cellHeight, rowHelp, stitchView, scale = 1, region },
+) {
   const size = { stitches: grid[0].length, rows: grid.length }
   const area = region ?? { x: 0, y: 0, ...size }
   const gridWidth = cellWidth * area.stitches
   const gridHeight = cellHeight * area.rows
   const instructions = rowInstructions(grid, options)
   // Displayed rows knitted on the wrong side, shaded when row help is on
-  const shadedRows = options.method === 'flat' && rowHelp
-    ? new Set(instructions.filter(row => row.side === 'WS').map(row => row.displayRow))
-    : new Set()
-  const layout = { cellWidth, cellHeight, shadedRows, stitchView, topDown: options.start === 'top' }
+  const shadedRows =
+    options.method === "flat" && rowHelp
+      ? new Set(instructions.filter((row) => row.side === "WS").map((row) => row.displayRow))
+      : new Set()
+  const layout = { cellWidth, cellHeight, shadedRows, stitchView, topDown: options.start === "top" }
 
   canvas.width = Math.ceil((gridWidth + 2 * LABEL_MARGIN) * scale)
   canvas.height = Math.ceil((gridHeight + 2 * LABEL_MARGIN) * scale)
-  const ctx = canvas.getContext('2d')
+  const ctx = canvas.getContext("2d")
 
   // Opaque background so the saved PNG is not transparent
-  ctx.fillStyle = '#ffffff'
+  ctx.fillStyle = "#ffffff"
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 
   // Labels sit in a margin on every side; the grid is drawn inside it, shifted so the region starts at 0
@@ -59,7 +63,7 @@ export function drawChart(canvas, { grid, palette, options, cellWidth, cellHeigh
     }
     drawStitches(ctx, layout, palette, cells)
   } else {
-    const colours = palette.map(entry => rgbToHex(entry.yarn))
+    const colours = palette.map((entry) => rgbToHex(entry.yarn))
     for (let y = area.y; y < yEnd; y++) {
       for (let x = area.x; x < xEnd; x++) {
         ctx.fillStyle = colours[grid[y][x]]
@@ -72,7 +76,8 @@ export function drawChart(canvas, { grid, palette, options, cellWidth, cellHeigh
   const shades = palette.map(() => new Path2D())
   for (const y of shadedRows) {
     if (y < area.y || y >= yEnd) continue
-    for (let x = area.x; x < xEnd; x++) shades[grid[y][x]].rect(x * cellWidth, y * cellHeight, cellWidth, cellHeight)
+    for (let x = area.x; x < xEnd; x++)
+      shades[grid[y][x]].rect(x * cellWidth, y * cellHeight, cellWidth, cellHeight)
   }
   palette.forEach((entry, i) => {
     ctx.fillStyle = rowHelpShade(entry.yarn)
@@ -91,8 +96,13 @@ export function drawChart(canvas, { grid, palette, options, cellWidth, cellHeigh
 
 // One stitch, after painting; layout from the last drawChart on this canvas
 export function drawCell(canvas, layout, palette, { x, y, index }) {
-  const ctx = canvas.getContext('2d')
-  const cell = [LABEL_MARGIN + x * layout.cellWidth, LABEL_MARGIN + y * layout.cellHeight, layout.cellWidth, layout.cellHeight]
+  const ctx = canvas.getContext("2d")
+  const cell = [
+    LABEL_MARGIN + x * layout.cellWidth,
+    LABEL_MARGIN + y * layout.cellHeight,
+    layout.cellWidth,
+    layout.cellHeight,
+  ]
   if (layout.stitchView) {
     ctx.save()
     ctx.translate(LABEL_MARGIN, LABEL_MARGIN)
@@ -127,7 +137,10 @@ function drawStitches(ctx, { cellWidth, cellHeight, topDown }, palette, cells) {
 
   for (const { x, y, index } of cells) {
     const centreY = (y + 0.5) * cellHeight
-    for (const [offset, rotation] of [[0.28, -tilt], [0.72, tilt]]) {
+    for (const [offset, rotation] of [
+      [0.28, -tilt],
+      [0.72, tilt],
+    ]) {
       const centreX = (x + offset) * cellWidth
       // Start a new subpath so legs are not joined by a line
       legs[index].moveTo(centreX + radiusX * Math.cos(rotation), centreY + radiusX * Math.sin(rotation))
@@ -143,12 +156,12 @@ function drawStitches(ctx, { cellWidth, cellHeight, topDown }, palette, cells) {
 
 function stitchGap(yarn) {
   return isLight(yarn)
-    ? yarn.map(channel => Math.round(channel * 0.6))
-    : yarn.map(channel => Math.round(channel + (255 - channel) * 0.35))
+    ? yarn.map((channel) => Math.round(channel * 0.6))
+    : yarn.map((channel) => Math.round(channel + (255 - channel) * 0.35))
 }
 
 function drawGridLines(ctx, { cellWidth, cellHeight, gridWidth, gridHeight, area }) {
-  ctx.strokeStyle = cssVar('--grid-line')
+  ctx.strokeStyle = cssVar("--grid-line")
   ctx.lineWidth = 1
   ctx.beginPath()
   for (let x = 0; x <= area.stitches; x++) {
@@ -166,12 +179,12 @@ function drawGridLines(ctx, { cellWidth, cellHeight, gridWidth, gridHeight, area
 // so they line up with the numbering. Drawn even when cells are too small for grid lines.
 // A tile also gets them on its edges, but the chart's own outer edges get none.
 function drawGuideLines(ctx, { cellWidth, cellHeight, gridWidth, gridHeight, size, area, options }) {
-  const fromBottom = options.start === 'bottom'
+  const fromBottom = options.start === "bottom"
 
   for (const { step, colour, width } of GUIDES) {
     // Leave positions to a coarser guide so overlapping strokes don't darken
-    const isGuide = counted => counted % step === 0 &&
-      !GUIDES.some(guide => guide.step > step && counted % guide.step === 0)
+    const isGuide = (counted) =>
+      counted % step === 0 && !GUIDES.some((guide) => guide.step > step && counted % guide.step === 0)
 
     ctx.strokeStyle = colour
     ctx.lineWidth = width
@@ -199,30 +212,34 @@ function drawGuideLines(ctx, { cellWidth, cellHeight, gridWidth, gridHeight, siz
 
 // Each row number sits on the side where that row starts (flat: odd and even on
 // opposite sides). Stitch 1 is where RS rows start, numbered along the starting edge.
-function drawLabels(ctx, { cellWidth, cellHeight, gridWidth, gridHeight, size, area, options }, instructions) {
-  ctx.fillStyle = '#444'
+function drawLabels(
+  ctx,
+  { cellWidth, cellHeight, gridWidth, gridHeight, size, area, options },
+  instructions,
+) {
+  ctx.fillStyle = "#444"
   ctx.font = LABEL_FONT
 
   const rowStep = labelStep(cellHeight)
-  ctx.textBaseline = 'middle'
+  ctx.textBaseline = "middle"
   for (const { number, displayRow, direction } of instructions) {
     if (number !== 1 && number % rowStep !== 0) continue
     if (displayRow < area.y || displayRow >= area.y + area.rows) continue
 
     const y = (displayRow - area.y + 0.5) * cellHeight
-    if (direction === 'rtl') {
-      ctx.textAlign = 'left'
+    if (direction === "rtl") {
+      ctx.textAlign = "left"
       ctx.fillText(String(number), gridWidth + 4, y)
     } else {
-      ctx.textAlign = 'right'
+      ctx.textAlign = "right"
       ctx.fillText(String(number), -4, y)
     }
   }
 
-  const fromBottom = options.start === 'bottom'
+  const fromBottom = options.start === "bottom"
   const stitchStep = labelStep(cellWidth)
-  ctx.textAlign = 'center'
-  ctx.textBaseline = fromBottom ? 'top' : 'bottom'
+  ctx.textAlign = "center"
+  ctx.textBaseline = fromBottom ? "top" : "bottom"
   for (let number = 1; number <= size.stitches; number++) {
     if (number !== 1 && number % stitchStep !== 0) continue
 
@@ -242,7 +259,7 @@ function labelStep(cellSize) {
 
 // Row help darkens light yarns and lightens dark ones, so it shows on both
 function rowHelpShade(yarn) {
-  return cssVar(isLight(yarn) ? '--row-help-dark' : '--row-help-light')
+  return cssVar(isLight(yarn) ? "--row-help-dark" : "--row-help-light")
 }
 
 export function isLight([r, g, b]) {
@@ -250,7 +267,7 @@ export function isLight([r, g, b]) {
 }
 
 export function rgbToHex(rgb) {
-  return '#' + rgb.map(channel => channel.toString(16).padStart(2, '0')).join('')
+  return "#" + rgb.map((channel) => channel.toString(16).padStart(2, "0")).join("")
 }
 
 function cssVar(name) {

@@ -1,4 +1,4 @@
-const byId = id => document.getElementById(id)
+const byId = (id) => document.getElementById(id)
 
 // Advanced settings, image patterns: tick box that recalculates with fine-tuned colours (createPattern `fineTune`).
 // onToggle(apply) asks about painted stitches, then calls apply() and recalculates.
@@ -8,10 +8,17 @@ export function initFineTune({ onToggle }) {
   let plainColours = null
   let unchanged = false
 
-  byId('fine-tune').addEventListener('change', () => onToggle(() => { on = !on }))
+  byId("fine-tune").addEventListener("change", () =>
+    onToggle(() => {
+      on = !on
+    }),
+  )
 
   function update(pattern) {
-    const colours = pattern.palette.map(entry => entry.source.join()).sort().join(' ')
+    const colours = pattern.palette
+      .map((entry) => entry.source.join())
+      .sort()
+      .join(" ")
     if (!on) plainColours = colours
     unchanged = on && colours === plainColours
   }
@@ -28,8 +35,8 @@ export function initFineTune({ onToggle }) {
   }
 
   function render() {
-    byId('fine-tune').checked = on
-    byId('fine-tune-unchanged').hidden = !unchanged
+    byId("fine-tune").checked = on
+    byId("fine-tune-unchanged").hidden = !unchanged
   }
 
   return { isOn: () => on, save: () => ({ on }), load, update, reset, render }

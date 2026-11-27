@@ -2,13 +2,13 @@ import { colourDistance } from "./colourDistance.js"
 
 export function pairYarns(sources, yarns = []) {
   if (yarns.length === 0) {
-    return sources.map(source => ({ source, yarn: source }))
+    return sources.map((source) => ({ source, yarn: source }))
   }
   if (yarns.length < sources.length) {
-    throw new Error('need at least as many yarns as source colours')
+    throw new Error("need at least as many yarns as source colours")
   }
 
-  const cost = sources.map(source => yarns.map(yarn => colourDistance(source, yarn)))
+  const cost = sources.map((source) => yarns.map((yarn) => colourDistance(source, yarn)))
   const assignment = minCostAssignment(cost)
 
   return sources.map((source, i) => ({ source, yarn: yarns[assignment[i]] }))

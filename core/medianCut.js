@@ -1,11 +1,11 @@
 export function medianCut(grid, count) {
   if (!Number.isInteger(count) || count <= 0) {
-    throw new Error('count must be a positive integer')
+    throw new Error("count must be a positive integer")
   }
 
   const pixels = grid.flat()
   if (pixels.length === 0) {
-    throw new Error('grid must contain at least one pixel')
+    throw new Error("grid must contain at least one pixel")
   }
 
   const boxes = [pixels]
@@ -59,13 +59,18 @@ function splitBox(box, channel) {
 
   // Move the cut to the value change nearest the median,
   // so identical colours never end up on both sides
-  const isBoundary = i =>
-    i > 0 && i < sorted.length && sorted[i - 1][channel] !== sorted[i][channel]
+  const isBoundary = (i) => i > 0 && i < sorted.length && sorted[i - 1][channel] !== sorted[i][channel]
 
   let cut = mid
   for (let offset = 0; offset < sorted.length; offset++) {
-    if (isBoundary(mid - offset)) { cut = mid - offset; break }
-    if (isBoundary(mid + offset)) { cut = mid + offset; break }
+    if (isBoundary(mid - offset)) {
+      cut = mid - offset
+      break
+    }
+    if (isBoundary(mid + offset)) {
+      cut = mid + offset
+      break
+    }
   }
 
   return [sorted.slice(0, cut), sorted.slice(cut)]
@@ -80,5 +85,5 @@ function averageColour(box) {
     sum[2] += px[2]
   }
 
-  return sum.map(channel => Math.round(channel / box.length))
+  return sum.map((channel) => Math.round(channel / box.length))
 }

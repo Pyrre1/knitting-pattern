@@ -10,12 +10,12 @@ import { NEAR_DISTANCE } from "./yarnAdvice.js"
 // → source colours, background first, then motif.
 export function areaColours(pixels, mask, { motif, background }) {
   assertMask(pixels, mask)
-  assertYarns(motif, 'motif')
-  assertYarns(background, 'background')
+  assertYarns(motif, "motif")
+  assertYarns(background, "background")
 
   const areas = splitAreas(pixels, mask)
-  if (areas.motif.length === 0) throw new Error('motif area is empty')
-  if (areas.background.length === 0) throw new Error('background area is empty')
+  if (areas.motif.length === 0) throw new Error("motif area is empty")
+  if (areas.background.length === 0) throw new Error("background area is empty")
 
   const counts = { motif, background }
   let best = []
@@ -37,15 +37,17 @@ function pickPerArea(areas, counts) {
   // basicColours takes a grid; one row holding all pixels of the area works the same
   return {
     background: basicColours([areas.background], counts.background),
-    motif: basicColours([areas.motif], counts.motif)
+    motif: basicColours([areas.motif], counts.motif),
   }
 }
 
 function splitAreas(pixels, mask) {
   const areas = { motif: [], background: [] }
-  pixels.forEach((row, y) => row.forEach((px, x) => {
-    (mask[y][x] ? areas.motif : areas.background).push(px)
-  }))
+  pixels.forEach((row, y) =>
+    row.forEach((px, x) => {
+      ;(mask[y][x] ? areas.motif : areas.background).push(px)
+    }),
+  )
   return areas
 }
 
@@ -72,7 +74,7 @@ function mergeNear(picked, areas) {
     }
   })
 
-  return { colours: [...background.map(entry => entry.colour), ...motif], lost }
+  return { colours: [...background.map((entry) => entry.colour), ...motif], lost }
 }
 
 function coverage(pixels, colours) {
@@ -83,14 +85,16 @@ function coverage(pixels, colours) {
 
 function nearestEntry(colour, entries) {
   return entries.reduce((best, entry) =>
-    colourDistance(colour, entry.colour) < colourDistance(colour, best.colour) ? entry : best
+    colourDistance(colour, entry.colour) < colourDistance(colour, best.colour) ? entry : best,
   )
 }
 
 function assertMask(pixels, mask) {
-  const fits = Array.isArray(mask) && mask.length === pixels.length &&
+  const fits =
+    Array.isArray(mask) &&
+    mask.length === pixels.length &&
     mask.every((row, y) => Array.isArray(row) && row.length === pixels[y].length)
-  if (!fits) throw new Error('mask must be the same size as the image')
+  if (!fits) throw new Error("mask must be the same size as the image")
 }
 
 function assertYarns(count, area) {

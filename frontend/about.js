@@ -1,26 +1,34 @@
-import { FEEDBACK_EMAIL, FUTURE_URL } from './config.js'
+import { FEEDBACK_EMAIL, FUTURE_URL } from "./config.js"
 
-const SEEN_KEY = 'aboutSeen'
+const SEEN_KEY = "aboutSeen"
 
 // Prototype notice: shown on the first visit; the About page holds the same text
 export function initAbout() {
-  const dialog = document.getElementById('about')
-  fillLink('about-email', FEEDBACK_EMAIL && `mailto:${FEEDBACK_EMAIL}?subject=Knitting%20pattern%20feedback`, FEEDBACK_EMAIL)
-  fillLink('about-future', FUTURE_URL, FUTURE_URL)
+  const dialog = document.getElementById("about")
+  fillLink(
+    "about-email",
+    FEEDBACK_EMAIL && `mailto:${FEEDBACK_EMAIL}?subject=Knitting%20pattern%20feedback`,
+    FEEDBACK_EMAIL,
+  )
+  fillLink("about-future", FUTURE_URL, FUTURE_URL)
 
-  dialog.addEventListener('close', () => {
-    try { localStorage.setItem(SEEN_KEY, '1') } catch { }
+  dialog.addEventListener("close", () => {
+    try {
+      localStorage.setItem(SEEN_KEY, "1")
+    } catch {}
   })
 
   let seen = false
-  try { seen = localStorage.getItem(SEEN_KEY) === '1' } catch { }
+  try {
+    seen = localStorage.getItem(SEEN_KEY) === "1"
+  } catch {}
   if (!seen) dialog.showModal()
 }
 
 // Hides the link's paragraph when there is no address
 function fillLink(id, href, text) {
   const link = document.getElementById(id)
-  link.closest('p').hidden = !href
+  link.closest("p").hidden = !href
   if (!href) return
   link.href = href
   link.textContent = text

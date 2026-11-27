@@ -7,13 +7,21 @@ import { buildPattern } from "./patternEdits.js"
 import { areaColours } from "./areaColours.js"
 
 // `motif: { mask, yarns }` picks colours per area (areaColours); the background gets the other yarns
-export function createPattern({ swatch, pixels, yarnCount, yarns = [], desiredWidth, fineTune = false, motif }) {
+export function createPattern({
+  swatch,
+  pixels,
+  yarnCount,
+  yarns = [],
+  desiredWidth,
+  fineTune = false,
+  motif,
+}) {
   const gauge = gaugeInterpreter(swatch)
 
   const size = sizeInterpreter({
     gauge,
     desiredWidth,
-    imageAspectRatio: pixels.length / pixels[0].length
+    imageAspectRatio: pixels.length / pixels[0].length,
   })
 
   // Colours come from the full image: averaging into stitches blends thin lines away
